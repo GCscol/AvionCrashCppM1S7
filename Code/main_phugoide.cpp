@@ -14,20 +14,22 @@ public:
     float C_L = 0.0f;   // Coefficient de portance
     float C_D = 0.0f;   // Coefficient de traînée
     float C_m = 0.0f;   // Coefficient de moment de tangage
+    double delta_m; // action de la gouverne
     float S;     // Surface alaire de l'avion (en m²)
     float rho;   // Densité de l'air (en kg/m³)
     float delta_profondeur = -0.110398;   // Choisi à alpha=1.5 deg UTILISER LE CODE EN COMMENTAIRE CI DESSOUS POUR LE RECALCULER
-
+    float l = 6.6f; // corde moyenne
+    float omega_pitch = 0;
     Aerodynamique(float s, float air_density) : S(s), rho(air_density) {}
 
-    void update_from_polar(float alpha_rad, float delta_p) {
+    void update_from_polar(float alpha_rad, float delta_p, float omega, float vitesse) { // q = d theta/dt = omega
         double alpha_deg = alpha_rad * RAD_TO_DEG;
         if(alpha_deg<=8) // condition de décrochage
             C_L = 5 * (alpha_rad - (-0.035)) + 0.44 * delta_p;
         else
             C_L = 0.0;
         C_D = 0.0175 + 0.055 * std::pow(C_L, 2);
-        C_m = -0.1 -(alpha_rad- (-0.035)) -1.46 * delta_p;
+        C_m = -0.1 -(alpha_rad- (-0.035)) -1.46 * delta_p + (-12)*omega*l/vitesse;
         //cout << delta_p << endl;
     }
 
@@ -36,9 +38,9 @@ public:
     }
     float calculer_trainee(float vitesse) {return 0.5f * rho * std::pow(vitesse, 2) * S * C_D;}
 
-    float calculer_moment_pitch(float vitesse, float alpha_rad, float delta_p) {
-        float l = 6.6f; // corde moyenne
-        update_from_polar(alpha_rad, delta_p);
+    float calculer_moment_pitch(float vitesse, float alpha_rad, float delta_p, float omega) {
+
+        update_from_polar(alpha_rad, delta_p, omega, vitesse);
         return 0.5f * rho * std::pow(vitesse, 2) * S * C_m * l; // moment de tangage, il y a aussi une contribution de la vitesse au Cm, à multiplier par cos(alpha)?
     }
 
@@ -67,7 +69,7 @@ public:
     void initialiser() {
         // Initialisation des paramètres de l'avion
         x = 0; y = 0; z = 11000;
-        vitesse_x = 285; vitesse_y = 0; vitesse_z = 0;
+        vitesse_x =285; vitesse_y = 0; vitesse_z = 0;
         roll = 0; pitch = 1.0f/RAD_TO_DEG; yaw = 0;
     }
 
@@ -83,7 +85,7 @@ public:
         traction = trainee; // Vrai uniquement en vol de croisière
     }
          // Recherche du delta_profondeur tel que C_m soit le plus proche de zéro
-    float trouver_delta_profondeur(float vitesse, float epsilon = 1e-6f) {
+    float trouver_delta_profondeur(float vitesse, float omega, float epsilon = 1e-6f) {
     // Liste de valeurs possibles pour delta_profondeur (par exemple, entre -1.0 et 1.0)
         int n = 10000;  // Nombre de valeurs à tester
         float delta_p_min = -0.13f;
@@ -95,7 +97,7 @@ public:
 
         for (int i = 0; i <= n; ++i) {
             float delta_p = delta_p_min + i * step;
-            aero.update_from_polar(pitch, delta_p);
+            aero.update_from_polar(pitch, delta_p, omega, vitesse);
             float C_m_guess = aero.C_m;
 
             if (std::fabs(C_m_guess) < std::fabs(min_C_m)) {
@@ -125,19 +127,20 @@ public:
         float W = masse * g;
 
         for (int i = 0; i < n; ++i) {
+                double omega = omega_pitch;
 
-            // 1️⃣ profondeur qui annule le moment pour cet alpha
-            float delta_p = trouver_delta_profondeur(vitesse);
+            // 1️ profondeur qui annule le moment pour cet alpha
+            float delta_p = trouver_delta_profondeur(vitesse, omega);
 
-            // 2️⃣ calcul portance pour cet alpha
-            aero.update_from_polar(alpha, delta_p);
+            // 2️ calcul portance pour cet alpha
+            aero.update_from_polar(alpha, delta_p, omega, vitesse);
             L = aero.calculer_portance(vitesse);
 
-            // 3️⃣ critère de convergence
+            // 3️ critère de convergence
             if (fabs(L - W) < tol)
                 break;
 
-            // 4️⃣ ajustement alpha
+            // 4️ ajustement alpha
             if (L < W)
                 alpha += d_alpha;   // pas assez de portance
             else
@@ -167,9 +170,9 @@ public:
             cout << "⚠️ alpha hors domaine : " << alpha*RAD_TO_DEG << "°" << std::endl;
         }
 
-        aero.update_from_polar(alpha, aero.delta_profondeur);
+        aero.update_from_polar(alpha, aero.delta_profondeur, omega_pitch, vitesse);
         calculer_forces(L, D, T, W);
-        M_pitch = aero.calculer_moment_pitch(vitesse, alpha, aero.delta_profondeur);
+        M_pitch = aero.calculer_moment_pitch(vitesse, alpha, aero.delta_profondeur, omega_pitch);
 
         float Fx = T * (std::cos(yaw) * std::cos(pitch)) - D * (std::cos(yaw) * std::cos(gamma)) - L * (std::sin(gamma) * std::cos(roll)); // Remplacement gamma par pitch
         float Fy = T * (std::sin(yaw) * std::cos(pitch)) - D * (std::sin(yaw) * std::cos(gamma)) + L * (std::sin(gamma) * std::sin(roll));
@@ -197,26 +200,24 @@ public:
         //std::cout << "Forces: Portance=" << L << " N, Trainée=" << D << " N, Traction=" << T << " N, Poids=" << W << " N\n";
         //std::cout << "Forces: Fx=" << Fx << " N, Fy=" << Fy << " N, Fz=" << Fz << " N\n";
         //std::cout << "Moments: M_pitch=" << M_pitch << " N.m\n";
-        if(z != 11000){
-        //std::cout << "Etat linéaire: pos=(" << x << ',' << y << ',' << z << "), vel=(" << vitesse_x << ',' << vitesse_y << ',' << vitesse_z << " theta = " << pitch*RAD_TO_DEG <<")\n";
-        }
+
 
     }
 };
 
 int main() {
-    setlocale(LC_ALL, ".utf8");
+    setlocale(LC_ALL, ".utf8"); // Pour les accents
 
     Aerodynamique aero(361.6f, 0.3639f); // Surface alaire, densité de l'air
     Avion avion(140178.9f, aero); // masse, aero
     avion.initialiser();
 
     const float dt = 0.01f;
-    const float total_time = 500.0f;
+    const float total_time = 800.0f;
     const int steps = static_cast<int>(total_time / dt);
 
 
-    const char* csv_filename = "simulation_full_2.csv";
+    const char* csv_filename = "simulation_full.csv";
     std::ofstream csv(csv_filename);
     if (!csv.is_open()) {
         std::cerr << "Impossible d'ouvrir " << csv_filename << " en écriture\n";
@@ -224,7 +225,7 @@ int main() {
     }
     float speed = 285.0f;
     float alpha_trim = avion.trouver_alpha(speed);
-    float delta_trim = avion.trouver_delta_profondeur(speed);
+    float delta_trim = avion.trouver_delta_profondeur(speed, avion.omega_pitch);
     avion.pitch = alpha_trim;
     aero.delta_profondeur = delta_trim;
 
@@ -245,13 +246,14 @@ int main() {
         // Enregistrer les valeurs calculées précédemment
         float speed = std::sqrt(avion.vitesse_x * avion.vitesse_x + avion.vitesse_y * avion.vitesse_y + avion.vitesse_z * avion.vitesse_z);
         float AoA_deg = static_cast<float>(avion.pitch * RAD_TO_DEG) - std::atan2(avion.vitesse_z, avion.vitesse_x);
-
+        float alpha = avion.pitch - atan(avion.vitesse_z/avion.vitesse_x);
+        //cout << "alpha = " << (avion.pitch - atan(avion.vitesse_z/avion.vitesse_x)) * RAD_TO_DEG << endl;
         // Écriture des données dans le fichier CSV
 
         csv << t << ',' << avion.x << ',' << avion.y << ',' << avion.z << ',' << avion.vitesse_x << ',' << avion.vitesse_y << ',' << avion.vitesse_z
             << ',' << avion.roll << ',' << avion.pitch << ',' << avion.yaw << ',' << avion.M_pitch << ',' << avion.Fx << ',' << avion.Fy << ','
             << avion.Fz << ',' << avion.portance << ',' << avion.trainee << ',' << avion.traction << ',' << avion.aero.C_L << ',' << avion.aero.C_D << ',' << avion.aero.C_m
-            << ',' << speed << ',' << AoA_deg << ',' << aero.delta_profondeur << '\n';
+            << ',' << speed << ',' << AoA_deg << ',' << alpha << '\n';
     }
 
     csv.close();
