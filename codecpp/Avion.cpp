@@ -123,7 +123,7 @@ double Avion::trouver_alpha(double vitesse) {
                                          etat.omega_pitch);
 }
 
-    // Intégration (Euler)
+    // Intégration (Euler)  -> Créer une méthode Intégration Euler et RK4 plutot que de emttre ici avec des variables
 void Avion::mettre_a_jour_etat(double dt) {
     double vitesse = etat.get_vitesse_norme();
     double gamma = etat.get_gamma();
@@ -151,7 +151,7 @@ void Avion::mettre_a_jour_etat(double dt) {
               + forces.portance * std::cos(gamma) 
               - forces.poids;
     
-        // Intégration
+        // Intégration  
     double accel_x = forces.Fx / inertie.get_masse();
     double accel_y = forces.Fy / inertie.get_masse();
     double accel_z = forces.Fz / inertie.get_masse();
