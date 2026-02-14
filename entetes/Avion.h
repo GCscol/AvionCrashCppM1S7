@@ -9,6 +9,7 @@
 #include "CalculateurTrim.h"
 #include "EtatCinematique.h"
 #include "ForcesAerodynamiques.h"
+#include "Integration.h"
 
 class Avion {
 private:
@@ -43,6 +44,7 @@ public:
     
     SystemeControle& get_controle();
     
+    ForcesAerodynamiques& get_forces();
     const ForcesAerodynamiques& get_forces() const;
     
     double get_pitch() const;
@@ -62,6 +64,8 @@ public:
     double get_Fx() const;
     double get_Fy() const;
     double get_Fz() const;
+
+    double get_I_pitch() const;
     
     double get_cmd_profondeur() const;
     

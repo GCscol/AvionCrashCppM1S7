@@ -10,16 +10,16 @@ include_directories(include)
 
 # Fichiers sources
 set(SOURCES
-    src/Environnement.cpp
-    src/ModeleAerodynamique.cpp
-    src/ModeleLineaire.cpp
-    src/Propulsion.cpp
-    src/ProprietesInertie.cpp
-    src/SystemeControle.cpp
-    src/CalculateurTrim.cpp
-    src/Avion.cpp
-    src/AnalyseurEnveloppeVol.cpp
-    src/Simulateur.cpp
+    codecpp/Environnement.cpp
+    codecpp/ModeleAerodynamique.cpp
+    codecpp/ModeleLineaire.cpp
+    codecpp/Propulsion.cpp
+    codecpp/ProprietesInertie.cpp
+    codecpp/SystemeControle.cpp
+    codecpp/CalculateurTrim.cpp
+    codecpp/Avion.cpp
+    codecpp/AnalyseurEnveloppeVol.cpp
+    codecpp/Simulateur.cpp
     main.cpp
 )
 

@@ -1,9 +1,9 @@
 # Compilateur et options
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -Ientetes
 
 # Répertoires
-SRC_DIR = src
+SRC_DIR = codecpp
 OBJ_DIR = obj
 BIN_DIR = .
 
