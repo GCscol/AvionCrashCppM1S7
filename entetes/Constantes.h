@@ -18,8 +18,7 @@ class Type_Integration {
 } ;
 
 namespace Param_Simulation {
-    //constexpr double dt= ; // à mettre en place
-    Type_Integration::Methode methode_integration = Type_Integration::Methode::RK4;
+    extern Type_Integration::Methode methode_integration;   ///Seule manière d'avoir ce truc de merde qui marche, de toute facon ça sera change ( le pb etait sinon en def multiple)
 }
 
 #endif // CONSTANTES_H

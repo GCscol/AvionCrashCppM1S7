@@ -20,6 +20,7 @@ set(SOURCES
     codecpp/Avion.cpp
     codecpp/AnalyseurEnveloppeVol.cpp
     codecpp/Simulateur.cpp
+    codecpp/Constantes.cpp
     main.cpp
 )
 
