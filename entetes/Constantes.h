@@ -9,4 +9,17 @@ namespace Physique {
     constexpr double g = 9.81;
 }
 
+class Type_Integration {
+    public:
+    enum class Methode {
+        EULER,
+        RK4
+    };
+} ;
+
+namespace Param_Simulation {
+    //constexpr double dt= ; // à mettre en place
+    Type_Integration::Methode methode_integration = Type_Integration::Methode::RK4;
+}
+
 #endif // CONSTANTES_H

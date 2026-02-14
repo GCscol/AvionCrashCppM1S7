@@ -133,7 +133,15 @@ double Avion::trouver_alpha(double vitesse) {
     // Intégration (Euler)  -> Créer une méthode Intégration Euler et RK4 plutot que de emttre ici avec des variables
 void Avion::mettre_a_jour_etat(double dt) {
 
-    Integration::Euler(*this, dt);
+    switch (Param_Simulation::methode_integration) {
+        case Type_Integration::Methode::EULER:
+            Integration::Euler(*this, dt);
+            break;
+
+        case Type_Integration::Methode::RK4:
+            Integration::RK4(*this, dt);
+            break;
+    }
 
 
     // double vitesse = etat.get_vitesse_norme();

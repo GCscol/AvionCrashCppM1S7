@@ -32,6 +32,9 @@
 *.a
 *.lib
 
+#Les objets
+*.o
+
 # Executables
 *.exe
 *.out
@@ -43,3 +46,4 @@
 
 #Les résultats
 *.res
+*.csv
