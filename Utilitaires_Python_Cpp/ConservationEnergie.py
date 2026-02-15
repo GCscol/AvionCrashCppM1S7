@@ -25,7 +25,7 @@ df["Ecin"] = 0.5 * masse_avion * (df["speed"]**2)
 df["Erot"] = 0.5 * df["I_pitch"] * (df["omega_pitch"]**2)
 df["Epot"] = masse_avion * g * df["z"]
 
-# Conversion en numpy arrays
+
 Fx = df["Fx"].values
 Fy = df["Fy"].values
 Fz = df["Fz"].values
@@ -38,17 +38,14 @@ Wx = np.zeros(n)
 Wy = np.zeros(n)
 Wz = np.zeros(n)
 
-# Premier point
 Wx[0] = Fx[0] * (x[1] - x[0]) * 0.5
 Wy[0] = Fy[0] * (y[1] - y[0]) * 0.5
 Wz[0] = Fz[0] * (z[1] - z[0]) * 0.5
 
-# Dernier point
 Wx[-1] = Fx[-1] * (x[-1] - x[-2]) * 0.5
 Wy[-1] = Fy[-1] * (y[-1] - y[-2]) * 0.5
 Wz[-1] = Fz[-1] * (z[-1] - z[-2]) * 0.5
 
-# Points intermédiaires
 Wx[1:-1] = Fx[1:-1] * (x[2:] - x[:-2]) * 0.5
 Wy[1:-1] = Fy[1:-1] * (y[2:] - y[:-2]) * 0.5
 Wz[1:-1] = Fz[1:-1] * (z[2:] - z[:-2]) * 0.5
