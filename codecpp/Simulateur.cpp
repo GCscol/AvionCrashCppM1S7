@@ -37,7 +37,7 @@ void Simulateur::executer() {
     csv << "time,"
         << "x,y,z,vx,vy,vz,"
         << "roll,pitch,yaw,"
-        << "M_pitch,"
+        << "M_pitch,I_pitch,omega_pitch,"
         << "Fx,Fy,Fz,portance,trainee,traction,"
         << "Cl,Cd,Cm,"
         << "speed,AoA_deg,cmd_profondeur,alpha,delta_profondeur,n_factor\n";
@@ -63,7 +63,7 @@ void Simulateur::executer() {
             << avion.get_x() << ',' << avion.get_y() << ',' << avion.get_altitude() << ','
             << avion.get_vitesse_x() << ',' << avion.get_vitesse_y() << ',' << avion.get_vitesse_z() << ','
             << avion.get_roll() << ',' << avion.get_pitch() << ',' << avion.get_yaw() << ','
-            << avion.get_M_pitch() << ','
+            << avion.get_M_pitch() << ',' << avion.get_I_pitch() << ',' << avion.get_omega_pitch() << ','
             << avion.get_Fx() << ',' << avion.get_Fy() << ',' << avion.get_Fz() << ','
             << avion.get_portance() << ',' << avion.get_trainee() << ',' << avion.get_traction() << ','
             << avion.get_aero().C_L << ',' << avion.get_aero().C_D << ',' << avion.get_aero().C_m << ','
