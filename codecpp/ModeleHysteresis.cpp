@@ -14,8 +14,8 @@ X_sep(0.0)
     alpha_stall_up   = 16.0 * DEG_TO_RAD;  // Hystérésis réaliste transport aircraft
     alpha_stall_down = 12.0 * DEG_TO_RAD;
 
-    tau_sep = 0.15;  // Temps caractéristiques
-    tau_att = 0.60;
+    tau_sep = 0.5;   // au lieu de 0.15 → transition plus douce vers décrochage
+    tau_att = 1.5;   // au lieu de 0.60 → réattachement plus progressif
 
     delta_alpha = 3.0 * DEG_TO_RAD; // largeur transition
 
@@ -45,9 +45,32 @@ void ModeleHysteresis::update_from_polar(double alpha,
     // ============================
     // MODELE POST-STALL
     // ============================
-
-    double CL_sep =
-        CL_max * sin(2.0 * alpha);
+    // 
+    // Post-stall CL should recover slightly near stall, then decay at extreme angles
+    // This prevents unrealistic aerodynamic recovery at very high alpha
+    //
+    // Formula: CL_sep decreases as alpha moves further from stall boundary
+    // - At alpha_stall_up (16°): CL_sep ≈ max (recovery zone)
+    // - As alpha increases: CL_sep decays toward zero (deep stall)
+    //
+    double alpha_stall_mid = (alpha_stall_up + alpha_stall_down) / 2.0;
+    
+    double CL_sep;
+    if (alpha >= alpha_stall_up) {
+        // Post-stall recovery: rises near boundary, falls at extreme angles
+        double alpha_excess = alpha - alpha_stall_up;  // How far past stall?
+        // Gaussian-like decay: peaks near stall, drops at extreme alpha
+        // Coefficient 0.30 (increased from 0.15) for more aggressive decay at high angles
+        double decay_factor = exp(-0.30 * alpha_excess * alpha_excess / (delta_alpha * delta_alpha));
+        CL_sep = CL_max * 0.5 * decay_factor;  // Max post-stall CL = 0.5 * CL_max = 0.73
+    } else if (alpha <= alpha_stall_down) {
+        // Negative alpha stall (similar behavior)
+        double alpha_excess = alpha_stall_down - alpha;  // How far past stall?
+        double decay_factor = exp(-0.30 * alpha_excess * alpha_excess / (delta_alpha * delta_alpha));
+        CL_sep = -CL_max * 0.5 * decay_factor;  // Negative lift
+    } else {
+        CL_sep = 0.5 * CL_max * sin(2.0 * (alpha - alpha_stall_mid));  // Smooth transition
+    }
 
     // ============================
     // EQUILIBRE DE SEPARATION

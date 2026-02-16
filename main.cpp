@@ -14,23 +14,23 @@ int run_batch(double p_min, double p_max, double p_step,
 
 int main() {
 	// #ifdef MODE_SIMULATION
-    // Avion avion(361.6, 6.6, 140178.9, false); // linear aerodynamic model
+    // Avion avion(361.6, 6.6, 140000.0, false); // linear aerodynamic model
     // avion.initialiser();
     // Simulateur sim(avion, 0.01, 600.0, "simulation_full.csv", -0.7, 0.6, 100, 600);
     // sim.executer();
 
-    Avion avion(361.6, 6.6, 200000, true); // hysteresis aerodynamic model
+    Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model
     avion.initialiser();
-    Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -1, 0.8, 50, 600);
+    Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
     sim.executer();
 
 
     // AnalyseurEnveloppeVol analyseur(avion);
     // analyseur.analyser_limites_vitesse();
 
-    // run_batch(-0.7, -0.7, 0.1, 0.0, 1.0, 0.05, true, 0.01, 600.0, 100.0, 500.0);
 
-    
+    // run_batch(-1.0, -0.0, 0.1, 0.0, 1.0, 0.1, true, 0.01, 600.0, 100.0, 500.0);
+
 
     // Avion avion_rescue(361.6, 6.6, 140178.9, true);
     // avion_rescue.initialiser();

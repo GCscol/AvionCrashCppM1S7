@@ -47,7 +47,6 @@ double Simulateur::executer() {
     avion.get_etat().pitch = alpha_trim;
     avion.get_aero().set_delta_profondeur(delta_trim);
     
-    // CORRECTION: Calculer cmd_thrust pour équilibrer traction = traînée au trim
     double rho = avion.get_env().calculer_rho(avion.get_altitude());
     avion.get_aero().update_from_polar(alpha_trim, delta_trim, 0.0, speed);
     double trainee_trim = avion.get_aero().calculer_trainee(speed, rho);
@@ -58,12 +57,6 @@ double Simulateur::executer() {
         // Limiter à [0, 1]
         cmd_thrust_trim = std::max(0.0, std::min(1.0, cmd_thrust_trim));
         avion.get_controle().set_commande_thrust(cmd_thrust_trim);
-        
-        std::cout << "=== TRIM INITIAL ===" << std::endl;
-        std::cout << "Alpha trim: " << alpha_trim * RAD_TO_DEG << " deg" << std::endl;
-        std::cout << "Delta profondeur trim: " << delta_trim << " rad" << std::endl;
-        std::cout << "CMD thrust trim: " << cmd_thrust_trim << " (Traction=" << trainee_trim << " N, Trainee=" << trainee_trim << " N)" << std::endl;
-        std::cout << "==================" << std::endl << std::endl;
     }
     
     csv << "time,"
@@ -179,8 +172,20 @@ double Simulateur::executer() {
             if (t >= test_cmd_start && t < test_cmd_end) {
                 if (!std::isnan(test_cmd_profondeur))
                     avion.get_controle().set_commande_profondeur(test_cmd_profondeur);
-                if (!std::isnan(test_cmd_thrust))
-                    avion.get_controle().set_commande_thrust(test_cmd_thrust);
+                
+                // Commande thrust avec plages de temps spécifiques
+                if (!std::isnan(test_cmd_thrust)) {
+                    if (t >= 100.0 && t < 120.0) {
+                        // Entre 100 et 120s: thrust = 0.8
+                        avion.get_controle().set_commande_thrust(0.8);
+                    } else if (t >= 145.0 && t < 170.0) {
+                        // Entre 145 et 170s: thrust = 0.6
+                        avion.get_controle().set_commande_thrust(0.6);
+                    } else {
+                        // Reste du vol: utiliser la commande définie dans l'argument
+                        avion.get_controle().set_commande_thrust(test_cmd_thrust);
+                    }
+                }
             }
         } else if (!rescue_activated) {
             // original hardcoded test
