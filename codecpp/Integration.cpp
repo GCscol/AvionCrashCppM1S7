@@ -3,12 +3,13 @@
 #include "EtatCinematique.h"
 #include "ForcesAerodynamiques.h"
 #include "Constantes.h"
+#include "ModeleHysteresis.h"
 #include <cmath>
 
 
 Integration::Derivees Integration::calculer_derivees(Avion& avion) {
 
-    ForcesAerodynamiques& forces = avion.get_forces();   // verifier au niveau rapidité ce qui est préférable
+    ForcesAerodynamiques& forces = avion.get_forces();
     EtatCinematique& etat = avion.get_etat();
     
     double vitesse = etat.get_vitesse_norme();
@@ -23,12 +24,24 @@ Integration::Derivees Integration::calculer_derivees(Avion& avion) {
     double delta_p = avion.get_aero().get_delta_profondeur() 
                    + avion.get_cmd_profondeur() * avion.get_controle().get_delta_p_max();
     
-    avion.get_aero().update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse);
+    // If the aerodynamic model supports hysteresis, advance it with dt
+    ModeleHysteresis* mh = dynamic_cast<ModeleHysteresis*>(&avion.get_aero());
+    if (mh) {
+        mh->update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse, 0.01);  // dt = 0.01 for derivative calc
+    } else {
+        avion.get_aero().update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse);
+    }
     avion.calculer_forces();
-    forces.M_pitch = avion.get_aero().calculer_moment_pitch(vitesse, rho);  ///m'affiche comme si ça n'allait pas marcher alors que j'ai un non constant getter
     
-        // Forces 
-    /// potentiellement utiliser ForcesAerodynamiques& F = avion.get_forces();
+    // Aerodynamic pitching moment
+    double M_aero = avion.get_aero().calculer_moment_pitch(vitesse, rho);
+    // Thrust pitching moment: M_thrust = z_t * T (z_t positive downwards from cg gives sign)
+    const double z_t = 2;  // lever arm in meters
+    double M_thrust = z_t * forces.traction;
+    forces.M_thrust = M_thrust;
+    forces.M_pitch = M_aero + M_thrust;
+    
+    // Forces 
     forces.Fx = forces.traction * (std::cos(yaw) * std::cos(pitch)) 
               - forces.trainee * (std::cos(yaw) * std::cos(gamma)) 
               - forces.portance * (std::sin(gamma) * std::cos(roll));
@@ -37,12 +50,12 @@ Integration::Derivees Integration::calculer_derivees(Avion& avion) {
               - forces.trainee * (std::sin(yaw) * std::cos(gamma)) 
               + forces.portance * (std::sin(gamma) * std::sin(roll));
     
-    forces.Fz =forces.traction * std::sin(pitch) 
+    forces.Fz = forces.traction * std::sin(pitch) 
               - forces.trainee * std::sin(gamma) 
               + forces.portance * std::cos(gamma) 
               - forces.poids;
 
-        // Calcul des dérivées
+    // Calcul des dérivées
     Derivees d;
     d.dx = etat.vx;
     d.dy = etat.vy;
@@ -62,7 +75,7 @@ void Integration::Euler(Avion& avion, double dt) {
 
     Derivees d = calculer_derivees(avion);
     
-    /// Attention ordre assignation etat_x et etat_vx (de meme pour y et z et pitch)
+    // Attention ordre assignation etat_x et etat_vx (de même pour y et z et pitch)
     etat.x += d.dx * dt;   
     etat.y += d.dy * dt;
     etat.z += d.dz * dt;
@@ -75,17 +88,17 @@ void Integration::Euler(Avion& avion, double dt) {
     etat.omega_pitch += d.domega_pitch * dt;
 }
 
+
 void Integration::RK4(Avion& avion, double dt) {
     
     EtatCinematique& etat = avion.get_etat();
     
-        // Sauvegarde de l'état initial
-        // On les sauvegarde comme ça on pourra modifier direct les états pour RK4 en passant directement via la structure d'avion
+    // Sauvegarde de l'état initial
     double x0 = etat.x, y0 = etat.y, z0 = etat.z;
     double vx0 = etat.vx, vy0 = etat.vy, vz0 = etat.vz;
     double pitch0 = etat.pitch, omega_pitch0 = etat.omega_pitch;
 
-        // Liste des différentes k qui se baseront sur des temps et positions successives (incréments)
+    // Liste des différentes k qui se baseront sur des temps et positions successives (incréments)
     Derivees k1 = calculer_derivees(avion);
 
     etat.x = x0 + 0.5 * dt * k1.dx;
@@ -118,7 +131,7 @@ void Integration::RK4(Avion& avion, double dt) {
     etat.omega_pitch = omega_pitch0 + dt * k3.domega_pitch;  
     Derivees k4 = calculer_derivees(avion);
 
-        // Combinaison finale
+    // Combinaison finale
     etat.x = x0 + (k1.dx + 2*k2.dx + 2*k3.dx + k4.dx) * dt / 6.0;
     etat.y = y0 + (k1.dy + 2*k2.dy + 2*k3.dy + k4.dy) * dt / 6.0;
     etat.z = z0 + (k1.dz + 2*k2.dz + 2*k3.dz + k4.dz) * dt / 6.0;

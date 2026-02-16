@@ -10,15 +10,16 @@ void ModeleLineaire::update_from_polar(double alpha_rad, double delta_p,
     double alpha_deg = alpha_rad * RAD_TO_DEG;
     
     // Portance avec gestion du décrochage
-    if (alpha_deg <= 15.0) {  // Régime linéaire avant décrochage
+    if (alpha_deg <= 15.0 && alpha_deg >= -10) {  // Régime linéaire avant décrochage
         C_L = 5.0 * (alpha_rad - (-0.035)) + 0.44 * delta_p;
-    } else if (alpha_deg <= 20.0) { // Décroissance linéaire après décrochage
-        double alpha_stall_rad = 8.0 * DEG_TO_RAD;
-        double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * delta_p;
-        C_L = CL_max * (1.0 - 0.1 * (alpha_deg - 8.0));
-    } else {
-        C_L = 0.1;  // Portance résiduelle ||||A MODIFIER de sorte à ce que la polaire soit continue|||||||||||||||||||||||||||||||||||
-    }
+    } else {C_L = 0;}
+    // } else if (alpha_deg <= 20.0) { // Décroissance linéaire après décrochage
+    //     double alpha_stall_rad = 8.0 * DEG_TO_RAD;
+    //     double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * delta_p;
+    //     C_L = CL_max * (1.0 - 0.1 * (alpha_deg - 8.0));
+    // } else {
+    //     C_L = 0.1;  // Portance résiduelle ||||A MODIFIER de sorte à ce que la polaire soit continue|||||||||||||||||||||||||||||||||||
+    // }
       //// Traînée parabolique
     C_D = 0.0175 + 0.055 * C_L * C_L;    
     

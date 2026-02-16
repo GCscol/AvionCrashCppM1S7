@@ -2,14 +2,18 @@
 #include <algorithm>
 
 SystemeControle::SystemeControle()
-    : cmd_profondeur(0.0), cmd_thrust(0.667520), delta_p_max(0.15) {}
+    : cmd_profondeur(0.0), cmd_thrust(0.667520), delta_p_max(0.4) {}
 
 void SystemeControle::set_commande_profondeur(double val) {
-    cmd_profondeur = std::clamp(val, -1.0, 1.0);   ///j'ai essayé d'intégrer ça mais pas sûr
+    if (val < -1.0) cmd_profondeur = -1.0;
+    else if (val > 1.0) cmd_profondeur = 1.0;
+    else cmd_profondeur = val;
 }
 
 void SystemeControle::set_commande_thrust(double val) {
-    cmd_thrust = std::clamp(val, 0.0, 1.0);
+    if (val < 0.0) cmd_thrust = 0.0;
+    else if (val > 1.0) cmd_thrust = 1.0;
+    else cmd_thrust = val;
 }
 
 double SystemeControle::get_cmd_profondeur() const {

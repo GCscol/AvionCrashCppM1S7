@@ -1,27 +1,36 @@
 #include "Avion.h"
+#include "ModeleLineaire.h"
+#include "ModeleHysteresis.h"
 #include "Integration.h"
 #include "Constantes.h"
 #include <cmath>
 
-Avion::Avion(double surface, double corde, double masse)
-    : aero(surface, corde),
-      inertie(masse),
+Avion::Avion(double surface, double corde, double masse, bool useHysteresis)
+    : inertie(masse),
       propulsion(),
-      trim_calculator(aero, environnement),
-      altitude_croisiere(11000.0) {}
+      environnement(),
+      altitude_croisiere(11000.0),
+      trim_calculator(nullptr)
+{
+    if (useHysteresis) {
+        aero = new ModeleHysteresis(surface, corde, 0.0);
+    } else {
+        aero = new ModeleLineaire(surface, corde, 0.0);
+    }
+    trim_calculator = new CalculateurTrim(*aero, environnement);
+}
+
+Avion::~Avion() {
+    delete aero;
+    if (trim_calculator) delete trim_calculator;
+}
 
 // Accesseurs
-const Environnement& Avion::get_env() const {
-    return environnement;
-}
+const Environnement& Avion::get_env() const { return environnement; }
 
-ModeleLineaire& Avion::get_aero() {  ///verifier utilité
-    return aero;
-}
+ModeleAerodynamique& Avion::get_aero() { return *aero; }
 
-const ModeleLineaire& Avion::get_aero() const {
-    return aero;
-}
+const ModeleAerodynamique& Avion::get_aero() const { return *aero; }
 
 double Avion::get_masse() const {
     return inertie.get_masse();
@@ -103,8 +112,8 @@ void Avion::calculer_forces() {
     double vitesse = etat.get_vitesse_norme();
     double rho = environnement.calculer_rho(etat.z);
     
-    forces.portance = aero.calculer_portance(vitesse, rho);
-    forces.trainee = aero.calculer_trainee(vitesse, rho);
+    forces.portance = aero->calculer_portance(vitesse, rho);
+    forces.trainee = aero->calculer_trainee(vitesse, rho);
     forces.poids = inertie.calculer_poids();
     
     double traction_max = propulsion.calculer_poussee_max(vitesse, rho, etat.z);
@@ -121,11 +130,11 @@ void Avion::calculer_forces(double& L, double& D, double& T, double& W) {
 
     // Fonctions de trim
 double Avion::trouver_delta_profondeur(double vitesse, double omega) {
-    return trim_calculator.trouver_delta_profondeur(etat.pitch, vitesse, omega);
+    return trim_calculator->trouver_delta_profondeur(etat.pitch, vitesse, etat.z, omega);
 }
 
 double Avion::trouver_alpha(double vitesse) {
-    return trim_calculator.trouver_alpha(vitesse, etat.z, 
+    return trim_calculator->trouver_alpha(vitesse, etat.z, 
                                          inertie.get_masse(), 
                                          etat.omega_pitch);
 }
