@@ -1,6 +1,7 @@
 #include "Avion.h"
 #include "Constantes.h"
 #include "Simulateur.h"
+#include "Integration.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -136,7 +137,7 @@ public:
         }
 
         csv.close();
-        cout << "Rapport énergétique enregistré: " << fichier_sortie << endl;
+        cout << "Rapport energétique enregistre: " << fichier_sortie << endl;
         generer_resume();
     }
 
@@ -276,6 +277,93 @@ int analyser_energie_simulation(const string& fichier_csv_sortie,
     return 0;
 }
 
+/**
+ * Fonction d'analyse d'énergie avec intégration RK4
+ */
+int analyser_energie_simulation_rk4(const string& fichier_csv_sortie,
+                                    double pas_temps,
+                                    double duree_sim,
+                                    double commande_profondeur,
+                                    double commande_thrust,
+                                    double cmd_start,
+                                    double cmd_end,
+                                    bool use_hysteresis) {
+    
+    cout << "\nDemarrage analyse energetique (RK4)..." << endl;
+    cout << "  Methode integration: Runge-Kutta 4eme ordre" << endl;
+    cout << "  Modele aerodynamique: " << (use_hysteresis ? "Hysteresis" : "Lineaire") << endl;
+    cout << "  Duree: " << duree_sim << "s, dt: " << pas_temps << "s" << endl;
+    cout << "  Commande profondeur: " << commande_profondeur << endl;
+    cout << "  Commande thrust: " << commande_thrust << endl;
+
+    // Créer et initialiser l'avion
+    Avion avion(361.6, 6.6, 200000.0, use_hysteresis);
+    avion.initialiser();
+
+    // Initialisation du trim complet
+    double speed = avion.get_vitesse_x();
+    std::pair<double, double> trim_result = avion.calculer_trim_complet(speed);
+    double alpha_trim = trim_result.first;
+    double delta_trim = trim_result.second;
+    
+    avion.get_etat().pitch = alpha_trim;
+    avion.get_aero().set_delta_profondeur(delta_trim);
+    
+    double rho = avion.get_env().calculer_rho(avion.get_altitude());
+    avion.get_aero().update_from_polar(alpha_trim, delta_trim, 0.0, speed);
+    double trainee_trim = avion.get_aero().calculer_trainee(speed, rho);
+    double traction_max = avion.calculer_poussee_max(speed, rho, avion.get_altitude());
+    
+    if (traction_max > 0.0) {
+        double cmd_thrust_trim = trainee_trim / traction_max;
+        cmd_thrust_trim = std::max(0.0, std::min(1.0, cmd_thrust_trim));
+        avion.get_controle().set_commande_thrust(cmd_thrust_trim);
+    }
+
+    // Créer l'analyseur d'énergie
+    AnalyseurEnergie analyseur(fichier_csv_sortie, avion.get_masse());
+
+    // Exécuter la simulation pas à pas avec RK4
+    const int steps = static_cast<int>(duree_sim / pas_temps);
+
+    for (int i = 0; i < steps; ++i) {
+        double t = (i + 1) * pas_temps;
+        
+        // Appliquer les commandes AVANT l'intégration RK4
+        if (t >= cmd_start && t < cmd_end) {
+            if (!std::isnan(commande_profondeur))
+                avion.get_controle().set_commande_profondeur(commande_profondeur);
+            
+            // Fenêtres temporelles spécifiques pour le thrust
+            if (!std::isnan(commande_thrust)) {
+                if (t >= 100.0 && t < 120.0) {
+                    avion.get_controle().set_commande_thrust(0.8);
+                } else if (t >= 145.0 && t < 170.0) {
+                    avion.get_controle().set_commande_thrust(0.6);
+                } else {
+                    avion.get_controle().set_commande_thrust(commande_thrust);
+                }
+            }
+        }
+        
+        // Intégration RK4 (beaucoup plus précis que Euler)
+        Integration::RK4(avion, pas_temps);
+        
+        // Enregistrer l'état énergétique
+        analyseur.enregistrer_etat(t, avion);
+        
+        if (avion.get_altitude() <= 0) {
+            cout << "Crash detecte à t = " << t << "s" << endl;
+            break;
+        }
+    }
+
+    // Générer les rapports
+    analyseur.generer_rapport_csv();
+
+    return 0;
+}
+
 // Fonction simple pour exécuter l'analyse d'énergie complète
 // Peut être appelée directement depuis main()
 int main_energie_analysis() {
@@ -290,7 +378,7 @@ int main_energie_analysis() {
                                500.0,  // cmd_end
                                false); // linear model
 
-    cout << "ANALYSE ENERGIE - MODÈLE HYSTERESIS" << endl;
+    cout << "ANALYSE ENERGIE - MODELE HYSTERESIS" << endl;
     analyser_energie_simulation("output/energie_simulation_hysteresis.csv",
                                0.01,   // dt
                                600.0,  // duration
@@ -299,6 +387,38 @@ int main_energie_analysis() {
                                50.0,   // cmd_start
                                600.0,  // cmd_end
                                true);  // hysteresis model
+    
+    return 0;
+}
+
+/**
+ * Exécute l'analyse d'énergie avec intégration RK4
+ * pour comparaison avec la méthode par défaut
+ */
+int main_energie_analysis_rk4() {
+    cout << "\n╔════════════════════════════════════════════════╗" << endl;
+    cout << "║  ANALYSE ÉNERGIE RK4 - MODÈLE LINÉAIRE       ║" << endl;
+    cout << "╚════════════════════════════════════════════════╝" << endl;
+    analyser_energie_simulation_rk4("output/energie_simulation_linear_rk4.csv",
+                                   0.01,   // dt
+                                   600.0,  // duration
+                                   -0.7,   // cmd_profondeur
+                                   0.6,    // cmd_thrust
+                                   100.0,  // cmd_start
+                                   500.0,  // cmd_end
+                                   false); // linear model
+
+    cout << "\n╔════════════════════════════════════════════════╗" << endl;
+    cout << "║  ANALYSE ÉNERGIE RK4 - MODÈLE HYSTÉRÉSIS     ║" << endl;
+    cout << "╚════════════════════════════════════════════════╝" << endl;
+    analyser_energie_simulation_rk4("output/energie_simulation_hysteresis_rk4.csv",
+                                   0.01,   // dt
+                                   600.0,  // duration
+                                   -0.4,   // cmd_profondeur
+                                   1.0,    // cmd_thrust
+                                   50.0,   // cmd_start
+                                   600.0,  // cmd_end
+                                   true);  // hysteresis model
     
     return 0;
 }

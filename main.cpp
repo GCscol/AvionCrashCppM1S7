@@ -54,7 +54,17 @@ int main() {
     // sim_no_rescue.executer();
 
 
+    // Analyse d'énergie avec intégration par défaut
+    cout << "\n╔════════════════════════════════════════════════╗" << endl;
+    cout << "║   PHASE 1: ANALYSE ÉNERGIE (Intégration défaut) ║" << endl;
+    cout << "╚════════════════════════════════════════════════╝" << endl;
     main_energie_analysis();
+    
+    // Analyse d'énergie avec RK4 pour comparaison
+    cout << "\n╔════════════════════════════════════════════════╗" << endl;
+    cout << "║   PHASE 2: ANALYSE ÉNERGIE (Intégration RK4)   ║" << endl;
+    cout << "╚════════════════════════════════════════════════╝" << endl;
+    main_energie_analysis_rk4();
 
     return 0;
 }
