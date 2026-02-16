@@ -12,6 +12,7 @@ public:
     
     void set_commande_profondeur(double val);
     void set_commande_thrust(double val);
+    void set_delta_p_max(double val);
     
     double get_cmd_profondeur() const;
     double get_cmd_thrust() const;

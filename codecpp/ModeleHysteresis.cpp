@@ -60,7 +60,6 @@ void ModeleHysteresis::update_from_polar(double alpha,
         // Post-stall recovery: rises near boundary, falls at extreme angles
         double alpha_excess = alpha - alpha_stall_up;  // How far past stall?
         // Gaussian-like decay: peaks near stall, drops at extreme alpha
-        // Coefficient 0.30 (increased from 0.15) for more aggressive decay at high angles
         double decay_factor = exp(-0.30 * alpha_excess * alpha_excess / (delta_alpha * delta_alpha));
         CL_sep = CL_max * 0.5 * decay_factor;  // Max post-stall CL = 0.5 * CL_max = 0.73
     } else if (alpha <= alpha_stall_down) {

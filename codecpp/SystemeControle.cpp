@@ -16,6 +16,12 @@ void SystemeControle::set_commande_thrust(double val) {
     else cmd_thrust = val;
 }
 
+void SystemeControle::set_delta_p_max(double val) {
+    if (val < 0.05) delta_p_max = 0.05;
+    else if (val > 1.0) delta_p_max = 1.0;
+    else delta_p_max = val;
+}
+
 double SystemeControle::get_cmd_profondeur() const {
     return cmd_profondeur;
 }

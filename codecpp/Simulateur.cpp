@@ -51,9 +51,10 @@ double Simulateur::executer() {
     avion.get_aero().update_from_polar(alpha_trim, delta_trim, 0.0, speed);
     double trainee_trim = avion.get_aero().calculer_trainee(speed, rho);
     double traction_max = avion.calculer_poussee_max(speed, rho, avion.get_altitude());
+    double cmd_thrust_trim = std::numeric_limits<double>::quiet_NaN();
     
     if (traction_max > 0.0) {
-        double cmd_thrust_trim = trainee_trim / traction_max;
+        cmd_thrust_trim = trainee_trim / traction_max;
         // Limiter à [0, 1]
         cmd_thrust_trim = std::max(0.0, std::min(1.0, cmd_thrust_trim));
         avion.get_controle().set_commande_thrust(cmd_thrust_trim);
@@ -65,7 +66,7 @@ double Simulateur::executer() {
         << "M_pitch,M_thrust,"
         << "Fx,Fy,Fz,portance,trainee,traction,"
         << "Cl,Cd,Cm,"
-        << "speed,AoA_deg,cmd_profondeur,alpha,delta_profondeur,n_factor\n";
+        << "speed,AoA_deg,cmd_profondeur,cmd_thrust,alpha,delta_profondeur,n_factor\n";
     
         // Determine if this is the control_test mode (special command sequence)
 
@@ -73,9 +74,14 @@ double Simulateur::executer() {
     double crash_time = std::numeric_limits<double>::quiet_NaN();
     bool rescue_activated = false;
     bool rescue_successful = false;
-    int rescue_strategy_used = 0;
     EtatCinematique etat_avant_sauvetage;
     int rescue_activation_count = 0;
+    bool rescue_cooldown_active = false;
+    bool rescue_hold_active = false;
+    bool rescue_completed = false;
+    double rescue_cooldown_end = 0.0;
+    const double rescue_cooldown_sec = 10.0;
+    double rescue_vz_positive_time = 0.0;
     
     for (int i = 0; i < steps; ++i) {
         double t = (i + 1) * dt;
@@ -85,15 +91,44 @@ double Simulateur::executer() {
         double alpha = avion.get_etat().get_alpha();
         double AoA_deg = alpha * RAD_TO_DEG;
         
+        if (rescue_cooldown_active) {
+            avion.get_controle().set_commande_profondeur(0.0);
+            if (!std::isnan(cmd_thrust_trim)) {
+                avion.get_controle().set_commande_thrust(cmd_thrust_trim);
+            } else {
+                avion.get_controle().set_commande_thrust(0.0);
+            }
+
+            if (t >= rescue_cooldown_end) {
+                std::cout << "[T=" << t << "s] Fin du cooldown apres sauvetage, profil stabilise." << std::endl;
+                rescue_cooldown_active = false;
+                rescue_hold_active = true;
+            }
+            continue;
+        }
+
+        if (rescue_hold_active) {
+            // Maintenir un profil stabilise apres sauvetage
+            avion.get_controle().set_commande_profondeur(0.0);
+            if (!std::isnan(cmd_thrust_trim)) {
+                avion.get_controle().set_commande_thrust(cmd_thrust_trim);
+            } else {
+                avion.get_controle().set_commande_thrust(0.0);
+            }
+            // On laisse la simulation continuer avec ce profil
+        }
+
         // ============ GESTION DU SAUVETAGE AUTOMATIQUE ============
-        if (enable_rescue) {
-            // Évalue l'état de l'avion
+        if (enable_rescue && !rescue_completed) {
+            // Évalue l'état de l'avion avec les maximales comme paramètres
             SauvetageAvion::EtatSauvetage etat_sauvetage = SauvetageAvion::evaluer_etat(
-                avion.get_etat(), t, temps_debut_sauvetage);
+                avion.get_etat(), t, test_cmd_profondeur, test_cmd_thrust, temps_debut_sauvetage);
             
             // Si en descente critique ET pas encore en sauvetage
             if (etat_sauvetage.en_descente_critique && !rescue_activated) {
                 rescue_activated = true;
+                rescue_successful = false;
+                rescue_vz_positive_time = 0.0;
                 rescue_activation_count++;
                 temps_debut_sauvetage = t;
                 etat_avant_sauvetage = avion.get_etat();
@@ -103,64 +138,51 @@ double Simulateur::executer() {
                 std::cout << "  - Altitude: " << avion.get_altitude() << " m" << std::endl;
                 std::cout << "  - Taux descente: " << avion.get_vitesse_z() << " m/s" << std::endl;
                 std::cout << "  - Assiette: " << (avion.get_pitch() * RAD_TO_DEG) << " deg" << std::endl;
+                std::cout << "  - Scenario choisi: PROGRESSIF (douce)" << std::endl;
             }
             
             // Applique les commandes de sauvetage si actif
             if (rescue_activated) {
-                double temps_sauvetage = t - temps_debut_sauvetage;
-                
-                // Auto-sélection de la stratégie selon l'altitude
-                if (rescue_strategy_used == 0) {
-                    if (avion.get_altitude() < 300.0) {
-                        rescue_strategy_used = 2;  // Poussée max
-                    } else if (avion.get_altitude() < 800.0) {
-                        rescue_strategy_used = 3;  // Manoeuvre coordonnée
-                    } else {
-                        rescue_strategy_used = 1;  // Pull-up progressif
-                    }
-                    
-                    std::cout << "[T=" << t << "s] Strategie choisie: ";
-                    switch(rescue_strategy_used) {
-                        case 1:
-                            std::cout << "PULL-UP PROGRESSIF (doux)" << std::endl;
-                            break;
-                        case 2:
-                            std::cout << "POUSSÉE MAX (agressif)" << std::endl;
-                            break;
-                        case 3:
-                            std::cout << "MANOEUVRE COORDONNÉE (équilibrée)" << std::endl;
-                            break;
-                    }
+                if (avion.get_vitesse_z() > 0.0) {
+                    rescue_vz_positive_time += dt;
+                } else {
+                    rescue_vz_positive_time = 0.0;
                 }
+
+                // Réévalue l'état à chaque pas avec le temps depuis le début de la manoeuvre
+                etat_sauvetage = SauvetageAvion::evaluer_etat(
+                    avion.get_etat(), t, test_cmd_profondeur, test_cmd_thrust, temps_debut_sauvetage);
                 
-                // Applique les commandes 
-                SauvetageAvion::EtatSauvetage etat_sauvetage = SauvetageAvion::evaluer_etat(
-                    avion.get_etat(), t, temps_debut_sauvetage);
-                std::pair<double, double> cmds = SauvetageAvion::appliquer_sauvetage(etat_sauvetage, rescue_strategy_used);
+                std::pair<double, double> cmds = SauvetageAvion::appliquer_sauvetage(etat_sauvetage);
                 
                 avion.get_controle().set_commande_profondeur(cmds.first);
                 avion.get_controle().set_commande_thrust(cmds.second);
 
                 // Vérifie si le sauvetage a réussi
+                double temps_sauvetage = t - temps_debut_sauvetage;
                 if (temps_sauvetage >= 2.0) {
                     rescue_successful = SauvetageAvion::verifier_succes_sauvetage(
-                        avion.get_etat(), etat_avant_sauvetage, temps_sauvetage);
+                        avion.get_etat(), etat_avant_sauvetage, temps_sauvetage, rescue_vz_positive_time);
                     
                     if (rescue_successful) {
                         std::cout << "[T=" << t << "s] ✓ SAUVETAGE REUSSI" << std::endl;
                         std::cout << "  - Altitude retrouvée: " << avion.get_altitude() << " m" << std::endl;
                         std::cout << "  - Descente ralentie: " << avion.get_vitesse_z() << " m/s" << std::endl;
                         rescue_activated = false;  // Fin du sauvetage
+                        rescue_cooldown_active = true;
+                        rescue_cooldown_end = t + rescue_cooldown_sec;
+                        rescue_completed = true;
                     }
                 }
                 
-                // Vérifie l'échec du sauvetage (descente continue)
-                if (temps_sauvetage >= 30.0 && !rescue_successful) {
-                    std::cout << "[T=" << t << "s] ✗ SAUVETAGE ECHOUE (abandon après 30s)" << std::endl;
+                // Vérifie l'échec du sauvetage (après 60s ou phase terminée)
+                if (temps_sauvetage >= 60.0 && !rescue_successful) {
+                    std::cout << "[T=" << t << "s] ✗ SAUVETAGE ECHOUE (abandon après 60s)" << std::endl;
                     std::cout << "  - Altitude: " << avion.get_altitude() << " m" << std::endl;
                     std::cout << "  - Descente: " << avion.get_vitesse_z() << " m/s" << std::endl;
                     std::cout << "  - Assiette: " << (avion.get_pitch() * RAD_TO_DEG) << " deg" << std::endl;
                     rescue_activated = false;  // Abandon du sauvetage
+                    rescue_vz_positive_time = 0.0;
                 }
             }
         }
@@ -168,7 +190,7 @@ double Simulateur::executer() {
         // ========== FIN GESTION SAUVETAGE ==========
         
         // Commandes pilote: either use provided test commands or fallback
-        if (!rescue_activated && (!std::isnan(test_cmd_profondeur) || !std::isnan(test_cmd_thrust))) {
+        if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated && (!std::isnan(test_cmd_profondeur) || !std::isnan(test_cmd_thrust))) {
             if (t >= test_cmd_start && t < test_cmd_end) {
                 if (!std::isnan(test_cmd_profondeur))
                     avion.get_controle().set_commande_profondeur(test_cmd_profondeur);
@@ -189,7 +211,7 @@ double Simulateur::executer() {
                 //     }
                 // }
             }
-        } else if (!rescue_activated) {
+        } else if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated) {
             // original hardcoded test
             if (t >= 100 && t < 500) {
                 avion.get_controle().set_commande_profondeur(-0.55);
@@ -211,7 +233,8 @@ double Simulateur::executer() {
             << avion.get_portance() << ',' << avion.get_trainee() << ',' << avion.get_traction() << ','
             << avion.get_aero().C_L << ',' << avion.get_aero().C_D << ',' << avion.get_aero().C_m << ','
             << speed << ',' << AoA_deg << ',' << avion.get_cmd_profondeur() << ','
-            << alpha << ',' << avion.get_aero().get_delta_profondeur() << ',' << n_factor << '\n';
+            << avion.get_controle().get_cmd_thrust() << ',' << alpha << ','
+            << avion.get_aero().get_delta_profondeur() << ',' << n_factor << '\n';
         
         if (avion.get_altitude() <= 0) {
             cout << "Crash !" << endl;

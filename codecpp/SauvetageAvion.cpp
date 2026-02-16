@@ -1,124 +1,167 @@
 #include "SauvetageAvion.h"
+#include "Constantes.h"
 #include <cmath>
 #include <algorithm>
-#include <limits>
 
+// Initialiser les constantes statiques
 constexpr double SauvetageAvion::SEUIL_DESCENTE_CRITIQUE;
 constexpr double SauvetageAvion::SEUIL_ALTITUDE_CRITIQUE;
-constexpr double SauvetageAvion::ASSIETTE_PULLUP_MAX;
-constexpr double SauvetageAvion::CMD_PROFONDEUR_PULLUP;
-constexpr double SauvetageAvion::CMD_POUSSEE_SAUVETAGE;
-constexpr double SauvetageAvion::SEUIL_PITCH_TROP_NEGATIF;
-constexpr double SauvetageAvion::CMD_POUSSEE_REDUITE;
-constexpr double SauvetageAvion::TEMPS_MANOEUVRE_MIN;
+constexpr double SauvetageAvion::SEUIL_PITCH_CRITIQUE;
+constexpr double SauvetageAvion::PHASE_REDUCTION_THRUST;
+constexpr double SauvetageAvion::PHASE_REDUCTION_PROF;
+constexpr double SauvetageAvion::PHASE_CONTROL;
+constexpr double SauvetageAvion::THRUST_REDUCED_FACTOR;
+constexpr double SauvetageAvion::PROF_REDUCED_FACTOR;
 
 SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
-    const EtatCinematique& etat, double temps_courant, double derniere_manoeuvre) {
+    const EtatCinematique& etat, 
+    double temps_courant,
+    double cmd_prof_max,
+    double cmd_thrust_max,
+    double derniere_manoeuvre)
+{
+    EtatSauvetage status;
     
-    EtatSauvetage evalue;
-    evalue.taux_descente = etat.vz;
-    evalue.altitude = etat.z;
-    evalue.vitesse = etat.get_vitesse_norme();
-    evalue.assiette = etat.pitch;
-    evalue.temps_depuis_manoeuvre = temps_courant - derniere_manoeuvre;
+    status.taux_descente = etat.vz;
+    status.altitude = etat.z;
+    status.vitesse = etat.get_vitesse_norme(); 
+    status.assiette = etat.pitch;
+    status.alpha = etat.get_alpha();
     
-    // Détecte descente critique : déclenche uniquement si l'avion est en descente
-    // AND s'il est en altitude élevée (on cible la phase de chute après un pic)
-    evalue.en_descente_critique = (etat.vz < SEUIL_DESCENTE_CRITIQUE) && (etat.z > SEUIL_ALTITUDE_CRITIQUE);
+    // En descente critique si vz < seuil OU assiette trop negative
+    // NOTE: Altitude trigger removed - rescue activates based on descent rate and pitch only
+    bool descente = etat.vz < SEUIL_DESCENTE_CRITIQUE;
+    bool nez_bas = etat.pitch < SEUIL_PITCH_CRITIQUE;
+    status.en_descente_critique = (descente || nez_bas);  // No altitude restriction
     
-    // Détecte surcharge moteur (assiette négative extrême = perte de portance)
-    evalue.moteur_en_surcharge = etat.pitch < -0.2;  // rad, pitch très négatif
+    status.temps_depuis_manoeuvre = temps_courant - derniere_manoeuvre;
     
-    return evalue;
+    // Garder en mémoire les maximales
+    status.cmd_profondeur_max = cmd_prof_max;
+    status.cmd_thrust_max = cmd_thrust_max;
+    
+    return status;
 }
 
-std::pair<double, double> SauvetageAvion::strategie_pullup_progressif(const EtatSauvetage& etat) {
-    /**
-     * Stratégie douce: augmente progressivement l'assiette (pitch positif)
-     */
-    double t = std::min(etat.temps_depuis_manoeuvre, TEMPS_MANOEUVRE_MIN);
-    double fraction = t / TEMPS_MANOEUVRE_MIN;  // 0 -> 1
+/**
+ * Scénario PROGRESSIF: Test different command reduction orders
+ * STRATEGY = 0: Thrust first, then profondeur (original)
+ * STRATEGY = 1: Profondeur first, then thrust (alternative)
+ * STRATEGY = 2: Both simultaneously
+ */
+std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetage& etat)
+{
+    double t = etat.temps_depuis_manoeuvre;
+    const double cmd_prof_min = etat.cmd_profondeur_max;
+    const int STRATEGY = 0; // Strategy 0: Thrust FIRST, then profondeur (BEST)
     
-    double cmd_profondeur = (-CMD_PROFONDEUR_PULLUP) * fraction; // augmente progressivement pour créer un assiette positive
-    double cmd_poussee = (etat.assiette < SEUIL_PITCH_TROP_NEGATIF) ? CMD_POUSSEE_REDUITE : CMD_POUSSEE_SAUVETAGE;
+    const double cmd_thrust_min = etat.cmd_thrust_max * THRUST_REDUCED_FACTOR;
+    const double cmd_prof_target = PROF_REDUCED_FACTOR * 0.5; // Mild nose-up (currently -0.1)
     
-    return {cmd_profondeur, cmd_poussee};
-}
-
-std::pair<double, double> SauvetageAvion::strategie_poussee_max(const EtatSauvetage& etat) {
-    /**
-     * Stratégie agressive: maximum de poussée + assiette de pull-up IMMÉDIAT (quand l'altitude est très critique.)
-     */
-    double cmd_profondeur = -CMD_PROFONDEUR_PULLUP;  // Maximal immédiatement
-    double cmd_poussee = (etat.assiette < SEUIL_PITCH_TROP_NEGATIF) ? CMD_POUSSEE_REDUITE : CMD_POUSSEE_SAUVETAGE;  // Pleine puissance sauf si nez trop bas
+    double cmd_prof = cmd_prof_min;
+    double cmd_thrust = etat.cmd_thrust_max;
     
-    return {cmd_profondeur, cmd_poussee};
-}
-
-std::pair<double, double> SauvetageAvion::strategie_manoeuvre_coordonnee(const EtatSauvetage& etat) {
-    /**
-     * Stratégie équilibrée: MAX poussée immédiate + assiette progressive.
-     */
-    double t = std::min(etat.temps_depuis_manoeuvre, TEMPS_MANOEUVRE_MIN);
-    double fraction = t / TEMPS_MANOEUVRE_MIN;
+    const double t_phase1 = PHASE_REDUCTION_THRUST;
+    const double t_phase2 = PHASE_REDUCTION_THRUST + PHASE_REDUCTION_PROF;
+    const double t_phase3 = t_phase2 + PHASE_CONTROL;
     
-    double cmd_poussee = (etat.assiette < SEUIL_PITCH_TROP_NEGATIF) ? CMD_POUSSEE_REDUITE : CMD_POUSSEE_SAUVETAGE; // réduire si nez trop bas
-    double cmd_profondeur = (-CMD_PROFONDEUR_PULLUP) * fraction; // augmente progressivement pour contrôler la montée (-1.0 * fraction -> cabrage progressif)
-    
-    return {cmd_profondeur, cmd_poussee};
-}
-
-std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat, int strategie_id) {
-    // Si pas en crise: retourne commandes neutres
-    if (!etat.en_descente_critique) {
-        return {0.0, 0.0};
-    }
-    
-    // Auto-sélection de la stratégie si id = 0
-    if (strategie_id == 0) {
-        // Sélectionne selon la gravité de l'altitude
-        if (etat.altitude < 300.0) {
-            strategie_id = 2;  // Poussée max
-        } else if (etat.altitude < 800.0) {
-            strategie_id = 3;  // Manoeuvre coordonnée
+    if (STRATEGY == 0) {
+        // STRATEGY 0: Reduce thrust FIRST, then profile
+        if (t < t_phase1) {
+            // Phase 1: Reduce thrust
+            double ratio = t / PHASE_REDUCTION_THRUST;
+            cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
+            cmd_prof = cmd_prof_min;
+        } else if (t < t_phase2) {
+            // Phase 2: Then reduce profondeur (nose-up)
+            double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
+            cmd_thrust = cmd_thrust_min;
+            cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
+        } else if (t < t_phase3) {
+            // Phase 3: Recover/stabilize
+            double ratio = (t - t_phase2) / PHASE_CONTROL;
+            cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
+            cmd_prof = cmd_prof_target;
         } else {
-            strategie_id = 1;  // Pull-up progressif
+            cmd_thrust = etat.cmd_thrust_max * 0.6;
+            cmd_prof = cmd_prof_target;
+        }
+    } 
+    else if (STRATEGY == 1) {
+        // STRATEGY 1: Reduce profondeur FIRST, then thrust
+        if (t < t_phase1) {
+            // Phase 1: Reduce profondeur (nose-up first)
+            double ratio = t / PHASE_REDUCTION_THRUST;
+            cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
+            cmd_thrust = etat.cmd_thrust_max;
+        } else if (t < t_phase2) {
+            // Phase 2: Then reduce thrust
+            double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
+            cmd_prof = cmd_prof_target;
+            cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
+        } else if (t < t_phase3) {
+            // Phase 3: Recover/stabilize
+            double ratio = (t - t_phase2) / PHASE_CONTROL;
+            cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
+            cmd_prof = cmd_prof_target;
+        } else {
+            cmd_thrust = etat.cmd_thrust_max * 0.6;
+            cmd_prof = cmd_prof_target;
+        }
+    }
+    else if (STRATEGY == 2) {
+        // STRATEGY 2: Reduce BOTH simultaneously
+        if (t < t_phase1) {
+            // Phase 1: Reduce both thrust and profondeur together
+            double ratio = t / PHASE_REDUCTION_THRUST;
+            cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
+            cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
+        } else if (t < t_phase2) {
+            // Phase 2: Hold reduced commands
+            cmd_thrust = cmd_thrust_min;
+            cmd_prof = cmd_prof_target;
+        } else if (t < t_phase3) {
+            // Phase 3: Recover thrust
+            double ratio = (t - t_phase2) / PHASE_CONTROL;
+            cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
+            cmd_prof = cmd_prof_target;
+        } else {
+            cmd_thrust = etat.cmd_thrust_max * 0.6;
+            cmd_prof = cmd_prof_target;
         }
     }
     
-    // Applique la stratégie choisie
-    switch (strategie_id) {
-        case 1:
-            return strategie_pullup_progressif(etat);
-        case 2:
-            return strategie_poussee_max(etat);
-        case 3:
-            return strategie_manoeuvre_coordonnee(etat);
-        default:
-            return {0.0, 0.0};
-    }
+    // Clamp to limits
+    cmd_prof = std::max(cmd_prof_min, cmd_prof);
+    cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));
+    cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
+    
+    return {cmd_prof, cmd_thrust};
 }
 
-bool SauvetageAvion::verifier_succes_sauvetage(const EtatCinematique& etat_courant,
-                                               const EtatCinematique& etat_initial_sauvetage,
-                                               double temps_ecoule) {
-    /**
-     * Vérifie si la manoeuvre a réussi:
-     * - Taux de descente ralentit (vz moins négatif)
-     * - Critères moins stricts pour permettre succès
-     */
-    
-    if (temps_ecoule < 1.5) {
-        return false;  // Trop tôt pour juger
-    }
-    
-    // Critère principal: la descente doit ralentir (vz moins négatif)
-    // C'est le signe que le sauvetage fonctionne
-    bool descente_ralentie = etat_courant.vz > (etat_initial_sauvetage.vz + 0.2);
-    
-    // Critère secondaire: altitude ne doit pas s'effondrer
-    double delta_altitude = etat_courant.z - etat_initial_sauvetage.z;
-    bool altitude_acceptable = delta_altitude > -200.0;  // Permet jusqu'à 200m de perte
-    
-    return descente_ralentie && altitude_acceptable;
+std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat)
+{
+    return scenario_progressif(etat);
 }
+
+bool SauvetageAvion::verifier_succes_sauvetage(
+    const EtatCinematique& etat_courant,
+    const EtatCinematique& /* etat_initial_sauvetage */,
+    double /* temps_ecoule */,
+    double temps_vz_positif)
+{
+    // Succes si:
+    // 1) vz > 0 pendant au moins 2 s
+    // 2) alpha < 14 deg
+    // 3) V dans [120, 350] m/s
+
+    double alpha_deg = etat_courant.get_alpha() * Physique::RAD_TO_DEG;
+    double speed = etat_courant.get_vitesse_norme();
+
+    bool vz_ok = temps_vz_positif >= 2.0;
+    bool alpha_ok = alpha_deg < 14.0;
+    bool speed_ok = speed >= 120.0 && speed <= 350.0;
+
+    return vz_ok && alpha_ok && speed_ok;
+}
+
