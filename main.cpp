@@ -2,6 +2,7 @@
 #include "AnalyseurEnveloppeVol.h"
 #include "Simulateur.h"
 #include "Constantes.h"
+#include "AnalyseurEnergie.h"
 #include <iostream>
 
 using namespace std;
@@ -19,10 +20,10 @@ int main() {
     // Simulateur sim(avion, 0.01, 600.0, "simulation_full.csv", -0.7, 0.6, 100, 600);
     // sim.executer();
 
-    Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model
-    avion.initialiser();
-    Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
-    sim.executer();
+    // Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model
+    // avion.initialiser();
+    // Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
+    // sim.executer();
 
 
     // AnalyseurEnveloppeVol analyseur(avion);
@@ -51,6 +52,9 @@ int main() {
     //                       600.0,    // cmd_end
     //                       false);    // ENABLE_RESCUE = false
     // sim_no_rescue.executer();
+
+
+    main_energie_analysis();
 
     return 0;
 }

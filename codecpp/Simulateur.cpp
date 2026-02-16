@@ -172,20 +172,22 @@ double Simulateur::executer() {
             if (t >= test_cmd_start && t < test_cmd_end) {
                 if (!std::isnan(test_cmd_profondeur))
                     avion.get_controle().set_commande_profondeur(test_cmd_profondeur);
+                if (!std::isnan(test_cmd_thrust))
+                    avion.get_controle().set_commande_thrust(test_cmd_thrust);
                 
                 // Commande thrust avec plages de temps spécifiques
-                if (!std::isnan(test_cmd_thrust)) {
-                    if (t >= 100.0 && t < 120.0) {
-                        // Entre 100 et 120s: thrust = 0.8
-                        avion.get_controle().set_commande_thrust(0.8);
-                    } else if (t >= 145.0 && t < 170.0) {
-                        // Entre 145 et 170s: thrust = 0.6
-                        avion.get_controle().set_commande_thrust(0.6);
-                    } else {
-                        // Reste du vol: utiliser la commande définie dans l'argument
-                        avion.get_controle().set_commande_thrust(test_cmd_thrust);
-                    }
-                }
+                // if (!std::isnan(test_cmd_thrust)) {
+                //     if (t >= 100.0 && t < 120.0) {
+                //         // Entre 100 et 120s: thrust = 0.8
+                //         avion.get_controle().set_commande_thrust(0.8);
+                //     } else if (t >= 145.0 && t < 170.0) {
+                //         // Entre 145 et 170s: thrust = 0.6
+                //         avion.get_controle().set_commande_thrust(0.6);
+                //     } else {
+                //         // Reste du vol: utiliser la commande définie dans l'argument
+                //         avion.get_controle().set_commande_thrust(test_cmd_thrust);
+                //     }
+                // }
             }
         } else if (!rescue_activated) {
             // original hardcoded test
