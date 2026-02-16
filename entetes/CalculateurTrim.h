@@ -12,7 +12,7 @@ private:
 public:
     CalculateurTrim(ModeleAerodynamique& modele_aero, const Environnement& environnement);
     
-    double trouver_delta_profondeur(double pitch, double vitesse, double omega, 
+    double trouver_delta_profondeur(double pitch, double vitesse, double altitude, double omega,
                                      double epsilon = 1e-6);
     
     double trouver_alpha(double vitesse, double altitude, double masse, 

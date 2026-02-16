@@ -4,8 +4,9 @@
 #include <cmath>
 
 namespace Physique {
-    constexpr double RAD_TO_DEG = 180.0 / M_PI;
-    constexpr double DEG_TO_RAD = M_PI / 180.0;
+    constexpr double PI = 3.14159265358979323846;
+    constexpr double RAD_TO_DEG = 180.0 / PI;
+    constexpr double DEG_TO_RAD = PI / 180.0;
     constexpr double g = 9.81;
 }
 

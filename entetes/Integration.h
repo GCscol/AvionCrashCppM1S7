@@ -8,19 +8,16 @@ class Avion;
 class Integration {
     
 public:
-    static void Euler(Avion& avion, double dt);
-    static void RK4(Avion& avion, double dt);
-
-private:
-
-    struct Derivees { // Struct pour RK4 et Euler  (peut etre plus opti aveec un vecteur ou autre, juste le plus simple/pratique au départ c'est un struct et peut etre plus opti de ne pas créer la fct calcul dérivée)
-        double dx, dy, dz;
-        double dvx, dvy, dvz;
-        double dpitch, domega_pitch;
+    struct Derivees {
+        double dx, dy, dz;           // Position derivatives
+        double dvx, dvy, dvz;        // Velocity derivatives
+        double dpitch;               // Pitch angle derivative
+        double domega_pitch;         // Pitch angular velocity derivative
     };
 
     static Derivees calculer_derivees(Avion& avion);
-
+    static void Euler(Avion& avion, double dt);
+    static void RK4(Avion& avion, double dt);
 };
 
 #endif // INTEGRATION_H

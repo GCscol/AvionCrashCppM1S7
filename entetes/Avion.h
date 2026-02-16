@@ -1,7 +1,9 @@
 #ifndef AVION_H
 #define AVION_H
 
+#include "ModeleAerodynamique.h"
 #include "ModeleLineaire.h"
+#include "ModeleHysteresis.h"
 #include "ProprietesInertie.h"
 #include "Propulsion.h"
 #include "SystemeControle.h"
@@ -14,24 +16,24 @@
 class Avion {
 private:
     // Composition des systèmes
-    ModeleLineaire aero;
+    ModeleAerodynamique* aero;
     ProprietesInertie inertie;
     Propulsion propulsion;
     SystemeControle controle;
     Environnement environnement;
-    CalculateurTrim trim_calculator;
-    
+    double altitude_croisiere;
+    CalculateurTrim* trim_calculator;
+
     EtatCinematique etat;
     ForcesAerodynamiques forces;
     
-    double altitude_croisiere;
-    
 public:
-    Avion(double surface, double corde, double masse);
+    Avion(double surface, double corde, double masse, bool useHysteresis = false);
+    ~Avion();
     
     const Environnement& get_env() const;
-    ModeleLineaire& get_aero();
-    const ModeleLineaire& get_aero() const;
+    ModeleAerodynamique& get_aero();
+    const ModeleAerodynamique& get_aero() const;
     
     double get_masse() const;
     void set_masse(double m);
