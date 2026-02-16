@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -35,13 +36,35 @@ double Simulateur::executer() {
         return std::numeric_limits<double>::quiet_NaN();
     }
     
-        // Initialisation du trim
+        // Initialisation du trim complet (alpha, delta_profondeur ET cmd_thrust)
     double speed = avion.get_vitesse_x();
-    double alpha_trim = avion.trouver_alpha(speed);
-    double delta_trim = avion.trouver_delta_profondeur(speed, avion.get_omega_pitch());
+    
+    // Utiliser la nouvelle méthode qui converge vers un équilibre complet
+    std::pair<double, double> trim_result = avion.calculer_trim_complet(speed);
+    double alpha_trim = trim_result.first;
+    double delta_trim = trim_result.second;
     
     avion.get_etat().pitch = alpha_trim;
     avion.get_aero().set_delta_profondeur(delta_trim);
+    
+    // CORRECTION: Calculer cmd_thrust pour équilibrer traction = traînée au trim
+    double rho = avion.get_env().calculer_rho(avion.get_altitude());
+    avion.get_aero().update_from_polar(alpha_trim, delta_trim, 0.0, speed);
+    double trainee_trim = avion.get_aero().calculer_trainee(speed, rho);
+    double traction_max = avion.calculer_poussee_max(speed, rho, avion.get_altitude());
+    
+    if (traction_max > 0.0) {
+        double cmd_thrust_trim = trainee_trim / traction_max;
+        // Limiter à [0, 1]
+        cmd_thrust_trim = std::max(0.0, std::min(1.0, cmd_thrust_trim));
+        avion.get_controle().set_commande_thrust(cmd_thrust_trim);
+        
+        std::cout << "=== TRIM INITIAL ===" << std::endl;
+        std::cout << "Alpha trim: " << alpha_trim * RAD_TO_DEG << " deg" << std::endl;
+        std::cout << "Delta profondeur trim: " << delta_trim << " rad" << std::endl;
+        std::cout << "CMD thrust trim: " << cmd_thrust_trim << " (Traction=" << trainee_trim << " N, Trainee=" << trainee_trim << " N)" << std::endl;
+        std::cout << "==================" << std::endl << std::endl;
+    }
     
     csv << "time,"
         << "x,y,z,vx,vy,vz,"
@@ -124,13 +147,7 @@ double Simulateur::executer() {
                 
                 avion.get_controle().set_commande_profondeur(cmds.first);
                 avion.get_controle().set_commande_thrust(cmds.second);
-                
-                // Gentle state nudge to help recovery: aids pitch recovery and descent reduction
-                if (avion.get_pitch() < 0.25) {  // Only nudge when pitch is too negative
-                    avion.get_etat().pitch += 0.05;  // Gentle pitch increment
-                }
-                avion.get_etat().vz += 3.0 * dt;  // Conservative descent rate reduction
-                
+
                 // Vérifie si le sauvetage a réussi
                 if (temps_sauvetage >= 2.0) {
                     rescue_successful = SauvetageAvion::verifier_succes_sauvetage(

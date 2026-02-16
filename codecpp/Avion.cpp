@@ -139,6 +139,12 @@ double Avion::trouver_alpha(double vitesse) {
                                          etat.omega_pitch);
 }
 
+std::pair<double, double> Avion::calculer_trim_complet(double vitesse) {
+    return trim_calculator->calculer_trim_complet(vitesse, etat.z, 
+                                                   inertie.get_masse(), 
+                                                   etat.omega_pitch);
+}
+
     // Intégration (Euler)  -> Créer une méthode Intégration Euler et RK4 plutot que de emttre ici avec des variables
 void Avion::mettre_a_jour_etat(double dt) {
 

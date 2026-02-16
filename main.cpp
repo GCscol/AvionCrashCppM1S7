@@ -6,11 +6,6 @@
 
 using namespace std;
 
-// Global definition for integration method
-namespace Param_Simulation {
-    Type_Integration::Methode methode_integration = Type_Integration::Methode::EULER;
-}
-
 int run_batch(double p_min, double p_max, double p_step,
               double t_min, double t_max, double t_step,
               bool useHysteresis,
@@ -24,10 +19,10 @@ int main() {
     // Simulateur sim(avion, 0.01, 600.0, "simulation_full.csv", -0.7, 0.6, 100, 600);
     // sim.executer();
 
-    // Avion avion(361.6, 6.6, 200000, true); // hysteresis aerodynamic model
-    // avion.initialiser();
-    // Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -1, 0.8, 100, 600);
-    // sim.executer();
+    Avion avion(361.6, 6.6, 200000, true); // hysteresis aerodynamic model
+    avion.initialiser();
+    Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -1, 0.8, 50, 600);
+    sim.executer();
 
 
     // AnalyseurEnveloppeVol analyseur(avion);
@@ -37,25 +32,25 @@ int main() {
 
     
 
-    Avion avion_rescue(361.6, 6.6, 140178.9, true);
-    avion_rescue.initialiser();
-    Simulateur sim_rescue(avion_rescue, 0.01, 600.0, "output/test_sauvetage.csv",
-                          -0.6,     // cmd_profondeur 
-                          0.7,      // cmd_thrust
-                          50.0,     // cmd_start 
-                          300.0,    // cmd_end
-                          true);    // ENABLE_RESCUE = true
-    sim_rescue.executer();
+    // Avion avion_rescue(361.6, 6.6, 140178.9, true);
+    // avion_rescue.initialiser();
+    // Simulateur sim_rescue(avion_rescue, 0.01, 600.0, "output/test_sauvetage.csv",
+    //                       -0.6,     // cmd_profondeur 
+    //                       0.7,      // cmd_thrust
+    //                       50.0,     // cmd_start 
+    //                       300.0,    // cmd_end
+    //                       true);    // ENABLE_RESCUE = true
+    // sim_rescue.executer();
 
-    Avion avion_no_rescue(361.6, 6.6, 140178.9, true);
-    avion_no_rescue.initialiser();
-    Simulateur sim_no_rescue(avion_no_rescue, 0.01, 600.0, "output/test_no_sauvetage.csv",
-                          -0.6,     // cmd_profondeur 
-                          0.7,      // cmd_thrust
-                          50.0,     // cmd_start 
-                          600.0,    // cmd_end
-                          false);    // ENABLE_RESCUE = false
-    sim_no_rescue.executer();
+    // Avion avion_no_rescue(361.6, 6.6, 140178.9, true);
+    // avion_no_rescue.initialiser();
+    // Simulateur sim_no_rescue(avion_no_rescue, 0.01, 600.0, "output/test_no_sauvetage.csv",
+    //                       -0.6,     // cmd_profondeur 
+    //                       0.7,      // cmd_thrust
+    //                       50.0,     // cmd_start 
+    //                       600.0,    // cmd_end
+    //                       false);    // ENABLE_RESCUE = false
+    // sim_no_rescue.executer();
 
     return 0;
 }

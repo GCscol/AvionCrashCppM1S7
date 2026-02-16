@@ -4,6 +4,8 @@
 #include "Constantes.h"
 #include <cmath>
 #include <limits>
+#include <iostream>
+#include <utility>
 
 CalculateurTrim::CalculateurTrim(ModeleAerodynamique& modele_aero, 
                                  const Environnement& environnement)
@@ -17,26 +19,28 @@ double CalculateurTrim::trouver_delta_profondeur(double pitch, double vitesse,
     constexpr double step = (delta_p_max - delta_p_min) / n;
     
     double best_delta_p = delta_p_min;
-    double min_C_m = std::numeric_limits<double>::infinity();  //mouais voir niveau opti
+    double min_moment_abs = std::numeric_limits<double>::infinity();
     
-    const double z_t = 1.7; // lever arm (m) for thrust pitching moment
-    // New approach: for each delta_p, solve for cmd_thrust that balances vertical (L ~ W)
-    // and pick delta_p that minimizes pitch moment residual.
+    // CORRECTION: Utiliser z_t = 2.0m pour cohérence avec Integration.cpp
+    const double z_t = 2.0; // lever arm (m) for thrust pitching moment
+    double rho = env.calculer_rho(altitude);
+    
+    // Pour chaque delta_p, calculer le moment total et trouver celui qui minimise |M|
     for (int i = 0; i <= n; ++i) {
         double delta_p = delta_p_min + i * step;
         aero.update_from_polar(pitch, delta_p, omega, vitesse);
-        double rho = env.calculer_rho(altitude);
 
-        // compute lift and drag at this delta_p
+        // Calculer traînée et traction (on suppose T = D au trim)
         double D = aero.calculer_trainee(vitesse, rho);
-        // For trim we assume traction ~= drag, so traction = D
-        double traction = D;
+        double traction = D;  // Equilibre horizontal au trim
+        
+        // Calculer moments
         double M_aero = aero.calculer_moment_pitch(vitesse, rho);
         double M_thrust = z_t * traction;
         double M_total = M_aero + M_thrust;
 
-        if (std::fabs(M_total) < std::fabs(min_C_m)) {
-            min_C_m = M_total;
+        if (std::fabs(M_total) < min_moment_abs) {
+            min_moment_abs = std::fabs(M_total);
             best_delta_p = delta_p;
         }
 
@@ -49,25 +53,125 @@ double CalculateurTrim::trouver_delta_profondeur(double pitch, double vitesse,
 double CalculateurTrim::trouver_alpha(double vitesse, double altitude, 
                                       double masse, double omega_pitch, double tol) {
     using namespace Physique;
-    constexpr double alpha_min = 0.5 * DEG_TO_RAD;
-    constexpr double alpha_max = 4.0 * DEG_TO_RAD;
-    constexpr int n = 1000;
-    constexpr double d_alpha = (alpha_max - alpha_min) / n;
     
-    double alpha = alpha_min;
+    // AMÉLIORATION: Itération couplée alpha-delta_p jusqu'à convergence complète
+    // pour garantir L=W ET M=0 simultanément
+    
+    constexpr int max_iterations_globales = 20;  // Nombre d'itérations couplées
+    constexpr double alpha_min = 0.5 * DEG_TO_RAD;
+    constexpr double alpha_max = 5.0 * DEG_TO_RAD;
+    
     double W = masse * g;
     double rho = env.calculer_rho(altitude);
+    const double z_t = 2.0;
     
-    for (int i = 0; i < n; ++i) { // Liste de valeurs possibles pour delta_profondeur (par exemple, entre -1.0 et 1.0)
-        double delta_p = trouver_delta_profondeur(alpha, vitesse, altitude, omega_pitch);
+    // Estimation initiale
+    double alpha = 2.0 * DEG_TO_RAD;  // Point de départ raisonnable
+    double delta_p = -0.08;            // Point de départ raisonnable
+    
+    double erreur_L = 1e10;
+    double erreur_M = 1e10;
+    
+    for (int iter = 0; iter < max_iterations_globales; ++iter) {
+        // Étape 1: Ajuster delta_p pour minimiser le moment (avec alpha fixe)
+        delta_p = trouver_delta_profondeur(alpha, vitesse, altitude, omega_pitch);
+        
+        // Étape 2: Ajuster alpha pour équilibrer la portance (avec delta_p fixe)
         aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse);
         double L = aero.calculer_portance(vitesse, rho);
-
-        if (std::fabs(L - W) < tol) break;
-
-        // adjust alpha direction
-        alpha += (L < W) ? d_alpha : -d_alpha;
+        erreur_L = L - W;
+        
+        // Ajustement de alpha par méthode de Newton simplifiée
+        // dL/dalpha ≈ (L_new - L_old) / d_alpha pour petit d_alpha
+        double d_alpha = 0.01 * DEG_TO_RAD;  // Petit incrément pour dérivée
+        aero.update_from_polar(alpha + d_alpha, delta_p, omega_pitch, vitesse);
+        double L_plus = aero.calculer_portance(vitesse, rho);
+        double dL_dalpha = (L_plus - L) / d_alpha;
+        
+        if (std::fabs(dL_dalpha) > 1e-6) {
+            alpha -= erreur_L / dL_dalpha;  // Newton step
+            alpha = std::max(alpha_min, std::min(alpha_max, alpha));  // Contraindre
+        }
+        
+        // Vérifier le moment pour critère de convergence
+        aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse);
+        double D = aero.calculer_trainee(vitesse, rho);
+        double M_aero = aero.calculer_moment_pitch(vitesse, rho);
+        double M_thrust = z_t * D;  // T = D au trim
+        erreur_M = M_aero + M_thrust;
+        
+        // Critère de convergence: L≈W ET M≈0
+        if (std::fabs(erreur_L) < tol && std::fabs(erreur_M) < 1000.0) {
+            // CONVERGENCE ATTEINTE
+            std::cout << "[TRIM] Convergence en " << (iter+1) << " iterations" << std::endl;
+            std::cout << "       Erreur L-W: " << erreur_L << " N, Erreur M: " << erreur_M << " N.m" << std::endl;
+            break;
+        }
+    }
+    
+    if (std::fabs(erreur_L) > tol * 10 || std::fabs(erreur_M) > 10000.0) {
+        std::cerr << "[TRIM WARNING] Convergence partielle: erreur_L=" << erreur_L 
+                  << " N, erreur_M=" << erreur_M << " N.m" << std::endl;
     }
     
     return alpha;
+}
+
+std::pair<double, double> CalculateurTrim::calculer_trim_complet(
+    double vitesse, double altitude, double masse, double omega_pitch) {
+    
+    using namespace Physique;
+    
+    constexpr int max_iterations = 20;
+    constexpr double tol_L = 1e-6;     // Tolérance sur L-W
+    constexpr double tol_M = 1000.0;   // Tolérance sur moment (N.m)
+    constexpr double alpha_min = 0.5 * DEG_TO_RAD;
+    constexpr double alpha_max = 5.0 * DEG_TO_RAD;
+    
+    double W = masse * g;
+    double rho = env.calculer_rho(altitude);
+    const double z_t = 2.0;
+    
+    // Initialisation
+    double alpha = 2.0 * DEG_TO_RAD;
+    double delta_p = -0.08;
+    
+    for (int iter = 0; iter < max_iterations; ++iter) {
+        // Étape 1: Ajuster delta_p pour minimiser moment (alpha fixe)
+        delta_p = trouver_delta_profondeur(alpha, vitesse, altitude, omega_pitch);
+        
+        // Étape 2: Ajuster alpha pour L=W (delta_p fixe)
+        aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse);
+        double L = aero.calculer_portance(vitesse, rho);
+        double erreur_L = L - W;
+        
+        // Calcul dérivée dL/dalpha
+        double d_alpha = 0.01 * DEG_TO_RAD;
+        aero.update_from_polar(alpha + d_alpha, delta_p, omega_pitch, vitesse);
+        double L_plus = aero.calculer_portance(vitesse, rho);
+        double dL_dalpha = (L_plus - L) / d_alpha;
+        
+        if (std::fabs(dL_dalpha) > 1e-6) {
+            alpha -= erreur_L / dL_dalpha;
+            alpha = std::max(alpha_min, std::min(alpha_max, alpha));
+        }
+        
+        // Vérifier moments pour convergence
+        aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse);
+        double D = aero.calculer_trainee(vitesse, rho);
+        double M_aero = aero.calculer_moment_pitch(vitesse, rho);
+        double M_thrust = z_t * D;
+        double erreur_M = M_aero + M_thrust;
+        
+        if (std::fabs(erreur_L) < tol_L && std::fabs(erreur_M) < tol_M) {
+            std::cout << "[TRIM COMPLET] Convergence en " << (iter+1) << " iterations" << std::endl;
+            std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
+            std::cout << "               Erreur L-W=" << erreur_L << " N, Erreur M=" << erreur_M << " N.m" << std::endl;
+            return {alpha, delta_p};
+        }
+    }
+    
+    // Si pas convergé, retourner meilleure approximation
+    std::cerr << "[TRIM COMPLET WARNING] Convergence partielle" << std::endl;
+    return {alpha, delta_p};
 }

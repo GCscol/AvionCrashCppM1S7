@@ -12,6 +12,7 @@
 #include "EtatCinematique.h"
 #include "ForcesAerodynamiques.h"
 #include "Integration.h"
+#include <utility>  // pour std::pair
 
 class Avion {
 private:
@@ -81,6 +82,9 @@ public:
 
     double trouver_delta_profondeur(double vitesse, double omega);
     double trouver_alpha(double vitesse);
+    
+    // Nouvelle méthode pour trim complet (retourne alpha ET delta_p)
+    std::pair<double, double> calculer_trim_complet(double vitesse);
     
         // Intégration (Euler)
     void mettre_a_jour_etat(double dt);
