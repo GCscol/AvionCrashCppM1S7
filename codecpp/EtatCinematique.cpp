@@ -13,7 +13,7 @@ double EtatCinematique::get_vitesse_norme() const {
 }
 
 double EtatCinematique::get_gamma() const {
-    double vh = std::sqrt(vx*vx + vy*vy);  /// J'ai généralisé avec vy pour plus tard, corriger si c'est faux
+    double vh = std::sqrt(vx*vx + vy*vy);
     return std::atan2(vz, vh);
 }
 

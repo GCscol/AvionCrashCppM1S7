@@ -11,28 +11,18 @@
 using namespace std;
 using namespace Physique;
 
-/**
- * @class AnalyseurEnergie
- * @brief Analyse l'évolution de l'énergie du système durant la simulation
- * 
- * Calcule et enregistre:
- * - Énergie cinétique (1/2 * m * v²)
- * - Énergie potentielle (m * g * h)
- * - Énergie mécanique totale (Ec + Ep)
- * - Travail des forces externes (traction, traînée)
- * - Perte d'énergie (dissipation aérodynamique)
- */
+// Analyzes system energy evolution: kinetic, potential, mechanical energy and work of forces
 class AnalyseurEnergie {
 private:
     struct EnergyState {
         double time;
         double altitude;
         double vitesse;
-        double energie_cinetique;      // Ec = 1/2 * m * v²
-        double energie_potentielle;     // Ep = m * g * h
-        double energie_mecanique;       // E_mec = Ec + Ep
-        double travail_traction;        // Travail de la poussée cumulé
-        double travail_trainee;         // Travail de la traînée cumulé
+        double energie_cinetique;
+        double energie_potentielle;
+        double energie_mecanique;
+        double travail_traction;
+        double travail_trainee;
         double bilan_energetique;       // E_mec - (travail_traction - travail_trainee)
         double portance;
         double trainee;
@@ -52,9 +42,7 @@ public:
     AnalyseurEnergie(const string& output_file, double mass) 
         : fichier_sortie(output_file), masse(mass), energie_mecanique_init(0.0) {}
 
-    /**
-     * Enregistre l'état énergétique à un instant t
-     */
+    // Record energy state at time t
     void enregistrer_etat(double t, const Avion& avion) {
         double altitude = avion.get_altitude();
         double vitesse = avion.get_etat().get_vitesse_norme();
@@ -63,22 +51,14 @@ public:
         double traction = avion.get_traction();
         double alpha = avion.get_etat().get_alpha();
 
-        // Énergies
         double Ec = 0.5 * masse * vitesse * vitesse;
         double Ep = masse * g * altitude;
         double E_mec = Ec + Ep;
 
-        // Travail des forces: Travail = ∫ F·v dt
-        // Pour un pas court: dW ≈ F·v·dt
+        // Work calculation: dW ≈ F·v·dt
         double dt = 0.01;
-        
-        double travail_net_instantane = (traction - trainee) * vitesse * dt;
         travail_traction_cumul += traction * vitesse * dt;
         travail_trainee_cumul -= trainee * vitesse * dt;
-
-        // Bilan énergétique théorique:
-        // ΔE_mec = travail_net = (traction - trainee)·v·dt
-        // Donc: E_mec_final - E_mec_init = travail_net
         double travail_net_total = travail_traction_cumul + travail_trainee_cumul;
         double bilan = (E_mec - energie_mecanique_init) - travail_net_total;
 
@@ -100,7 +80,7 @@ public:
 
         data.push_back(state);
 
-        // Initialiser l'énergie de référence au premier pas
+        // Initialize reference energy at first step
         if (t <= 0.02) {
             energie_mecanique_init = E_mec;
         }
@@ -113,12 +93,12 @@ public:
             return;
         }
 
-        // En-tête
+        // CSV header
         csv << "time_s,altitude_m,vitesse_ms,Ec_J,Ep_J,E_mec_J,"
             << "travail_traction_J,travail_trainee_J,bilan_energetique_J,"
             << "portance_N,trainee_N,traction_N,alpha_deg\n";
 
-        // Données
+        // CSV data rows
         for (const auto& state : data) {
             csv << fixed << setprecision(6)
                 << state.time << ','
@@ -141,9 +121,7 @@ public:
         generer_resume();
     }
 
-    /**
-     * Génère un résumé statistique de l'analyse énergétique
-     */
+    // Generate energy analysis statistics summary
     void generer_resume() {
         if (data.empty()) return;
 
@@ -241,7 +219,7 @@ int analyser_energie_simulation(const string& fichier_csv_sortie,
     for (int i = 0; i < steps; ++i) {
         double t = (i + 1) * pas_temps;
         
-        // Appliquer les commandes AVANT de mettre à jour l'état
+        // Apply commands BEFORE updating state
         if (t >= cmd_start && t < cmd_end) {
             if (!std::isnan(commande_profondeur))
                 avion.get_controle().set_commande_profondeur(commande_profondeur);
@@ -258,7 +236,7 @@ int analyser_energie_simulation(const string& fichier_csv_sortie,
             }
         }
         
-        // Mettre à jour l'état APRÈS les commandes
+        // Update state AFTER commands
         avion.mettre_a_jour_etat(pas_temps);
         
         // Enregistrer l'état énergétique
@@ -346,7 +324,7 @@ int analyser_energie_simulation_rk4(const string& fichier_csv_sortie,
             }
         }
         
-        // Intégration RK4 (beaucoup plus précis que Euler)
+        // RK4 integration (much more accurate than Euler)
         Integration::RK4(avion, pas_temps);
         
         // Enregistrer l'état énergétique
@@ -364,10 +342,10 @@ int analyser_energie_simulation_rk4(const string& fichier_csv_sortie,
     return 0;
 }
 
-// Fonction simple pour exécuter l'analyse d'énergie complète
-// Peut être appelée directement depuis main()
+// Simple function to execute complete energy analysis
+// Can be called directly from main()
 int main_energie_analysis() {
-    // Analyser simulation avec modèle linéaire
+    // Analyze simulation with linear model
     cout << "ANALYSE ENERGIE - MODELE LINEAIRE" << endl;
     analyser_energie_simulation("output/energie_simulation_linear.csv",
                                0.01,   // dt

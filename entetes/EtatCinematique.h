@@ -4,26 +4,24 @@
 #include <cmath>
 
 struct EtatCinematique {
-     // Position dans l'espace (en m)
+    // Position (m)
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
     
-     // Vitesse (en m/s)
+    // Velocity (m/s)
     double vx = 0.0;
     double vy = 0.0;
     double vz = 0.0;
     
-     // Orientation (en radians) (Euler)
+    // Orientation (rad) - Euler angles
     double roll = 0.0;
     double pitch = 0.0;
     double yaw = 0.0;
     
     double omega_pitch = 0.0;
 
-
     EtatCinematique();
-
 
     double get_vitesse_norme() const;
     double get_gamma() const;

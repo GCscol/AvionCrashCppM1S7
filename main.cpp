@@ -34,44 +34,37 @@ int main() {
     // run_batch(-1.0, -0.0, 0.1, 0.0, 1.0, 0.1, true, 0.01, 600.0, 100.0, 500.0);
 
 
-    // ===== TEST SCÉNARIO 1: PROGRESSIF (douce) =====
-    std::cout << "\n" << std::string(60, '=') << std::endl;
-    std::cout << "SCENARIO 1: RECUPERATION PROGRESSIVE (DOUCE)" << std::endl;
-    std::cout << std::string(60, '=') << std::endl;
+    // cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
+    // main_energie_analysis();
+    // cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
+    // main_energie_analysis_rk4();
+
+
+
+    // Scenario with rescue enabled
+    std::cout << "\nSCENARIO 1: PROGRESSIVE RECOVERY\n" << std::endl;
     
     Avion avion_scenario1(361.6, 6.6, 140000.0, true);
     avion_scenario1.initialiser();
     Simulateur sim_scenario1(avion_scenario1, 0.01, 600.0, "output/scenario1_progressif.csv",
-                          -0.4,     // cmd_profondeur_max
-                          1.0,      // cmd_thrust_max
-                          50.0,     // cmd_start 
-                          600.0,    // cmd_end
-                          true);    // ENABLE_RESCUE
+                          -0.4, 1.0, 50.0, 600.0, true);
     double crash_time_s1 = sim_scenario1.executer();
     std::cout << "Scenario 1 crash time: " << crash_time_s1 << " s\n" << std::endl;
 
-    // ===== TEST SANS SAUVETAGE (baseline) =====
-    std::cout << "\n" << std::string(60, '=') << std::endl;
-    std::cout << "BASELINE: SANS SYSTÈME DE SAUVETAGE" << std::endl;
-    std::cout << std::string(60, '=') << std::endl;
+    // Baseline without rescue
+    std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
     
     Avion avion_no_rescue(361.6, 6.6, 140000.0, true);
     avion_no_rescue.initialiser();
     Simulateur sim_no_rescue(avion_no_rescue, 0.01, 600.0, "output/baseline_no_rescue.csv",
-                          -0.4,     // cmd_profondeur 
-                          1.0,      // cmd_thrust
-                          50.0,     // cmd_start 
-                          600.0,    // cmd_end
-                          false);   // ENABLE_RESCUE = false
+                          -0.4, 1.0, 50.0, 600.0, false);
     double crash_time_baseline = sim_no_rescue.executer();
     std::cout << "Baseline crash time: " << crash_time_baseline << " s\n" << std::endl;
 
-    // ===== RESUME COMPARATIF =====
-    std::cout << "\n" << std::string(60, '=') << std::endl;
-    std::cout << "RESUME COMPARATIF DES SCENARIOS" << std::endl;
-    std::cout << std::string(60, '=') << std::endl;
-    std::cout << "Scenario 1 (Progressif):  " << crash_time_s1 << " s" << std::endl;
-    std::cout << "Baseline (Sans sauvetage): " << crash_time_baseline << " s" << std::endl;
+    // Compare results
+    std::cout << "\nCOMPARATIVE SUMMARY\n" << std::endl;
+    std::cout << "Scenario 1 (Progressive):  " << crash_time_s1 << " s" << std::endl;
+    std::cout << "Baseline (No rescue):      " << crash_time_baseline << " s" << std::endl;
     
     if (!std::isnan(crash_time_s1) && !std::isnan(crash_time_baseline)) {
         double gain_s1 = crash_time_s1 - crash_time_baseline;
@@ -80,11 +73,6 @@ int main() {
                   << (gain_s1 / crash_time_baseline * 100) << "%)" << std::endl;
     }
     
-
-    // cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
-    // main_energie_analysis();
-    // cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
-    // main_energie_analysis_rk4();
 
     return 0;
 }

@@ -12,11 +12,11 @@
 #include "EtatCinematique.h"
 #include "ForcesAerodynamiques.h"
 #include "Integration.h"
-#include <utility>  // pour std::pair
+#include <utility>
 
 class Avion {
 private:
-    // Composition des systèmes
+    // System components
     ModeleAerodynamique* aero;
     ProprietesInertie inertie;
     Propulsion propulsion;
@@ -83,10 +83,10 @@ public:
     double trouver_delta_profondeur(double vitesse, double omega);
     double trouver_alpha(double vitesse);
     
-    // Nouvelle méthode pour trim complet (retourne alpha ET delta_p)
+    // Return (alpha, delta_p) pair for complete trim
     std::pair<double, double> calculer_trim_complet(double vitesse);
     
-        // Intégration (Euler)
+    // Integration (Euler)
     void mettre_a_jour_etat(double dt);
 };
 

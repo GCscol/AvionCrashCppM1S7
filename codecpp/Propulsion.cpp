@@ -6,9 +6,8 @@
 Propulsion::Propulsion(double poussee_nominale, int nb_moteurs, double expo_alt)
     : F0(poussee_nominale), n_moteurs(nb_moteurs), expo_alt(expo_alt) {}
 
-// double Propulsion::calculer_poussee_max(double vitesse, double rho, double altitude) const
 double Propulsion::calculer_poussee_max(double, double rho, double) const {
-    double sigma = rho / 1.225;  // Densité relative à intégrer via environnement
+    double sigma = rho / 1.225;  // Relative density
     double F_altitude = n_moteurs * F0 * std::pow(sigma, expo_alt);
     // // Corrections pour vitesse et Mach (valeurs conservatrices)
     // double F_speed_correction = 1.0 - 0.25 * (vitesse / 300.0); // diminue avec la vitesse

@@ -29,5 +29,5 @@ double ModeleAerodynamique::calculer_trainee(double vitesse, double rho) const {
 }
 
 double ModeleAerodynamique::calculer_moment_pitch(double vitesse, double rho) const {
-    return 0.5 * rho * vitesse * vitesse * S * C_m * l;   // moment de tangage, il y a aussi une contribution de la vitesse au Cm, à multiplier par cos(alpha)?
+    return 0.5 * rho * vitesse * vitesse * S * C_m * l;
 }

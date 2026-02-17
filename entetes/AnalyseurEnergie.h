@@ -4,10 +4,7 @@
 #include <string>
 #include "Avion.h"
 
-/**
- * @brief Analyse l'évolution de l'énergie du système
- * Calcule: Énergie cinétique, Énergie potentielle, Travail des forces
- */
+// Analyze system energy evolution during simulation
 int analyser_energie_simulation(const std::string& fichier_csv_sortie,
                                 double pas_temps,
                                 double duree_sim,
@@ -17,10 +14,7 @@ int analyser_energie_simulation(const std::string& fichier_csv_sortie,
                                 double cmd_end,
                                 bool use_hysteresis);
 
-/**
- * @brief Analyse l'énergie avec intégration RK4 (Runge-Kutta 4ème ordre)
- * Beaucoup plus précis que la méthode par défaut
- */
+// Analyze energy with RK4 integration (4th order Runge-Kutta)
 int analyser_energie_simulation_rk4(const std::string& fichier_csv_sortie,
                                     double pas_temps,
                                     double duree_sim,
@@ -32,9 +26,7 @@ int analyser_energie_simulation_rk4(const std::string& fichier_csv_sortie,
 
 int main_energie_analysis();
 
-/**
- * @brief Lance l'analyse énergétique avec RK4 pour les deux modèles
- */
+// Launch energy analysis with RK4 for both models
 int main_energie_analysis_rk4();
 
 #endif

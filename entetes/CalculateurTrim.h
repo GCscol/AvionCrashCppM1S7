@@ -1,7 +1,7 @@
 #ifndef CALCULATEUR_TRIM_H
 #define CALCULATEUR_TRIM_H
 
-#include <utility>  // pour std::pair
+#include <utility>
 
 class ModeleAerodynamique;
 class Environnement;
@@ -20,7 +20,7 @@ public:
     double trouver_alpha(double vitesse, double altitude, double masse, 
                          double omega_pitch, double tol = 1e-6);
     
-    // Nouvelle méthode qui retourne (alpha, delta_p) simultanément
+    // Return (alpha, delta_p) pair simultaneously
     std::pair<double, double> calculer_trim_complet(double vitesse, double altitude, 
                                                      double masse, double omega_pitch);
 };

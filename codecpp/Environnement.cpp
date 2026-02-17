@@ -6,16 +6,14 @@
 double Environnement::calculer_rho(double altitude) const {
     altitude = std::max(0.0, altitude);
 
-    // Altitude de transition (tropopause) où la décroissance linéaire de
-    // température s'arrête et devient isotherme (valeur standard ~ 11000 m)
+    // Tropopause at ~11000m: linear temperature below, isothermal above
     const double h_tropo = (T_0 - T_min) / L;
 
     if (altitude <= h_tropo) {
         double T = T_0 - L * altitude;
         return rho_0 * std::pow(T / T_0, Physique::g / (R * L) - 1);
     } else {
-        // Pour la couche isotherme (alt > h_tropo) : densité décroît
-        // exponentiellement avec la loi barométrique
+        // Exponential density decay above tropopause
         double T = T_min;
         double rho_at_ht = rho_0 * std::pow(T / T_0, Physique::g / (R * L) - 1);
         return rho_at_ht * std::exp(-Physique::g / (R * T) * (altitude - h_tropo));

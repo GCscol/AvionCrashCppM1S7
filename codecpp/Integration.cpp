@@ -24,24 +24,23 @@ Integration::Derivees Integration::calculer_derivees(Avion& avion) {
     double delta_p = avion.get_aero().get_delta_profondeur() 
                    + avion.get_cmd_profondeur() * avion.get_controle().get_delta_p_max();
     
-    // If the aerodynamic model supports hysteresis, advance it with dt
+    // Update hysteresis model if present
     ModeleHysteresis* mh = dynamic_cast<ModeleHysteresis*>(&avion.get_aero());
     if (mh) {
-        mh->update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse, 0.01);  // dt = 0.01 for derivative calc
+        mh->update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse, 0.01);
     } else {
         avion.get_aero().update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse);
     }
     avion.calculer_forces();
     
-    // Aerodynamic pitching moment
+    // Aerodynamic and thrust moments
     double M_aero = avion.get_aero().calculer_moment_pitch(vitesse, rho);
-    // Thrust pitching moment: M_thrust = z_t * T (z_t positive downwards from cg gives sign)
-    const double z_t = 2;  // lever arm in meters
+    const double z_t = 2;  // Lever arm (m)
     double M_thrust = z_t * forces.traction;
     forces.M_thrust = M_thrust;
     forces.M_pitch = M_aero + M_thrust;
     
-    // Forces 
+    // Force components in body frame
     forces.Fx = forces.traction * (std::cos(yaw) * std::cos(pitch)) 
               - forces.trainee * (std::cos(yaw) * std::cos(gamma)) 
               - forces.portance * (std::sin(gamma) * std::cos(roll));

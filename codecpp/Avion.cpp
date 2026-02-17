@@ -25,7 +25,6 @@ Avion::~Avion() {
     if (trim_calculator) delete trim_calculator;
 }
 
-// Accesseurs
 const Environnement& Avion::get_env() const { return environnement; }
 
 ModeleAerodynamique& Avion::get_aero() { return *aero; }
@@ -88,11 +87,9 @@ double Avion::get_Fz() const { return forces.Fz; }
 
 double Avion::get_I_pitch() const { return inertie.get_I_pitch(); }
 
-double Avion::get_cmd_profondeur() const {   //j'ai mis mais pas sur de l'utilité
+double Avion::get_cmd_profondeur() const {
     return controle.get_cmd_profondeur();
 }
-
-    // Initialisation
 void Avion::initialiser() {
     etat.x = 0.0; etat.y = 0.0; etat.z = 11000.0;
     etat.vx = 285.0; etat.vy = 0.0; etat.vz = 0.0;

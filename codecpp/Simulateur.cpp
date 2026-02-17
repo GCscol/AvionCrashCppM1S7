@@ -39,7 +39,7 @@ double Simulateur::executer() {
         // Initialisation du trim complet (alpha, delta_profondeur ET cmd_thrust)
     double speed = avion.get_vitesse_x();
     
-    // Utiliser la nouvelle méthode qui converge vers un équilibre complet
+    // Use complete trim convergence method
     std::pair<double, double> trim_result = avion.calculer_trim_complet(speed);
     double alpha_trim = trim_result.first;
     double delta_trim = trim_result.second;
@@ -55,7 +55,7 @@ double Simulateur::executer() {
     
     if (traction_max > 0.0) {
         cmd_thrust_trim = trainee_trim / traction_max;
-        // Limiter à [0, 1]
+        // Clamp to [0, 1]
         cmd_thrust_trim = std::max(0.0, std::min(1.0, cmd_thrust_trim));
         avion.get_controle().set_commande_thrust(cmd_thrust_trim);
     }
@@ -118,9 +118,9 @@ double Simulateur::executer() {
             // On laisse la simulation continuer avec ce profil
         }
 
-        // ============ GESTION DU SAUVETAGE AUTOMATIQUE ============
+        // Rescue system management
         if (enable_rescue && !rescue_completed) {
-            // Évalue l'état de l'avion avec les maximales comme paramètres
+            // Evaluate aircraft state with max values as parameters
             SauvetageAvion::EtatSauvetage etat_sauvetage = SauvetageAvion::evaluer_etat(
                 avion.get_etat(), t, test_cmd_profondeur, test_cmd_thrust, temps_debut_sauvetage);
             
@@ -187,32 +187,17 @@ double Simulateur::executer() {
             }
         }
         
-        // ========== FIN GESTION SAUVETAGE ==========
+        // End rescue management
         
-        // Commandes pilote: either use provided test commands or fallback
+        // Pilot commands: use provided test commands or hardcoded defaults
         if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated && (!std::isnan(test_cmd_profondeur) || !std::isnan(test_cmd_thrust))) {
             if (t >= test_cmd_start && t < test_cmd_end) {
                 if (!std::isnan(test_cmd_profondeur))
                     avion.get_controle().set_commande_profondeur(test_cmd_profondeur);
                 if (!std::isnan(test_cmd_thrust))
                     avion.get_controle().set_commande_thrust(test_cmd_thrust);
-                
-                // Commande thrust avec plages de temps spécifiques
-                // if (!std::isnan(test_cmd_thrust)) {
-                //     if (t >= 100.0 && t < 120.0) {
-                //         // Entre 100 et 120s: thrust = 0.8
-                //         avion.get_controle().set_commande_thrust(0.8);
-                //     } else if (t >= 145.0 && t < 170.0) {
-                //         // Entre 145 et 170s: thrust = 0.6
-                //         avion.get_controle().set_commande_thrust(0.6);
-                //     } else {
-                //         // Reste du vol: utiliser la commande définie dans l'argument
-                //         avion.get_controle().set_commande_thrust(test_cmd_thrust);
-                //     }
-                // }
             }
         } else if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated) {
-            // original hardcoded test
             if (t >= 100 && t < 500) {
                 avion.get_controle().set_commande_profondeur(-0.55);
                 avion.get_controle().set_commande_thrust(0.9);

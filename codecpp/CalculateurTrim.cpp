@@ -21,20 +21,19 @@ double CalculateurTrim::trouver_delta_profondeur(double pitch, double vitesse,
     double best_delta_p = delta_p_min;
     double min_moment_abs = std::numeric_limits<double>::infinity();
     
-    // CORRECTION: Utiliser z_t = 2.0m pour cohérence avec Integration.cpp
-    const double z_t = 2.0; // lever arm (m) for thrust pitching moment
+    // Find delta_p that minimizes pitching moment
+    const double z_t = 2.0;  // Lever arm (m)
     double rho = env.calculer_rho(altitude);
     
-    // Pour chaque delta_p, calculer le moment total et trouver celui qui minimise |M|
     for (int i = 0; i <= n; ++i) {
         double delta_p = delta_p_min + i * step;
         aero.update_from_polar(pitch, delta_p, omega, vitesse);
 
-        // Calculer traînée et traction (on suppose T = D au trim)
+        // Drag and thrust (assume T=D at trim)
         double D = aero.calculer_trainee(vitesse, rho);
-        double traction = D;  // Equilibre horizontal au trim
+        double traction = D;
         
-        // Calculer moments
+        // Calculate moments
         double M_aero = aero.calculer_moment_pitch(vitesse, rho);
         double M_thrust = z_t * traction;
         double M_total = M_aero + M_thrust;
@@ -54,10 +53,8 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
                                       double masse, double omega_pitch, double tol) {
     using namespace Physique;
     
-    // AMÉLIORATION: Itération couplée alpha-delta_p jusqu'à convergence complète
-    // pour garantir L=W ET M=0 simultanément
-    
-    constexpr int max_iterations_globales = 20;  // Nombre d'itérations couplées
+    // Iteratively solve for alpha and delta_p simultaneously: L=W and M=0
+    constexpr int max_iterations_globales = 20;
     constexpr double alpha_min = 0.5 * DEG_TO_RAD;
     constexpr double alpha_max = 5.0 * DEG_TO_RAD;
     
@@ -66,8 +63,8 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
     const double z_t = 2.0;
     
     // Estimation initiale
-    double alpha = 2.0 * DEG_TO_RAD;  // Point de départ raisonnable
-    double delta_p = -0.08;            // Point de départ raisonnable
+    double alpha = 2.0 * DEG_TO_RAD;  // Starting point
+    double delta_p = -0.08;            // Starting point
     
     double erreur_L = 1e10;
     double erreur_M = 1e10;

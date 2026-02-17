@@ -25,13 +25,13 @@ void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
     for (double alt : altitudes) {
         avion.z_ref() = alt;
         double rho = avion.get_env().calculer_rho(alt);
-        double v_max = 500.0;  // Vitesse initiale maximale à tester
+        double v_max = 500.0;  // Initial max speed to test
         double v_min;
         
         double S = avion.get_aero().get_surface();
         double W = avion.get_masse() * g;
         double alpha_stall_rad = 15.0 * DEG_TO_RAD;
-        double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);  // ||||||||||||| braquage de gouverne à -0,13 |||||||||||||||||||
+        double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);
         
         v_min = std::sqrt(2.0 * W / (rho * S * CL_max));
 
@@ -40,7 +40,7 @@ void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
         const double v_high = 500.0;
 
         v_max = v_high;
-        // Diagnostic : écrire un fichier détaillé pour alt >= 12000
+        // Write detailed diagnostic file for alt >= 12000
         ofstream diag;
         bool write_diag = (alt >= 12000.0);
         if (write_diag) {
@@ -74,7 +74,7 @@ void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
         
 
         if (v_max >= v_high - 1e-6) {
-            v_max = v_min; // signaler incapacité à atteindre des vitesses > v_min
+            v_max = v_min;  // Signal inability to achieve speeds > v_min
         }
         
         double sound_speed = avion.get_env().calculer_vitesse_son(alt);

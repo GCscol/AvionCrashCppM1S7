@@ -29,10 +29,10 @@ public:
 
 private:
 
-    // Etat interne de séparation (0 = attaché, 1 = séparé)
+    // Separation state: 0=attached, 1=separated
     double X_sep;
 
-    // Paramètres physiques A330 réalistes
+    // Physical parameters
     double alpha0;
 
     double alpha_stall_up;
@@ -45,7 +45,7 @@ private:
 
     double CL_max;
 
-    // bornes de sécurité
+    // Safety bounds
     void clamp_state();
 };
 
