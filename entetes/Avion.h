@@ -29,6 +29,7 @@ private:
     ForcesAerodynamiques forces;
     
 public:
+    
     Avion(double surface, double corde, double masse, bool useHysteresis = false);
     ~Avion();
     
@@ -72,7 +73,7 @@ public:
     
     double get_cmd_profondeur() const;
     
-    void initialiser();
+    void initialiser(double vx = 240.0, double z = 10670.0);
     
     double calculer_poussee_max(double vitesse, double rho, double altitude) const;
     

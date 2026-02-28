@@ -324,7 +324,7 @@ int analyser_energie_simulation_rk4(const string& fichier_csv_sortie,
             }
         }
         
-        // RK4 integration (much more accurate than Euler)
+        // RK4 integration
         Integration::RK4(avion, pas_temps);
         
         // Enregistrer l'état énergétique

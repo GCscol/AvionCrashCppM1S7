@@ -8,6 +8,7 @@ namespace Physique {
     constexpr double RAD_TO_DEG = 180.0 / PI;
     constexpr double DEG_TO_RAD = PI / 180.0;
     constexpr double g = 9.81;
+    constexpr double z_t = 2.0;  // Bras de levier de la poussée (m)
 }
 
 class Type_Integration {

@@ -11,23 +11,20 @@ public:
                      double corde,
                      double delta_prof_init);
 
-    // Override base interface (no dt) — forwards to dt-enabled implementation
-    void update_from_polar(double alpha_rad,
-                           double delta_p,
-                           double omega,
-                           double vitesse) override
-    {
-        update_from_polar(alpha_rad, delta_p, omega, vitesse, 0.0);
-    }
-
-    // Implementation with explicit time-step for hysteresis dynamics
+    // Override base interface with mach parameter (ignored for hysteresis, uses dt instead)
     void update_from_polar(double alpha_rad,
                            double delta_p,
                            double omega,
                            double vitesse,
-                           double dt);
+                           double mach = 0.0) override;
 
 private:
+    // Internal implementation with explicit time-step for hysteresis dynamics
+    void update_from_polar_dt(double alpha_rad,
+                              double delta_p,
+                              double omega,
+                              double vitesse,
+                              double dt);
 
     // Separation state: 0=attached, 1=separated
     double X_sep;

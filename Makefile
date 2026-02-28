@@ -72,11 +72,11 @@ $(TARGET): $(OBJECTS) | $(BIN_DIR) $(OUTPUT_DIR)
 # Compilation des fichiers objets
 # ============================================
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(SOURCES_H) | $(OBJ_DIR)
 	@echo [CC] Compiling $$(notdir $<)
 	@$(CXX) $(CXXFLAGS) -I$(HEADER_DIR) -c $< -o $@
 
-$(OBJ_DIR)/main.o: main.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/main.o: main.cpp $(SOURCES_H) | $(OBJ_DIR)
 	@echo [CC] Compiling main.cpp
 	@$(CXX) $(CXXFLAGS) -I$(HEADER_DIR) -c $< -o $@
 

@@ -5,6 +5,9 @@
 
 const char *SAUVETAGE_VERSION = "1.0";
 
+// Global strategy selector (0: thrust-first, 1: profile-first, 2: simultaneous)
+int CURRENT_STRATEGY = 0;
+
 SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
     const EtatCinematique& etat, 
     double temps_courant,
@@ -39,7 +42,7 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
 {
     double t = etat.temps_depuis_manoeuvre;
     const double cmd_prof_min = etat.cmd_profondeur_max;
-    const int STRATEGY = 0; // Optimal strategy: thrust-first approach
+    const int STRATEGY = CURRENT_STRATEGY; // Use global strategy selector
     
     const double cmd_thrust_min = etat.cmd_thrust_max * THRUST_REDUCED_FACTOR;
     const double cmd_prof_target = PROF_REDUCED_FACTOR * 0.5;

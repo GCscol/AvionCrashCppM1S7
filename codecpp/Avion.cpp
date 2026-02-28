@@ -90,9 +90,9 @@ double Avion::get_I_pitch() const { return inertie.get_I_pitch(); }
 double Avion::get_cmd_profondeur() const {
     return controle.get_cmd_profondeur();
 }
-void Avion::initialiser() {
-    etat.x = 0.0; etat.y = 0.0; etat.z = 11000.0;
-    etat.vx = 285.0; etat.vy = 0.0; etat.vz = 0.0;
+void Avion::initialiser(double vx, double z) {
+    etat.x = 0.0; etat.y = 0.0; etat.z = z;
+    etat.vx = vx; etat.vy = 0.0; etat.vz = 0.0;
     etat.roll = 0.0; 
     etat.pitch = 1.0 / Physique::RAD_TO_DEG;
     etat.yaw = 0.0;

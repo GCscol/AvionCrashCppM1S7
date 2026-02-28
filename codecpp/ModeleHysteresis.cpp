@@ -1,6 +1,7 @@
 #include "ModeleHysteresis.h"
 #include "Constantes.h"
 #include <cmath>
+#include <algorithm>
 
 using namespace Physique;
 

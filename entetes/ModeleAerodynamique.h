@@ -18,7 +18,7 @@ public:
     
 
     virtual void update_from_polar(double alpha_rad, double delta_p, 
-                                   double omega, double vitesse) = 0;
+                                   double omega, double vitesse, double mach = 0.0) = 0;
     
 
     double get_surface() const;

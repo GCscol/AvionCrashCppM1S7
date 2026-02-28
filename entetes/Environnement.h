@@ -12,6 +12,8 @@ private:
 public:
     double calculer_rho(double altitude) const;
     double calculer_vitesse_son(double altitude) const;
+    double calculer_temperature(double altitude) const;
+    double calculer_mach(double vitesse, double altitude) const;
 };
 
 #endif // ENVIRONNEMENT_H

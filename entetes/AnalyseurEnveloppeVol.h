@@ -7,6 +7,10 @@ class AnalyseurEnveloppeVol {
 private:
     Avion& avion;
     
+    // Check longitudinal dynamic stability using simplified eigenvalue analysis
+    bool check_stability(double V, double alpha, double mach, 
+                        double rho, double delta_p);
+    
 public:
     explicit AnalyseurEnveloppeVol(Avion& av);
     

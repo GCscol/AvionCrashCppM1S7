@@ -4,6 +4,7 @@
 #include "SauvetageAvion.h"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <cmath>
 #include <algorithm>
 
@@ -82,14 +83,32 @@ double Simulateur::executer() {
     double rescue_cooldown_end = 0.0;
     const double rescue_cooldown_sec = 10.0;
     double rescue_vz_positive_time = 0.0;
+
+    // Stall speed monitoring (minimum lift-sustaining speed)
+    const double surface = avion.get_aero().get_surface();
+    const double poids = avion.get_masse() * g;
+    const double alpha_stall_rad = 15.0 * DEG_TO_RAD;
+    const double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);
+    bool etait_sous_vmin = false;
     
     for (int i = 0; i < steps; ++i) {
         double t = (i + 1) * dt;
+        
         avion.mettre_a_jour_etat(dt);
         
         double speed = avion.get_etat().get_vitesse_norme();
         double alpha = avion.get_etat().get_alpha();
         double AoA_deg = alpha * RAD_TO_DEG;
+
+        // Compute current minimum lift-sustaining speed and detect crossing below threshold
+        double rho_now = avion.get_env().calculer_rho(avion.get_altitude());
+        double v_min_sustentation = std::sqrt(2.0 * poids / (rho_now * surface * CL_max));
+        bool sous_vmin = (speed < v_min_sustentation);
+        if (sous_vmin && !etait_sous_vmin) {
+            std::cout << "[T=" << t << "s] : vitesse sous la sustentation minimale! "
+                      << std::endl;
+        }
+        etait_sous_vmin = sous_vmin;
         
         if (rescue_cooldown_active) {
             avion.get_controle().set_commande_profondeur(0.0);
@@ -189,18 +208,109 @@ double Simulateur::executer() {
         
         // End rescue management
         
-        // Pilot commands: use provided test commands or hardcoded defaults
-        if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated && (!std::isnan(test_cmd_profondeur) || !std::isnan(test_cmd_thrust))) {
+        // Multi-phase sequence before stall: AF447-like scenario
+        // Phase 0 (10s): Autopilot disconnect - passive speed loss
+        // Phase 1 (20s): Pilot increases thrust to recover speed (theta & gamma up together)
+        // Phase 2 (20s): Pilot releases thrust - speed drops again
+        // Phase 3: Stall alarm + pilot pitches up aggressively
+        if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated) {
+            // double phase0_start = test_cmd_start - 50.0;  // Autopilot off
+            // double phase1_start = test_cmd_start - 40.0;  // Pilot pushes thrust
+            // double phase2_start = phase1_start + 20.0;    // 20s climb guidance
+            
+            // // Phase 0: Autopilot disconnect - passive energy loss (first 10s)
+            // if (t >= phase0_start && t < phase1_start) {
+            //     // thrust reduction: cmd_thrust_trim → 0.5
+            //     double thrust_factor = cmd_thrust_trim * 0.5;
+                
+            //     avion.get_controle().set_commande_profondeur(0.0);  // Elevator at trim
+            //     avion.get_controle().set_commande_thrust(thrust_factor);
+            // }
+            // // Phase 1: Guidance climb for 20s - raise gamma while holding alpha
+            // else if (t >= phase1_start && t < phase2_start) {
+            //     double t_rel = t - phase1_start;
+            //     double ramp = std::min(1.0, std::max(0.0, t_rel / 20.0));
+            //     double gamma_target = 20.0 * DEG_TO_RAD * ramp;
+            //     double alpha_target = alpha_trim;
+            //     double pitch_target = gamma_target + alpha_target;
+            //     double gamma = avion.get_etat().get_gamma();
+            //     double alpha_now = avion.get_etat().get_alpha();
+            //     double pitch_now = avion.get_pitch();
+
+            //     double k_alpha = 1.0;
+            //     double k_pitch = 2.0;
+            //     double k_gamma = 3.0;
+            //     double base_thrust = std::isnan(cmd_thrust_trim) ? 0.0 : cmd_thrust_trim;
+
+            //     double cmd_p_raw = -(k_alpha * (alpha_target - alpha_now)
+            //                       + k_pitch * (pitch_target - pitch_now));
+            //     double cmd_p = std::max(-0.4, std::min(0.4, cmd_p_raw));
+            //     double cmd_t_raw = base_thrust + 0.15 + k_gamma * (gamma_target - gamma);
+            //     double cmd_t = std::max(0.0, std::min(1.0, cmd_t_raw));
+
+            //     avion.get_controle().set_commande_profondeur(cmd_p);
+            //     avion.get_controle().set_commande_thrust(cmd_t);
+            // }
+            // // Phase 2: Return to cruise in 20s (gamma -> 0, pitch -> alpha_trim)
+            // else if (t >= phase2_start && t < test_cmd_start) {
+            //     double t_rel = t - phase2_start;
+            //     double ramp = std::min(1.0, std::max(0.0, t_rel / 20.0));
+                
+            //     // Capture initial conditions at start of Phase 2
+            //     static double gamma_initial_ph2 = -1.0;
+            //     static double pitch_initial_ph2 = -1.0;
+            //     if (t_rel < dt) {
+            //         gamma_initial_ph2 = avion.get_etat().get_gamma();
+            //         pitch_initial_ph2 = avion.get_pitch();
+            //     }
+                
+            //     // Target: cruise (gamma -> 0, pitch -> alpha_trim)
+            //     double pitch_final = alpha_trim;
+            //     double gamma_final = 0.0;
+                
+            //     double pitch_target = pitch_initial_ph2 - (pitch_initial_ph2 - pitch_final) * ramp;
+            //     double gamma_target = gamma_initial_ph2 - (gamma_initial_ph2 - gamma_final) * ramp;
+                
+            //     double alpha_now = avion.get_etat().get_alpha();
+            //     double pitch_now = avion.get_pitch();
+            //     double gamma = avion.get_etat().get_gamma();
+
+            //     // Alpha target: return to trim for cruise
+            //     double alpha_target = alpha_trim;
+
+            //     double k_alpha = 3.0;  // Moderate gain
+            //     double k_gamma = 4.0;
+            //     double k_pitch = 6.0;
+                
+            //     double cmd_p_raw = -(k_alpha * (alpha_target - alpha_now)
+            //                       + k_gamma * (gamma_target - gamma)
+            //                       + k_pitch * (pitch_target - pitch_now));
+            //     double cmd_p = std::max(-0.4, std::min(0.4, cmd_p_raw));
+                
+            //     // Thrust returns to trim for cruise
+            //     double base_thrust = std::isnan(cmd_thrust_trim) ? 0.0 : cmd_thrust_trim;
+            //     double cmd_t = base_thrust;
+            //     cmd_t = std::max(0.0, std::min(1.0, cmd_t));
+
+            //     avion.get_controle().set_commande_profondeur(cmd_p);
+            //     avion.get_controle().set_commande_thrust(cmd_t);
+            // }
+            // Phase 3: Stall alarm - pilot inputs aggressive elevator command (EXPONENTIAL ramp)
             if (t >= test_cmd_start && t < test_cmd_end) {
-                if (!std::isnan(test_cmd_profondeur))
-                    avion.get_controle().set_commande_profondeur(test_cmd_profondeur);
-                if (!std::isnan(test_cmd_thrust))
+                double ramp_duration = 45.0;  // seconds to reach ~99% of final value
+                double t_relative = t - test_cmd_start;
+                
+                // Progressive ramp: slow start, faster increase toward the end (0s -> 45s)
+                double ramp = std::min(1.0, std::max(0.0, t_relative / ramp_duration));
+                double exp_factor = ramp * ramp;
+                
+                if (!std::isnan(test_cmd_profondeur)) {
+                    avion.get_controle().set_commande_profondeur(test_cmd_profondeur * exp_factor);
+                }
+                if (!std::isnan(test_cmd_thrust)) {
                     avion.get_controle().set_commande_thrust(test_cmd_thrust);
-            }
-        } else if (!rescue_hold_active && !rescue_cooldown_active && !rescue_activated) {
-            if (t >= 100 && t < 500) {
-                avion.get_controle().set_commande_profondeur(-0.55);
-                avion.get_controle().set_commande_thrust(0.9);
+                }
+                
             }
         }
 

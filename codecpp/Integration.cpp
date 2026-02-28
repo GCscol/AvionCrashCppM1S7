@@ -24,19 +24,22 @@ Integration::Derivees Integration::calculer_derivees(Avion& avion) {
     double delta_p = avion.get_aero().get_delta_profondeur() 
                    + avion.get_cmd_profondeur() * avion.get_controle().get_delta_p_max();
     
+    // Calculate Mach number for compressibility effects
+    double mach = avion.get_env().calculer_mach(vitesse, avion.get_altitude());
+    
     // Update hysteresis model if present
     ModeleHysteresis* mh = dynamic_cast<ModeleHysteresis*>(&avion.get_aero());
     if (mh) {
+        // For hysteresis, use the dt-based overload directly
         mh->update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse, 0.01);
     } else {
-        avion.get_aero().update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse);
+        avion.get_aero().update_from_polar(alpha, delta_p, avion.get_omega_pitch(), vitesse, mach);
     }
     avion.calculer_forces();
     
     // Aerodynamic and thrust moments
     double M_aero = avion.get_aero().calculer_moment_pitch(vitesse, rho);
-    const double z_t = 2;  // Lever arm (m)
-    double M_thrust = z_t * forces.traction;
+    double M_thrust = Physique::z_t * forces.traction;
     forces.M_thrust = M_thrust;
     forces.M_pitch = M_aero + M_thrust;
     
