@@ -147,11 +147,11 @@ void Avion::mettre_a_jour_etat(double dt) {
 
     switch (config.getEnum(STR_TO_METHODE, "methode_integration")) {
         case Methode_Integration::EULER:
-            Methode_Integration::Euler(*this, dt);
+            Integration::Euler(*this, dt);
             break;
 
         case Methode_Integration::RK4:
-            Methode_Integration::RK4(*this, dt);
+            Integration::RK4(*this, dt);
             break;
     }
 

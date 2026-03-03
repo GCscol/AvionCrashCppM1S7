@@ -36,7 +36,7 @@ struct Config {
     if (it == table.end())
         throw std::runtime_error("Valeur inconnue pour '" + key + "' : " + params.at(key));
     return it->second;
-    };
+    }
 };
 
 // Fonction de fabrique qui retourne un config const — plus modifiable ensuite

@@ -52,7 +52,7 @@ public:
         double alpha = avion.get_etat().get_alpha();
 
         double Ec = 0.5 * masse * vitesse * vitesse;
-        double Ep = masse * g * altitude;
+        double Ep = masse * config.getDouble("g") * altitude;
         double E_mec = Ec + Ep;
 
         // Work calculation: dW ≈ F·v·dt

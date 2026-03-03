@@ -317,7 +317,7 @@ double Simulateur::executer() {
 
 
         
-        double n_factor = avion.get_portance() / (avion.get_masse() * g);
+        double n_factor = avion.get_portance() / (avion.get_masse() * config.getDouble("g"));
         
         csv << t << ',' 
             << avion.get_x() << ',' << avion.get_y() << ',' << avion.get_altitude() << ','

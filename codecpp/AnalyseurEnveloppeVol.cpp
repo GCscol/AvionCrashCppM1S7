@@ -115,7 +115,7 @@ void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
         double v_min;
         
         double S = avion.get_aero().get_surface();
-        double W = avion.get_masse() * g;
+        double W = avion.get_masse() * config.getDouble("g");
         double alpha_stall_rad = 15.0 * DEG_TO_RAD;
         double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);
         
