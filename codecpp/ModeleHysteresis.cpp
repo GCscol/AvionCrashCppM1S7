@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-using namespace Physique;
+using namespace Math;
 
 ModeleHysteresis::ModeleHysteresis(double surface, double corde, double delta_prof_init)
 :

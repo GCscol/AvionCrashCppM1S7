@@ -8,7 +8,7 @@ ModeleLineaire::ModeleLineaire(double surface, double corde, double delta_prof_i
 
 void ModeleLineaire::update_from_polar(double alpha_rad, double delta_p, 
                                        double omega, double vitesse, double mach) {
-    using namespace Physique;
+    using namespace Math;
     
     // Parabolic stall model with smooth tangent transition
     // Linear region: alpha <= 13°

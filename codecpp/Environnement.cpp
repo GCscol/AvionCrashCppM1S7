@@ -11,12 +11,12 @@ double Environnement::calculer_rho(double altitude) const {
 
     if (altitude <= h_tropo) {
         double T = T_0 - L * altitude;
-        return rho_0 * std::pow(T / T_0, Physique::g / (R * L) - 1);
+        return rho_0 * std::pow(T / T_0, config.getDouble("g") / (R * L) - 1);
     } else {
         // Exponential density decay above tropopause
         double T = T_min;
-        double rho_at_ht = rho_0 * std::pow(T / T_0, Physique::g / (R * L) - 1);
-        return rho_at_ht * std::exp(-Physique::g / (R * T) * (altitude - h_tropo));
+        double rho_at_ht = rho_0 * std::pow(T / T_0, config.getDouble("g") / (R * L) - 1);
+        return rho_at_ht * std::exp(-config.getDouble("g") / (R * T) * (altitude - h_tropo));
     }
 }
 

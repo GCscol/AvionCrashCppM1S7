@@ -13,7 +13,7 @@ double ProprietesInertie::get_I_pitch() const {
 }
 
 double ProprietesInertie::calculer_poids() const {
-    return masse * Physique::g;
+    return masse * config.getDouble("g");
 }
 
 void ProprietesInertie::set_masse(double m) {

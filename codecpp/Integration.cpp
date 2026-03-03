@@ -39,7 +39,7 @@ Integration::Derivees Integration::calculer_derivees(Avion& avion) {
     
     // Aerodynamic and thrust moments
     double M_aero = avion.get_aero().calculer_moment_pitch(vitesse, rho);
-    double M_thrust = Physique::z_t * forces.traction;
+    double M_thrust = config.getDouble("z_t") * forces.traction;
     forces.M_thrust = M_thrust;
     forces.M_pitch = M_aero + M_thrust;
     

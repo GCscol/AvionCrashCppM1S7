@@ -136,7 +136,7 @@ bool SauvetageAvion::verifier_succes_sauvetage(
     double temps_vz_positif)
 {
     // Success if: vz > 0 for >= 2s, alpha < 14°, speed in [120, 350] m/s
-    double alpha_deg = etat_courant.get_alpha() * Physique::RAD_TO_DEG;
+    double alpha_deg = etat_courant.get_alpha() * Math::RAD_TO_DEG;
     double speed = etat_courant.get_vitesse_norme();
 
     bool vz_ok = temps_vz_positif >= 2.0;

@@ -94,7 +94,7 @@ void Avion::initialiser(double vx, double z) {
     etat.x = 0.0; etat.y = 0.0; etat.z = z;
     etat.vx = vx; etat.vy = 0.0; etat.vz = 0.0;
     etat.roll = 0.0; 
-    etat.pitch = 1.0 / Physique::RAD_TO_DEG;
+    etat.pitch = 1.0 / Math::RAD_TO_DEG;
     etat.yaw = 0.0;
     etat.omega_pitch = 0.0;
 }
@@ -145,13 +145,13 @@ std::pair<double, double> Avion::calculer_trim_complet(double vitesse) {
     // Intégration (Euler)  -> Créer une méthode Intégration Euler et RK4 plutot que de emttre ici avec des variables
 void Avion::mettre_a_jour_etat(double dt) {
 
-    switch (Param_Simulation::methode_integration) {
-        case Type_Integration::Methode::EULER:
-            Integration::Euler(*this, dt);
+    switch (config.getEnum(STR_TO_METHODE, "methode_integration")) {
+        case Methode_Integration::EULER:
+            Methode_Integration::Euler(*this, dt);
             break;
 
-        case Type_Integration::Methode::RK4:
-            Integration::RK4(*this, dt);
+        case Methode_Integration::RK4:
+            Methode_Integration::RK4(*this, dt);
             break;
     }
 

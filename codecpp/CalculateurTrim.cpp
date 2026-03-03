@@ -34,7 +34,7 @@ double CalculateurTrim::trouver_delta_profondeur(double pitch, double vitesse,
         
         // Calculate moments
         double M_aero = aero.calculer_moment_pitch(vitesse, rho);
-        double M_thrust = Physique::z_t * traction;
+        double M_thrust = config.getDouble("z_t") * traction;
         double M_total = M_aero + M_thrust;
 
         if (std::fabs(M_total) < min_moment_abs) {
@@ -51,12 +51,12 @@ double CalculateurTrim::trouver_delta_profondeur(double pitch, double vitesse,
 double CalculateurTrim::trouver_alpha(double vitesse, double altitude, 
                                       double masse, double omega_pitch, double tol,
                                       double alpha_min, double alpha_max) {
-    using namespace Physique;
+    using namespace Math;
     
     // Iteratively solve for alpha and delta_p simultaneously: L=W and M=0
     constexpr int max_iterations_globales = 100;
     
-    double W = masse * g;
+    double W = masse * config.getDouble("g");  // Poids de l'avion
     double rho = env.calculer_rho(altitude);
     double mach = env.calculer_mach(vitesse, altitude);
     
@@ -92,7 +92,7 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
         aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse, mach);
         double D = aero.calculer_trainee(vitesse, rho);
         double M_aero = aero.calculer_moment_pitch(vitesse, rho);
-        double M_thrust = Physique::z_t * D;  // T = D au trim
+        double M_thrust = config.getDouble("z_t") * D;  // T = D au trim
         erreur_M = M_aero + M_thrust;
         
         // Critère de convergence: L≈W ET M≈0
@@ -117,13 +117,13 @@ std::pair<double, double> CalculateurTrim::calculer_trim_complet(
     double alpha_min, double alpha_max, 
     double delta_p_min, double delta_p_max) {
     
-    using namespace Physique;
+    using namespace Math;
     
     constexpr int max_iterations = 30;
     constexpr double tol_L = 1e-6;     // Tolérance sur L-W
     constexpr double tol_M = 100.0;      // Tolérance sur moment (N.m)
     
-    double W = masse * g;
+    double W = masse * config.getDouble("g");  // Poids de l'avion
     double rho = env.calculer_rho(altitude);
     double mach = env.calculer_mach(vitesse, altitude);
     
@@ -156,7 +156,7 @@ std::pair<double, double> CalculateurTrim::calculer_trim_complet(
         aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse, mach);
         double D = aero.calculer_trainee(vitesse, rho);
         double M_aero = aero.calculer_moment_pitch(vitesse, rho);
-        double M_thrust = Physique::z_t * D;
+        double M_thrust = config.getDouble("z_t") * D;
         double erreur_M = M_aero + M_thrust;
         
         if (std::fabs(erreur_L) < tol_L && std::fabs(erreur_M) < tol_M) {
@@ -173,7 +173,7 @@ std::pair<double, double> CalculateurTrim::calculer_trim_complet(
     double L = aero.calculer_portance(vitesse, rho);
     double D = aero.calculer_trainee(vitesse, rho);
     double M_aero = aero.calculer_moment_pitch(vitesse, rho);
-    double M_thrust = Physique::z_t * D;
+    double M_thrust = config.getDouble("z_t") * D;
     std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
     std::cout << "               Erreur L-W=" << (L - W) << " N, Erreur M=" << (M_aero + M_thrust) << " N.m" << std::endl;
     return {alpha, delta_p};

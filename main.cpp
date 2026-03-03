@@ -19,16 +19,23 @@ int run_batch(double p_min, double p_max, double p_step,
               double cmd_start = 100.0, double cmd_end = 500.0);
 
 int main() {
+
+
+    const Config config = chargerConfig("Config.txt");  // const ici
+
+    config.exporter("Config_simulation_full.txt");
+
+
     // TEST DE L'INITIALISATION AVEC DIFFÉRENTES VITESSES ET ALTITUDES
     // test_initialization_range(100.0, 500.0, 5.0,   // vitesse: 230-250 m/s par pas de 5
     //                          10000.0, 20000.0, 500.0,  // altitude: 10000-13000 m par pas de 250
     //                          false, 600.0, "output/init_range.csv");
     
 	// #ifdef MODE_SIMULATION
-    Avion avion(361.6, 6.6, 205000.0, false); // linear aerodynamic model // 140000
+    Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
     avion.initialiser(240.0, 10670.0);  // croisière
     // avion.initialiser(220.0, 11280)  // 11280
-    Simulateur sim(avion, 0.01, 600.0, "simulation_full.csv", -0.8, 1.0, 60, 600); // -0.32
+    Simulateur sim(avion, config.getDouble("dt"), config.getDouble("duree"), "simulation_full.csv", config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), config.getDouble("cmd_start"), config.getDouble("cmd_end")); // -0.32
     sim.executer();
     
 

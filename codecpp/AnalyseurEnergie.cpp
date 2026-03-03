@@ -9,7 +9,7 @@
 #include <iomanip>
 
 using namespace std;
-using namespace Physique;
+using namespace Math;
 
 // Analyzes system energy evolution: kinetic, potential, mechanical energy and work of forces
 class AnalyseurEnergie {

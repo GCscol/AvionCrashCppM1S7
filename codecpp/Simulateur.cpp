@@ -25,7 +25,7 @@ Simulateur::Simulateur(Avion& av, double pas_temps, double duree,
             enable_rescue(enable_rescue_system), temps_debut_sauvetage(-1e6) {}
 
 double Simulateur::executer() {
-    using namespace Physique;
+    using namespace Math;
     
     // setlocale(LC_ALL, ".utf8");
     
@@ -86,7 +86,7 @@ double Simulateur::executer() {
 
     // Stall speed monitoring (minimum lift-sustaining speed)
     const double surface = avion.get_aero().get_surface();
-    const double poids = avion.get_masse() * g;
+    const double poids = avion.get_masse() * config.getDouble("g");
     const double alpha_stall_rad = 15.0 * DEG_TO_RAD;
     const double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);
     bool etait_sous_vmin = false;

@@ -34,7 +34,7 @@ int test_initialization_range(
     double sim_duration = 600.0,
     const std::string& output_file = "output/init_range_test.csv"
 ) {
-    using namespace Physique;
+    using namespace Math;
     
     // Vérification des paramètres
     if (vx_step <= 0.0 || z_step <= 0.0) {
@@ -103,12 +103,12 @@ int test_initialization_range(
                 
                 double rho = avion.get_env().calculer_rho(z);
                 double L = avion.get_aero().calculer_portance(vx, rho);
-                double W = avion.get_masse() * g;
+                double W = avion.get_masse() * config.getDouble("g");
                 double erreur_L = std::fabs(L - W);
                 
                 double D = avion.get_aero().calculer_trainee(vx, rho);
                 double M_aero = avion.get_aero().calculer_moment_pitch(vx, rho);
-                double M_thrust = Physique::z_t * D;
+                double M_thrust = config.getDouble("z_t") * D;
                 double erreur_M = std::fabs(M_aero + M_thrust);
                 
                 // Critères de convergence

@@ -1,0 +1,21 @@
+# Paramètres physiques
+g=9.81
+z_t=2.0
+
+# Paramètres avion
+surface=361.6
+corde=6.6
+masse=205000.0
+vx=240.0
+z=10670.0
+
+# Paramètres de simulation
+dt=0.01
+duree=600.0
+methode_integration=RK4
+useHysteresis=false
+cmd_profondeur=-0.8
+cmd_thrust=1.0
+cmd_start=60
+cmd_end=600
+enable_rescue_system=false

@@ -17,7 +17,7 @@ AnalyseurEnveloppeVol::AnalyseurEnveloppeVol(Avion& av) : avion(av) {}
  */
 bool AnalyseurEnveloppeVol::check_stability(double V, double alpha, double mach, 
                                              double rho, double delta_p) {
-    using namespace Physique;
+    using namespace Math;
     
     const double m = avion.get_masse();
     const double S = avion.get_aero().get_surface();
@@ -94,7 +94,7 @@ bool AnalyseurEnveloppeVol::check_stability(double V, double alpha, double mach,
 }
 
 void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
-    using namespace Physique;
+    using namespace Math;
     
     cout << "Alt (m) | Vmax (m/s) | Mach_max | Vmin (m/s) | Mach_min | Stability Limit" << endl;
     
