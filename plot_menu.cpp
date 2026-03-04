@@ -11,6 +11,7 @@ void afficher_menu() {
     cout << "3. Flight envelope" << endl;
     cout << "4. Aerodynamic coefficients" << endl;
     cout << "5. CL vs alpha" << endl;
+    cout << "6. Phugoid" << endl;
     cout << "0. Quitter" << endl;
     cout << "\nEntrez votre choix: ";
 }
@@ -61,17 +62,17 @@ int main() {
                 system(commande.c_str());
                 break;
             case 6:
-            cout << "\nExecution de Phugoide.py..." << endl;
-            commande = "python Phugoide.py";
-            system(commande.c_str());
-            break;
+                cout << "\nExecution de Phugoide.py..." << endl;
+                commande = "python Phugoide.py";
+                system(commande.c_str());
+                break;
                 
             case 0:
                 cout << "Au revoir!" << endl;
                 return 0;
                 
             default:
-                cout << "Choix invalide. Veuillez choisir entre 0 et 5." << endl;
+                cout << "Choix invalide. Veuillez choisir entre 0 et 6." << endl;
         }
     }
     
