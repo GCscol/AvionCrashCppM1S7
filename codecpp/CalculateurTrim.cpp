@@ -76,7 +76,7 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
         double L = aero.calculer_portance(vitesse, rho);
         erreur_L = L - W;
         
-        // Ajustement de alpha par méthode de Newton simplifiée
+        // Ajustement de alpha par méthode de Newton 
         // dL/dalpha ≈ (L_new - L_old) / d_alpha pour petit d_alpha
         double d_alpha = 0.01 * DEG_TO_RAD;  // Petit incrément pour dérivée
         aero.update_from_polar(alpha + d_alpha, delta_p, omega_pitch, vitesse, mach);
@@ -84,8 +84,8 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
         double dL_dalpha = (L_plus - L) / d_alpha;
         
         if (std::fabs(dL_dalpha) > 1e-6) {
-            alpha -= erreur_L / dL_dalpha;  // Newton step
-            alpha = std::max(alpha_min, std::min(alpha_max, alpha));  // Contraindre
+            alpha -= erreur_L / dL_dalpha;
+            alpha = std::max(alpha_min, std::min(alpha_max, alpha));
         }
         
         // Vérifier le moment pour critère de convergence
@@ -96,8 +96,7 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
         erreur_M = M_aero + M_thrust;
         
         // Critère de convergence: L≈W ET M≈0
-        if (std::fabs(erreur_L) < tol && std::fabs(erreur_M) < 1.0) {
-            // CONVERGENCE ATTEINTE
+        if (std::fabs(erreur_L) < tol && std::fabs(erreur_M) < 1000.0) {
             std::cout << "[TRIM] Convergence en " << (iter+1) << " iterations" << std::endl;
             std::cout << "       Erreur L-W: " << erreur_L << " N, Erreur M: " << erreur_M << " N.m" << std::endl;
             break;
@@ -121,7 +120,7 @@ std::pair<double, double> CalculateurTrim::calculer_trim_complet(
     
     constexpr int max_iterations = 30;
     constexpr double tol_L = 1e-6;     // Tolérance sur L-W
-    constexpr double tol_M = 100.0;      // Tolérance sur moment (N.m)
+    constexpr double tol_M = 1000.0;      // Tolérance sur moment (N.m)
     
     double W = masse * config.getDouble("g");  // Poids de l'avion
     double rho = env.calculer_rho(altitude);

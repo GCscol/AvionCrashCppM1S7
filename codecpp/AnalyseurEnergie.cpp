@@ -127,9 +127,11 @@ public:
             double travail_net = travail_traction_total + travail_trainee_total;
             double delta_E_mec = E_mec_final - E_mec_init;
             double bilan = delta_E_mec - travail_net;
+            double erreur_relative = (E_mec_init != 0.0) ? (bilan / E_mec_init) * 100.0 : 0.0;
             
             cout << "--- Energy Balance ---" << endl;
-            cout << "Check: Delta_E_mec - Work_net = " << bilan / 1e9 << " GJ" << endl;
+            cout << "Check: Delta_E_mec - Work_net = " << bilan / 1e9 << " GJ (" 
+                 << fixed << setprecision(4) << erreur_relative << "%)" << endl;
         }
     }
 
