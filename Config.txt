@@ -1,3 +1,6 @@
+# Operations to perform (comma-separated): SIMULATION, ENVELOPPE, ENERGIE, RUN_BATCH
+operations=ENVELOPPE
+
 # Paramètres physiques
 g=9.81
 z_t=2.0

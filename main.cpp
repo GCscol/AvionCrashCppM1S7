@@ -52,17 +52,17 @@ int main() {
     // sim.executer();
 
 
-    // AnalyseurEnveloppeVol analyseur(avion);
-    // analyseur.analyser_limites_vitesse();
+    AnalyseurEnveloppeVol analyseur(avion);
+    analyseur.analyser_limites_vitesse();
 
 
     // run_batch(-1.0, -0.0, 0.1, 0.0, 1.0, 0.1, true, 0.01, 600.0, 100.0, 500.0);
 
 
-    cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
-    main_energie_analysis();
-    cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
-    main_energie_analysis_rk4();
+    // cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
+    // main_energie_analysis();
+    // cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
+    // main_energie_analysis_rk4();
 
 
 

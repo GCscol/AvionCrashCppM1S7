@@ -1,14 +1,15 @@
 # Config de simulation — générée automatiquement
-cmd_end=600
 cmd_start=60
 cmd_thrust=1.0
 cmd_profondeur=-0.8
 useHysteresis=false
 surface=361.6
-z_t=2.0
 g=9.81
-corde=6.6
+z_t=2.0
+cmd_end=600
+operations=ENVELOPPE
 z=10670.0
+corde=6.6
 masse=205000.0
 vx=240.0
 enable_rescue_system=false
