@@ -60,6 +60,11 @@ int main() {
                 commande = "python plot_CL_vs_alpha.py";
                 system(commande.c_str());
                 break;
+            case 6:
+            cout << "\nExecution de Phugoide.py..." << endl;
+            commande = "Phugoide.py";
+            system(commande.c_str());
+            break;
                 
             case 0:
                 cout << "Au revoir!" << endl;
