@@ -6,6 +6,7 @@
 class ModeleLineaire : public ModeleAerodynamique {
 public:
     ModeleLineaire(double surface, double corde, double delta_prof_init = 0.0);
+    ~ModeleLineaire() override;
     
     void update_from_polar(double alpha_rad, double delta_p, 
                           double omega, double vitesse, double mach = 0.0) override;

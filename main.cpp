@@ -11,6 +11,7 @@
 using namespace std;
 
 extern int CURRENT_STRATEGY;
+extern Config config;  // Global configuration, initialized in main()
 
 int run_batch(double p_min, double p_max, double p_step,
               double t_min, double t_max, double t_step,
@@ -20,8 +21,9 @@ int run_batch(double p_min, double p_max, double p_step,
 
 int main() {
 
-
-    const Config config = chargerConfig("Config.txt");  // const ici
+    // Load configuration into global config variable
+    config.chargerDepuisFichier("Config.txt");
+    config.completer();
 
     config.exporter("Config_simulation_full.txt");
 
@@ -33,11 +35,11 @@ int main() {
     
 	// #ifdef MODE_SIMULATION
     Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
-    avion.initialiser(240.0, 10670.0);  // croisière
-    // avion.initialiser(220.0, 11280)  // 11280
-    Simulateur sim(avion, config.getDouble("dt"), config.getDouble("duree"), "simulation_full.csv", config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), config.getDouble("cmd_start"), config.getDouble("cmd_end")); // -0.32
-    sim.executer();
-    
+    // avion.initialiser(240.0, 10670.0);  // croisière
+    // // avion.initialiser(220.0, 11280)  // 11280
+    // Simulateur sim(avion, config.getDouble("dt"), config.getDouble("duree"), "simulation_full.csv", config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), config.getDouble("cmd_start"), config.getDouble("cmd_end")); // -0.32
+    // sim.executer();
+
 
     // Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model
     // avion.initialiser();
@@ -52,10 +54,10 @@ int main() {
     // run_batch(-1.0, -0.0, 0.1, 0.0, 1.0, 0.1, true, 0.01, 600.0, 100.0, 500.0);
 
 
-    // cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
-    // main_energie_analysis();
-    // cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
-    // main_energie_analysis_rk4();
+    cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
+    main_energie_analysis();
+    cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
+    main_energie_analysis_rk4();
 
 
 

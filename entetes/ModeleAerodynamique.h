@@ -14,7 +14,7 @@ public:
     double omega_pitch;
     
     ModeleAerodynamique(double surface, double corde, double delta_prof_init);
-    virtual ~ModeleAerodynamique() = default;
+    virtual ~ModeleAerodynamique();
     
 
     virtual void update_from_polar(double alpha_rad, double delta_p, 

@@ -23,6 +23,8 @@ X_sep(0.0)
     CL_max = 1.45;  // CL max A330
 }
 
+ModeleHysteresis::~ModeleHysteresis() {}
+
 void ModeleHysteresis::clamp_state()
 {
     if (X_sep < 0.0) X_sep = 0.0;

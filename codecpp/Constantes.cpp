@@ -67,8 +67,8 @@ void Config::exporter(const std::string& filename) const {
         throw std::runtime_error("Impossible d'écrire : " + filename);
 
     file << "# Config de simulation — générée automatiquement\n";
-    for (const auto& [key, value] : params)
-        file << key << "=" << value << "\n";
+    for (const auto& pair : params)
+        file << pair.first << "=" << pair.second << "\n";
 }
 
 /// 

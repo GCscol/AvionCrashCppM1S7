@@ -4,6 +4,8 @@ ModeleAerodynamique::ModeleAerodynamique(double surface, double corde, double de
     : S(surface), l(corde), delta_profondeur(delta_prof_init),
       C_L(0.0), C_D(0.0), C_m(0.0), omega_pitch(0.0) {}
 
+ModeleAerodynamique::~ModeleAerodynamique() {}
+
 double ModeleAerodynamique::get_surface() const {
     return S;
 }

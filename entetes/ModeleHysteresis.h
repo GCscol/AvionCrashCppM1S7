@@ -10,6 +10,7 @@ public:
     ModeleHysteresis(double surface,
                      double corde,
                      double delta_prof_init);
+    ~ModeleHysteresis() override;
 
     // Override base interface with mach parameter (ignored for hysteresis, uses dt instead)
     void update_from_polar(double alpha_rad,

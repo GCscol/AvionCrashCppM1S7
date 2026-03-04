@@ -29,8 +29,6 @@ bool AnalyseurEnveloppeVol::check_stability(double V, double alpha, double mach,
     
     // Aerodynamic derivatives (stability coefficients)
     const double C_L_alpha = 5.0;  // Lift curve slope (rad^-1)
-    const double C_D_0 = 0.0175;
-    const double K_induced = 0.055;
     
     // C_m_alpha depends on Mach (compressibility effect on aerodynamic center)
     const double x_f0 = 0.20;
@@ -69,9 +67,6 @@ bool AnalyseurEnveloppeVol::check_stability(double V, double alpha, double mach,
     // 2. Determinant > 0 (product of eigenvalues positive)
     double trace = a11 + a22;
     double det = a11 * a22 - a12 * a21;
-    
-    // Discriminant for eigenvalue formula
-    double discriminant = trace * trace - 4.0 * det;
     
     // Critical stability check
     bool stable = true;
