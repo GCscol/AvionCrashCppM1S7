@@ -18,25 +18,30 @@ enum class Methode_Integration { EULER, RK4 };
 enum class Autre          { Ex1, Ex2 };
 
 struct Config {
-    std::unordered_map<std::string, std::string> params;
+    private :
+        std::unordered_map<std::string, std::string> params;
+        bool locked = false;
 
-    Config() = default;
+    public :
+        Config() = default;
 
-    void chargerDepuisFichier(const std::string& filename);
-    void completer();
-    void exporter(const std::string& filename) const;
+        void chargerDepuisFichier(const std::string& filename);
+        void completer();
+        void exporter(const std::string& filename) const;
 
-    // Getters de base
-   double getDouble(const std::string& key) const;
-    bool   getBool  (const std::string& key) const;
-    // Getters pour Enum
-    template<typename T>
-    T getEnum(const std::unordered_map<std::string, T>& table, const std::string& key) const {
-    auto it = table.find(params.at(key));
-    if (it == table.end())
-        throw std::runtime_error("Valeur inconnue pour '" + key + "' : " + params.at(key));
-    return it->second;
-    }
+        // Getters de base
+        double getDouble(const std::string& key) const;
+        bool   getBool  (const std::string& key) const;
+        // Getters pour Enum
+        template<typename T>
+        T getEnum(const std::unordered_map<std::string, T>& table, const std::string& key) const {
+            auto it = table.find(params.at(key));
+                if (it == table.end())
+                    throw std::runtime_error("Valeur inconnue pour '" + key + "' : " + params.at(key));
+                return it->second;
+            }
+        // Getters pour savoir qu'elle opération menée dans le main
+        bool hasOperations(const std::string& op) const;
 };
 
 // Fonction de fabrique qui retourne un config const — plus modifiable ensuite
@@ -46,6 +51,6 @@ const Config chargerConfig(const std::string& filename);
 extern const std::unordered_map<std::string, Methode_Integration> STR_TO_METHODE;
 extern const std::unordered_map<std::string, Autre>         STR_TO_AUTRE;
 
-extern Config config;
+extern Config config;   // extern = si on appelle constantes on a direct config qui est chargé et prêt à l'emploi
 
 #endif  // CONSTANTES_H

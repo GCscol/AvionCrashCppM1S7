@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-Config config;
+Config config; 
 
 // ----------------------------------------------------------------
 // Tables de conversion string → enum, définies une seule fois
@@ -24,6 +24,7 @@ void Config::chargerDepuisFichier(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open())
         throw std::runtime_error("Impossible d'ouvrir : " + filename);
+    if (locked) throw std::runtime_error("Configuration verrouillée (normalement déjà chargée).");
 
     std::string line;
     while (std::getline(file, line)) {
@@ -39,6 +40,12 @@ void Config::chargerDepuisFichier(const std::string& filename) {
 // Complétion des valeurs manquantes
 // ----------------------------------------------------------------
 void Config::completer() {
+    if (locked) throw std::runtime_error("Configuration verrouillée (normalement déjà chargée).");
+
+    if (params.find("operations") == params.end() || params.at("operations").empty())   // Vérification s'il y a bien des opérations à réaliser, sinon on arrête directement
+        throw std::runtime_error("Aucune opération à réaliser spécifiée dans la config : ajouter ou remplir la clé 'operations'");
+
+    // On remplit les paramètres manquants non critiques avec des valeurs par défaut
     params.insert({"g",                   "9.81"});
     params.insert({"z_t",                 "2.0"});
     params.insert({"surface",                   "361.6"});
@@ -56,6 +63,9 @@ void Config::completer() {
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});
     params.insert({"Autre",         "Ex1"});
+
+    // On vérouille la config pour éviter les modifications
+    locked = true;
 }
 
 // ----------------------------------------------------------------
@@ -100,4 +110,9 @@ double Config::getDouble(const std::string& key) const {
 
 bool Config::getBool(const std::string& key) const {
     return params.at(key) == "true";
+}
+
+bool Config::hasOperations(const std::string& op) const {
+    const std::string ops = "," + params.at("operations") + ",";   // On ajoute une virgule au début et à la fin puis on cherche entre 2 virgules afin d'accélérer la recherche et éviter des problèmes si un nom est contenu dans l'autre : exemple Simu,Simu_batch
+    return ops.find("," + op + ",") != std::string::npos;
 }

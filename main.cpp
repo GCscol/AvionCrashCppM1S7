@@ -11,7 +11,6 @@
 using namespace std;
 
 extern int CURRENT_STRATEGY;
-extern Config config;  // Global configuration, initialized in main()
 
 int run_batch(double p_min, double p_max, double p_step,
               double t_min, double t_max, double t_step,
@@ -20,6 +19,12 @@ int run_batch(double p_min, double p_max, double p_step,
               double cmd_start = 100.0, double cmd_end = 500.0);
 
 int main() {
+
+    //if (config.hasOperations("RUN_BATCH")) batch
+    //if (config.hasOperations("ENVELOPPE"))  enveloppe
+    //if (config.hasOperations("ENERGIE"))    energie
+    //if (config.hasOperations("SIMULATION")) simu
+
 
     // Load configuration into global config variable
     config.chargerDepuisFichier("Config.txt");
