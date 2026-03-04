@@ -62,7 +62,7 @@ int main() {
                 break;
             case 6:
             cout << "\nExecution de Phugoide.py..." << endl;
-            commande = "Phugoide.py";
+            commande = "python Phugoide.py";
             system(commande.c_str());
             break;
                 
