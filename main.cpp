@@ -30,6 +30,7 @@ int main() {
     }
     
     if (config.hasOperations("SIMULATION")) {
+        {
         Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
     // avion.initialiser(240.0, 10670.0);  // croisière
                                         // 11280
@@ -41,6 +42,7 @@ int main() {
                         config.getDouble("cmd_start"), config.getDouble("cmd_end"),
                         config.getBool("enable_rescue_system")); // -0.32
         sim.executer();
+        }
     }   
 
     // Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model
@@ -49,8 +51,11 @@ int main() {
     // sim.executer();
 
     if (config.hasOperations("ENVELOPPE")) {
-        AnalyseurEnveloppeVol analyseur(avion);
+        {
+        Avion avion_enveloppe(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
+        AnalyseurEnveloppeVol analyseur(avion_enveloppe);
         analyseur.analyser_limites_vitesse();
+        }
     }
 
     if (config.hasOperations("RUN_BATCH")) {
@@ -62,10 +67,12 @@ int main() {
     }
 
     if (config.hasOperations("ENERGIE"))  {
+        {
         cout << "ANALYSE ENERGIE (Integration Euler)" << endl;
         main_energie_analysis();
         cout << "ANALYSE ENERGIE (Integration RK4)" << endl;
         main_energie_analysis_rk4();
+        }
     }
 
     // Mettre une boucle ?????????????
