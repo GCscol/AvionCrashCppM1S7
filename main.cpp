@@ -29,12 +29,10 @@ int main() {
                                 false, 600.0, check_output_file("output/init_range.csv"));
     }
     
-	// #ifdef MODE_SIMULATION
-    Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
+    if (config.hasOperations("SIMULATION")) {
+        Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
     // avion.initialiser(240.0, 10670.0);  // croisière
                                         // 11280
-
-    if (config.hasOperations("SIMULATION")) {
         avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));  // 11280
         Simulateur sim(avion, 
                         config.getDouble("dt"), config.getDouble("duree"), 
@@ -78,7 +76,7 @@ int main() {
         std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
         Avion avion_no_rescue(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         avion_no_rescue.initialiser();
-        Simulateur sim_no_rescue(avion, 
+        Simulateur sim_no_rescue(avion_no_rescue, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file("output/baseline_no_rescue.csv"), 
                         config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
