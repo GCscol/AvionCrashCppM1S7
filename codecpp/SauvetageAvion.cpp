@@ -36,11 +36,10 @@ SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
 // STRATEGY 0: Thrust reduction first, then profile (BEST)
 // STRATEGY 1: Profile reduction first, then thrust
 // STRATEGY 2: Both simultaneously
-std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetage& etat)
-{
+std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetage& etat){
     double t = etat.temps_depuis_manoeuvre;
     const double cmd_prof_min = etat.cmd_profondeur_max;
-    const Rescue_Strategy STRATEGY = config.getEnum(STR_TO_STRATEGIE, "rescue_strategy");
+    const Rescue_Strategy STRATEGY = config.getEnum(STR_TO_RESCUE_STRATEGY, "rescue_strategy");
     
     const double cmd_thrust_min = etat.cmd_thrust_max * THRUST_REDUCED_FACTOR;
     const double cmd_prof_target = PROF_REDUCED_FACTOR * 0.5;
@@ -124,19 +123,19 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
     cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
     
     return {cmd_prof, cmd_thrust};
+    }
 }
 
-std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat)
-{
+std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat){
     return scenario_progressif(etat);
 }
 
-bool SauvetageAvion::verifier_succes_sauvetage(
+bool SauvetageAvion::verifier_succes_sauvetage( //Chelou
     const EtatCinematique& etat_courant,
     const EtatCinematique& /* etat_initial_sauvetage */,
     double /* temps_ecoule */,
     double temps_vz_positif)
-{
+    {
     // Success if: vz > 0 for >= 2s, alpha < 14°, speed in [120, 350] m/s
     double alpha_deg = etat_courant.get_alpha() * Math::RAD_TO_DEG;
     double speed = etat_courant.get_vitesse_norme();

@@ -1,7 +1,3 @@
-# Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES
-# Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS)
-operations=ENVELOPPE
-
 # Paramètres physiques
 g=9.81
 z_t=2.0
@@ -14,6 +10,8 @@ vx_ini=240.0
 z_ini=10670.0
 
 # Paramètres de simulation
+# Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES
+operations=SIMULATION
 dt=0.01
 duree=600.0
 methode_integration=RK4
@@ -22,8 +20,9 @@ cmd_profondeur=-0.8
 cmd_thrust=1.0
 cmd_start=60
 cmd_end=600
-enable_rescue_system=false
+enable_rescue_system=true
+# Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS)
 rescue_strategy=THRUST_FIRST
 
-output_file=output_file/simulation_full.csv
-config_file=output_file/config_simulation_full.txt
+output_file=output_file/test_simulation_full.csv
+config_file=output_file/test_config_simulation_full.txt

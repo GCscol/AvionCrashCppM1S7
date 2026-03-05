@@ -1,4 +1,5 @@
 #include "Constantes.h"
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -127,7 +128,7 @@ bool Config::getBool(const std::string& key) const {
 
 std::string Config::getString(const std::string& key) const {
     auto it = params.find(key);
-    iif (it == params.end())
+    if (it == params.end())
         throw std::runtime_error(
             "Clé '" + key + "' absente dans la configuration.");
     if (it->second.empty()) 

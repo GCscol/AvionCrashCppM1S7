@@ -51,7 +51,7 @@ int main() {
     }
 
     if (config.hasOperations("RUN_BATCH")) {
-        run_batch(-1.0, -0.0, 0.1, 0.0, 1.0, 0.1, true, 0.01, 600.0, 100.0, 500.0);
+        run_batch(-1.0, -0.0, 0.1, 0.0, 1.0,  0.1, true, 0.01, 600.0, 100.0, 500.0);
     }
 
     if (config.hasOperations("ENERGIE"))  {
@@ -63,7 +63,7 @@ int main() {
 
 
     if (config.hasOperations("COMPARE_RESCUE_STRATEGIES"))  {
-        Baseline without rescue
+        //Baseline without rescue
         std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
         
         Avion avion_no_rescue(361.6, 6.6, 140000.0, true);
