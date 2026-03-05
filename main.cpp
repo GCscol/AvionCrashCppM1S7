@@ -82,7 +82,7 @@ int main() {
         {
         std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
         Avion avion_no_rescue(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
-        avion_no_rescue.initialiser();
+        avion_no_rescue.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
         Simulateur sim_no_rescue(avion_no_rescue, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file("output/baseline_no_rescue.csv"), 
@@ -99,7 +99,7 @@ int main() {
         config.setString("rescue_strategy", "THRUST_FIRST"); 
         
         Avion avion_s0(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
-        avion_s0.initialiser();
+        avion_s0.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
         Simulateur sim_s0(avion_s0, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file("output/strategy0_thrust_first.csv"), 
@@ -116,7 +116,7 @@ int main() {
         config.setString("rescue_strategy", "PROFILE_FIRST");
         
         Avion avion_s1(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
-        avion_s1.initialiser();
+        avion_s1.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
         Simulateur sim_s1(avion_s1, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file("output/strategy1_profile_first.csv"), 
@@ -133,7 +133,7 @@ int main() {
         config.setString("rescue_strategy", "SIMULTANEOUS");
         
         Avion avion_s2(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
-        avion_s2.initialiser();
+        avion_s2.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
         Simulateur sim_s2(avion_s2, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file("output/strategy2_simultaneous.csv"), 
