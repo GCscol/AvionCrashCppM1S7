@@ -12,9 +12,10 @@ const std::unordered_map<std::string, Methode_Integration> STR_TO_METHODE = {
     {"RK4",   Methode_Integration::RK4},
 };
 
-const std::unordered_map<std::string, Autre> STR_TO_AUTRE = {
-    {"Ex1",  Autre::Ex1},
-    {"Ex2", Autre::Ex2},
+const std::unordered_map<std::string, Rescue_Strategy> STR_TO_RESCUE_STRATEGY = {
+    {"THRUST_FIRST",  Rescue_Strategy::THRUST_FIRST},
+    {"PROFILE_FIRST", Rescue_Strategy::PROFILE_FIRST},
+    {"SIMULTANEOUS",  Rescue_Strategy::SIMULTANEOUS},
 };
 
 // ----------------------------------------------------------------
@@ -51,18 +52,18 @@ void Config::completer() {
     params.insert({"surface",                   "361.6"});
     params.insert({"corde",                 "6.6"});
     params.insert({"masse",                  "205000.0"});
-    params.insert({"vx",               "240.0"});
-    params.insert({"z",               "10670.0"});
+    params.insert({"vx_ini",               "240.0"});
+    params.insert({"z_ini",               "10670.0"});
     params.insert({"methode_integration", "RK4"});
     params.insert({"useHysteresis",         "false"});
-    params.insert({"cmd_profondeur",                  "-0.8"});
+    params.insert({"cmd_profondeur",          "-0.8"});
     params.insert({"cmd_thrust",               "1.0"});
     params.insert({"cmd_start",               "60"});
-    params.insert({"cmd_end", "600"});
+    params.insert({"cmd_end",                 "600"});
     params.insert({"enable_rescue_system",         "false"});
+    params.insert({"rescue_strategy",         "THRUST_FIRST"});
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});
-    params.insert({"Autre",         "Ex1"});
 
     // On vérouille la config pour éviter les modifications
     locked = true;
@@ -92,27 +93,69 @@ const Config chargerConfig(const std::string& filename) {
 }
 
 
-
+/// Les getters de base
 double Config::getDouble(const std::string& key) const {
-    return std::stod(params.at(key));
-
-    //try {
-    //    return std::stod(params.at(key));
-    //} catch (const std::out_of_range&) {
-    //    throw std::runtime_error("Clé '" + key + "' introuvable dans la config.");
-    //} catch (const std::invalid_argument&) {
-    //    throw std::runtime_error("Valeur invalide pour '" + key + "' : " + params.at(key));
-    //}
-    //}
+    auto it = params.find(key);
+    if (it == params.end())
+        throw std::runtime_error(
+            "Clé '" + key + "' absente dans la configuration.");
+    if (it->second.empty()) 
+        throw std::runtime_error(
+            "Clé '" + key + "' vide dans la configuration.");
+    try {
+        return std::stod(it->second);
+    } 
+    catch (const std::invalid_argument&) {
+        throw std::runtime_error(
+            "Clé '" + key + "' : valeur '" + it->second + "' n'est pas un nombre valide.");
+        }
 }
 
-
-
 bool Config::getBool(const std::string& key) const {
-    return params.at(key) == "true";
+    auto it = params.find(key);
+    if (it == params.end())
+        throw std::runtime_error(
+            "Clé '" + key + "' absente dans la configuration.");
+    if (it->second.empty()) 
+        throw std::runtime_error(
+            "Clé '" + key + "' vide dans la configuration.");
+    if (it->second != "true" && it->second != "false")
+        throw std::runtime_error(
+            "Clé '" + key + "' : valeur '" + it->second + "' invalide, attendu 'true' ou 'false'.");
+    return it->second == "true";
+}
+
+std::string Config::getString(const std::string& key) const {
+    auto it = params.find(key);
+    iif (it == params.end())
+        throw std::runtime_error(
+            "Clé '" + key + "' absente dans la configuration.");
+    if (it->second.empty()) 
+        throw std::runtime_error(
+            "Clé '" + key + "' vide dans la configuration.");
+    return it->second;
+}
+
+void Config::setString(const std::string& key, const std::string& value) {
+    params[key] = value;
 }
 
 bool Config::hasOperations(const std::string& op) const {
     const std::string ops = "," + params.at("operations") + ",";   // On ajoute une virgule au début et à la fin puis on cherche entre 2 virgules afin d'accélérer la recherche et éviter des problèmes si un nom est contenu dans l'autre : exemple Simu,Simu_batch
     return ops.find("," + op + ",") != std::string::npos;
+}
+
+std::string check_output_file(const std::string& path) {
+    // On vérifie déjà via getString si path est vide ou non et si la clé existe
+    // Le fichier existe déjà → demande confirmation :
+    std::ifstream test(path); //Essai d'ouvrir le fichier (Attention, fichier fermé au moment du return)
+    if (test.good()) {
+       std::cout << "[ATTENTION ! Le fichier '" << path << "' existe déjà. Il sera écrasé.\n"
+                << "Continuer ? (Y/N) : " << std::flush;
+        char answer;
+        std::cin >> answer;
+        if (answer != 'Y' && answer != 'N')
+            throw std::runtime_error("Mauvaise entrée, attendu 'Y' ou 'N'.\n Abandon du programme.");
+        }
+    return path;
 }

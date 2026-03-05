@@ -1,4 +1,5 @@
-# Operations to perform (comma-separated): SIMULATION, ENVELOPPE, ENERGIE, RUN_BATCH
+# Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES
+# Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS)
 operations=ENVELOPPE
 
 # Paramètres physiques
@@ -9,8 +10,8 @@ z_t=2.0
 surface=361.6
 corde=6.6
 masse=205000.0
-vx=240.0
-z=10670.0
+vx_ini=240.0
+z_ini=10670.0
 
 # Paramètres de simulation
 dt=0.01
@@ -22,3 +23,7 @@ cmd_thrust=1.0
 cmd_start=60
 cmd_end=600
 enable_rescue_system=false
+rescue_strategy=THRUST_FIRST
+
+output_file=output_file/simulation_full.csv
+config_file=output_file/config_simulation_full.txt

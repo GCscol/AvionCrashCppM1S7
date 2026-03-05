@@ -15,7 +15,7 @@ namespace Math {
 }
 
 enum class Methode_Integration { EULER, RK4 };
-enum class Autre          { Ex1, Ex2 };
+enum class Rescue_Strategy { THRUST_FIRST, PROFILE_FIRST, SIMULTANEOUS };
 
 struct Config {
     private :
@@ -32,6 +32,8 @@ struct Config {
         // Getters de base
         double getDouble(const std::string& key) const;
         bool   getBool  (const std::string& key) const;
+        std::string getString(const std::string& key) const;
+        void setString(const std::string& key, const std::string& value);
         // Getters pour Enum
         template<typename T>
         T getEnum(const std::unordered_map<std::string, T>& table, const std::string& key) const {
@@ -47,9 +49,12 @@ struct Config {
 // Fonction de fabrique qui retourne un config const — plus modifiable ensuite
 const Config chargerConfig(const std::string& filename);
 
+// 
+std::string check_output_file(const std::string& path);
+
 // Tables de conversion — déclarées ici, définies dans le .cpp
 extern const std::unordered_map<std::string, Methode_Integration> STR_TO_METHODE;
-extern const std::unordered_map<std::string, Autre>         STR_TO_AUTRE;
+extern const std::unordered_map<std::string, Rescue_Strategy> STR_TO_RESCUE_STRATEGY;
 
 extern Config config;   // extern = si on appelle constantes on a direct config qui est chargé et prêt à l'emploi
 

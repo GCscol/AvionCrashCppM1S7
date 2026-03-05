@@ -5,8 +5,6 @@
 
 const char *SAUVETAGE_VERSION = "1.0";
 
-// Global strategy selector (0: thrust-first, 1: profile-first, 2: simultaneous)
-int CURRENT_STRATEGY = 0;
 
 SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
     const EtatCinematique& etat, 
@@ -42,7 +40,7 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
 {
     double t = etat.temps_depuis_manoeuvre;
     const double cmd_prof_min = etat.cmd_profondeur_max;
-    const int STRATEGY = CURRENT_STRATEGY; // Use global strategy selector
+    const Rescue_Strategy STRATEGY = config.getEnum(STR_TO_STRATEGIE, "rescue_strategy");
     
     const double cmd_thrust_min = etat.cmd_thrust_max * THRUST_REDUCED_FACTOR;
     const double cmd_prof_target = PROF_REDUCED_FACTOR * 0.5;
@@ -54,49 +52,52 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
     const double t_phase2 = PHASE_REDUCTION_THRUST + PHASE_REDUCTION_PROF;
     const double t_phase3 = t_phase2 + PHASE_CONTROL;
     
-    if (STRATEGY == 0) {
-        if (t < t_phase1) {
-            // Phase 1: Reduce thrust only
-            double ratio = t / PHASE_REDUCTION_THRUST;
-            cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
-            cmd_prof = cmd_prof_min;
-        } else if (t < t_phase2) {
-            // Phase 2: Reduce pitch (nose-up)
-            double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
-            cmd_thrust = cmd_thrust_min;
-            cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
-        } else if (t < t_phase3) {
-            // Phase 3: Stabilize
-            double ratio = (t - t_phase2) / PHASE_CONTROL;
-            cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
-            cmd_prof = cmd_prof_target;
-        } else {
-            cmd_thrust = etat.cmd_thrust_max * 0.6;
-            cmd_prof = cmd_prof_target;
-        }
-    } 
-    else if (STRATEGY == 1) {
-        if (t < t_phase1) {
-            // Phase 1: Reduce pitch first
-            double ratio = t / PHASE_REDUCTION_THRUST;
-            cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
-            cmd_thrust = etat.cmd_thrust_max;
-        } else if (t < t_phase2) {
-            // Phase 2: Reduce thrust
-            double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
-            cmd_prof = cmd_prof_target;
-            cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
-        } else if (t < t_phase3) {
-            // Phase 3: Stabilize
-            double ratio = (t - t_phase2) / PHASE_CONTROL;
-            cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
-            cmd_prof = cmd_prof_target;
-        } else {
-            cmd_thrust = etat.cmd_thrust_max * 0.6;
-            cmd_prof = cmd_prof_target;
-        }
-    }
-    else if (STRATEGY == 2) {
+    switch (STRATEGY) {
+        case Rescue_Strategy::THRUST_FIRST:
+            if (t < t_phase1) {
+                // Phase 1: Reduce thrust only
+                double ratio = t / PHASE_REDUCTION_THRUST;
+                cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
+                cmd_prof = cmd_prof_min;
+            } else if (t < t_phase2) {
+                // Phase 2: Reduce pitch (nose-up)
+                double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
+                cmd_thrust = cmd_thrust_min;
+                cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
+            } else if (t < t_phase3) {
+                // Phase 3: Stabilize
+                double ratio = (t - t_phase2) / PHASE_CONTROL;
+                cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
+                cmd_prof = cmd_prof_target;
+            } else {
+                cmd_thrust = etat.cmd_thrust_max * 0.6;
+                cmd_prof = cmd_prof_target;
+            }
+            break;
+         
+        case Rescue_Strategy::PROFILE_FIRST:
+            if (t < t_phase1) {
+                // Phase 1: Reduce pitch first
+                double ratio = t / PHASE_REDUCTION_THRUST;
+                cmd_prof = cmd_prof_min + (cmd_prof_target - cmd_prof_min) * ratio;
+                cmd_thrust = etat.cmd_thrust_max;
+            } else if (t < t_phase2) {
+                // Phase 2: Reduce thrust
+                double ratio = (t - t_phase1) / PHASE_REDUCTION_PROF;
+                cmd_prof = cmd_prof_target;
+                cmd_thrust = etat.cmd_thrust_max + (cmd_thrust_min - etat.cmd_thrust_max) * ratio;
+            } else if (t < t_phase3) {
+                // Phase 3: Stabilize
+                double ratio = (t - t_phase2) / PHASE_CONTROL;
+                cmd_thrust = cmd_thrust_min + (etat.cmd_thrust_max * 0.6 - cmd_thrust_min) * ratio;
+                cmd_prof = cmd_prof_target;
+            } else {
+                cmd_thrust = etat.cmd_thrust_max * 0.6;
+                cmd_prof = cmd_prof_target;
+            }
+            break;
+        
+        case Rescue_Strategy::SIMULTANEOUS:
         if (t < t_phase1) {
             // Phase 1: Reduce both simultaneously
             double ratio = t / PHASE_REDUCTION_THRUST;
@@ -115,7 +116,8 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
             cmd_thrust = etat.cmd_thrust_max * 0.6;
             cmd_prof = cmd_prof_target;
         }
-    }
+        break;
+    
     
     cmd_prof = std::max(cmd_prof_min, cmd_prof);
     cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));

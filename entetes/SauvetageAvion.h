@@ -4,8 +4,6 @@
 #include "EtatCinematique.h"
 #include <utility>
 
-// Global strategy selector (0: thrust-first, 1: profile-first, 2: simultaneous)
-extern int CURRENT_STRATEGY;
 
 // Rescue system: reduces commands progressively to recover before crash
 class SauvetageAvion {
