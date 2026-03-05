@@ -11,18 +11,27 @@ z_ini=10670.0
 
 # Paramètres de simulation
 # Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES
-operations=SIMULATION
+operations=COMPARE_RESCUE_STRATEGIES
 dt=0.01
 duree=600.0
 methode_integration=RK4
 useHysteresis=false
 cmd_profondeur=-0.8
 cmd_thrust=1.0
-cmd_start=60
-cmd_end=600
+cmd_start=60.0
+cmd_end=600.0
 enable_rescue_system=true
 # Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS)
 rescue_strategy=THRUST_FIRST
 
 output_file=output_file/test_simulation_full.csv
 config_file=output_file/test_config_simulation_full.txt
+
+#Paramètres spécialisés
+#Batch_runner
+p_min=-1.0
+p_max=-0.0
+p_step=0.1
+t_min=0.0
+t_max=1.0
+t_step=0.1

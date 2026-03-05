@@ -36,7 +36,12 @@ int main() {
 
     if (config.hasOperations("SIMULATION")) {
         avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));  // 11280
-        Simulateur sim(avion, config.getDouble("dt"), config.getDouble("duree"), check_output_file(config.getString("output_file")), config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), config.getDouble("cmd_start"), config.getDouble("cmd_end"),config.getBool("enable_rescue_system")); // -0.32
+        Simulateur sim(avion, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file(config.getString("output_file")), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        config.getBool("enable_rescue_system")); // -0.32
         sim.executer();
     }   
 
@@ -51,7 +56,11 @@ int main() {
     }
 
     if (config.hasOperations("RUN_BATCH")) {
-        run_batch(-1.0, -0.0, 0.1, 0.0, 1.0,  0.1, true, 0.01, 600.0, 100.0, 500.0);
+        run_batch(config.getDouble("p_min"), config.getDouble("p_max"), config.getDouble("p_step"), 
+                    config.getDouble("t_min"), config.getDouble("t_max"),  config.getDouble("t_step"), 
+                    config.getBool("useHysteresis"), 
+                    config.getDouble("dt"), config.getDouble("duree"), 
+                    config.getDouble("cmd_start"), config.getDouble("cmd_end"));
     }
 
     if (config.hasOperations("ENERGIE"))  {
@@ -61,50 +70,74 @@ int main() {
         main_energie_analysis_rk4();
     }
 
-
-    if (config.hasOperations("COMPARE_RESCUE_STRATEGIES"))  {
+    // Mettre une boucle ?????????????
+    if (config.hasOperations("COMPARE_RESCUE_STRATEGIES"))  { // Mettre une boucle ?????????????
+        double crash_time_baseline, crash_time_s0, crash_time_s1, crash_time_s2;
         //Baseline without rescue
+        {
         std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
-        
-        Avion avion_no_rescue(361.6, 6.6, 140000.0, true);
+        Avion avion_no_rescue(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         avion_no_rescue.initialiser();
-        Simulateur sim_no_rescue(avion_no_rescue, 0.01, 600.0, check_output_file("output/baseline_no_rescue.csv"),
-                            -0.4, 1.0, 50.0, 600.0, false);
-        double crash_time_baseline = sim_no_rescue.executer();
+        Simulateur sim_no_rescue(avion, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file("output/baseline_no_rescue.csv"), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        false); 
+        crash_time_baseline = sim_no_rescue.executer();
         std::cout << "Baseline crash time: " << crash_time_baseline << " s\n" << std::endl;
+        }
 
         // Test STRATEGY 0: Thrust reduction first
+        {
         std::cout << "\nSTRATEGY 0: THRUST REDUCTION FIRST (then pitch)\n" << std::endl;
         config.setString("rescue_strategy", "THRUST_FIRST"); 
         
-        Avion avion_s0(361.6, 6.6, 140000.0, true);
+        Avion avion_s0(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         avion_s0.initialiser();
-        Simulateur sim_s0(avion_s0, 0.01, 600.0, check_output_file("output/strategy0_thrust_first.csv"),
-                        -0.4, 1.0, 50.0, 600.0, true);
-        double crash_time_s0 = sim_s0.executer();
+        Simulateur sim_s0(avion_s0, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file("output/strategy0_thrust_first.csv"), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        true);
+        crash_time_s0 = sim_s0.executer();
         std::cout << "Strategy 0 crash time: " << crash_time_s0 << " s\n" << std::endl;
+        }
 
         // Test STRATEGY 1: Profile reduction first
+        {
         std::cout << "\nSTRATEGY 1: PROFILE REDUCTION FIRST (then thrust)\n" << std::endl;
         config.setString("rescue_strategy", "PROFILE_FIRST");
         
-        Avion avion_s1(361.6, 6.6, 140000.0, true);
+        Avion avion_s1(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         avion_s1.initialiser();
-        Simulateur sim_s1(avion_s1, 0.01, 600.0, check_output_file("output/strategy1_profile_first.csv"),
-                        -0.4, 1.0, 50.0, 600.0, true);
-        double crash_time_s1 = sim_s1.executer();
+        Simulateur sim_s1(avion_s1, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file("output/strategy1_profile_first.csv"), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        true);
+        crash_time_s1 = sim_s1.executer();
         std::cout << "Strategy 1 crash time: " << crash_time_s1 << " s\n" << std::endl;
+        }
 
         // Test STRATEGY 2: Both simultaneously
+        {
         std::cout << "\nSTRATEGY 2: SIMULTANEOUS REDUCTION (thrust + pitch)\n" << std::endl;
         config.setString("rescue_strategy", "SIMULTANEOUS");
         
-        Avion avion_s2(361.6, 6.6, 140000.0, true);
+        Avion avion_s2(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         avion_s2.initialiser();
-        Simulateur sim_s2(avion_s2, 0.01, 600.0, check_output_file("output/strategy2_simultaneous.csv"),
-                        -0.4, 1.0, 50.0, 600.0, true);
-        double crash_time_s2 = sim_s2.executer();
+        Simulateur sim_s2(avion_s2, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file("output/strategy2_simultaneous.csv"), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        true);;
+        crash_time_s2 = sim_s2.executer();
         std::cout << "Strategy 2 crash time: " << crash_time_s2 << " s\n" << std::endl;
+        }
 
         // Comparative summary
         std::cout << "\n============ COMPARATIVE SUMMARY ============\n" << std::endl;

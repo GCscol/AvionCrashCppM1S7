@@ -59,12 +59,24 @@ void Config::completer() {
     params.insert({"useHysteresis",         "false"});
     params.insert({"cmd_profondeur",          "-0.8"});
     params.insert({"cmd_thrust",               "1.0"});
-    params.insert({"cmd_start",               "60"});
-    params.insert({"cmd_end",                 "600"});
     params.insert({"enable_rescue_system",         "false"});
     params.insert({"rescue_strategy",         "THRUST_FIRST"});
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});
+
+    //Paramètres spécialisés
+        // AJOUTER DES TESTS POUR NE COMPLETER QUE SI C'EST UTILE.
+        // EX : on ne remplit les params dédiés à RUN_BATCH que si RUN_BATCH est dans les opérations à réaliser, sinon on peut laisser cmd_start, cmd_end, p_min, p_max, etc... vides et ça ne posera pas de problème.
+        // + ça sera plus lisible pour savoir quel truc on a testé en relisant le fichier config exporté
+    //Batch_runner
+    params.insert({"cmd_start",               "60"});
+    params.insert({"cmd_end",                 "600"});
+    params.insert({"p_min",                   "-1.0"});
+    params.insert({"p_max",                   "-0.0"});
+    params.insert({"p_step",                  "0.1"});
+    params.insert({"t_min",                   "0.0"});
+    params.insert({"t_max",                   "1.0"});
+    params.insert({"t_step",                  "0.1"});
 
     // On vérouille la config pour éviter les modifications
     locked = true;
@@ -147,16 +159,34 @@ bool Config::hasOperations(const std::string& op) const {
 }
 
 std::string check_output_file(const std::string& path) {
-    // On vérifie déjà via getString si path est vide ou non et si la clé existe
+    static bool bypass_check_output_file = false; // static fait que ça persiste entre appels de cette fonction
+        // On vérifie déjà via getString si path est vide ou non et si la clé existe
     // Le fichier existe déjà → demande confirmation :
-    std::ifstream test(path); //Essai d'ouvrir le fichier (Attention, fichier fermé au moment du return)
-    if (test.good()) {
-       std::cout << "[ATTENTION ! Le fichier '" << path << "' existe déjà. Il sera écrasé.\n"
-                << "Continuer ? (Y/N) : " << std::flush;
-        char answer;
-        std::cin >> answer;
-        if (answer != 'Y' && answer != 'N')
-            throw std::runtime_error("Mauvaise entrée, attendu 'Y' ou 'N'.\n Abandon du programme.");
+    if (!bypass_check_output_file) {
+        std::ifstream test(path); //Essai d'ouvrir le fichier (Attention, fichier fermé au moment du return)
+        if (test.good()) {
+            char answer;
+            int attempts = 0;
+            do {
+                std::cout << "[ATTENTION] Le fichier '" << path << "' existe déjà. Il sera écrasé.\n"
+                          << "Continuer ? (Y/N/A) | Si A : Vérification contournée pour tous les fichiers à venir. : " << std::flush;
+                std::cin >> answer;
+                attempts++;
+
+                if (answer == 'N')
+                    throw std::runtime_error("Opération annulée par l'utilisateur.");
+                else if (answer == 'A') {
+                    bypass_check_output_file = true;
+                    std::cout << "La vérification avant écrasage sera systématiquement contournée." << std::endl;
+                }
+                else if (answer != 'Y') {
+                    if (attempts >= 3)
+                        throw std::runtime_error("Trop de tentatives invalides. Abandon du programme.");
+                    std::cout << "Entrée invalide (" << attempts << "/3), attendu 'Y', 'N' ou 'A'.\n";
+                }
+
+            } while (answer != 'Y' && answer != 'A');
         }
+    }
     return path;
 }

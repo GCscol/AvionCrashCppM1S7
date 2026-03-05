@@ -21,7 +21,6 @@ struct Config {
     private :
         std::unordered_map<std::string, std::string> params;
         bool locked = false;
-
     public :
         Config() = default;
 
