@@ -117,13 +117,13 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
         }
         break;
     
-    
+    }
     cmd_prof = std::max(cmd_prof_min, cmd_prof);
     cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));
     cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
     
     return {cmd_prof, cmd_thrust};
-    }
+    
 }
 
 std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat){
