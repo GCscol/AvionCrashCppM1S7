@@ -23,6 +23,8 @@ Pour chaque opération, le programme exportera ces résultats sous format d'un f
 
 =======================================
 Code python : 
+Le code python "Courbes affichage.py" considère le fichier "simulation_full.csv", l'analyse par un DataFrame et affiche la trajectoire de l'avion, puis l'altitude, les différents angles, la portance et la traction en fonction du temps.
+
 
 
 
