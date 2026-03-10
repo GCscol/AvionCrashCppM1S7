@@ -1,0 +1,1 @@
+[MIN_RESCUE_ALT_OPT] Alt=1000 m  (1/5)

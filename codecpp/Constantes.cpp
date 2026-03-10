@@ -61,6 +61,7 @@ void Config::completer() {
     params.insert({"cmd_thrust",               "1.0"});
     params.insert({"enable_rescue_system",         "false"});
     params.insert({"rescue_strategy",         "THRUST_FIRST"});
+    params.insert({"quiet_optimizer_logs",         "false"});
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});
 
@@ -71,12 +72,23 @@ void Config::completer() {
     //Batch_runner
     params.insert({"cmd_start",               "60"});
     params.insert({"cmd_end",                 "600"});
+    params.insert({"duree_batch",             "600.0"});
     params.insert({"p_min",                   "-1.0"});
     params.insert({"p_max",                   "-0.0"});
     params.insert({"p_step",                  "0.1"});
     params.insert({"t_min",                   "0.0"});
     params.insert({"t_max",                   "1.0"});
     params.insert({"t_step",                  "0.1"});
+
+    // MIN_RESCUE_ALTITUDE operation
+    params.insert({"min_rescue_altitude_min",  "9500.0"});
+    params.insert({"min_rescue_altitude_max",  "10600.0"});
+    params.insert({"min_rescue_altitude_step", "100.0"});
+
+    // MIN_RESCUE_ALT_OPT operation
+    params.insert({"min_rescue_altitude_opt_min",  "9500.0"});
+    params.insert({"min_rescue_altitude_opt_max",  "10600.0"});
+    params.insert({"min_rescue_altitude_opt_step", "200.0"});
 
     // On vérouille la config pour éviter les modifications
     locked = true;

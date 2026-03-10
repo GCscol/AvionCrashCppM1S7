@@ -8,6 +8,7 @@ ModeleLineaire::ModeleLineaire(double surface, double corde, double delta_prof_i
 
 ModeleLineaire::~ModeleLineaire() {}
 
+
 void ModeleLineaire::update_from_polar(double alpha_rad, double delta_p, 
                                        double omega, double vitesse, double mach) {
     using namespace Math;
@@ -32,12 +33,6 @@ void ModeleLineaire::update_from_polar(double alpha_rad, double delta_p,
     // Linear slope and elevator authority
     const double slope = 5.0;
     const double elevator_auth = 0.44;
-
-    // Mach transition for aerodynamic effects
-    // const double k_M = 0.4;        // attenuation coefficient (reduced for more stability)
-    // const double M_c = 0.78;       // critical Mach (aligned with early phase Mach)
-    // const double delta_M = 0.04;   // transition width
-    //const double f_M = 0.5 * (1.0 + std::tanh((mach - M_c) / delta_M));
     
     // Compute attached-flow lift
     double C_L_attached = slope * (alpha_rad - alpha0) + elevator_auth * delta_p;
@@ -74,10 +69,28 @@ void ModeleLineaire::update_from_polar(double alpha_rad, double delta_p,
     }
     
     // Pitching moment with damping (with velocity safety check)
-    // Cm_alpha(M) = Cm_alpha0 * (1 - k_M * f(M)) with smooth transonic transition
-    const double cm_alpha0 = 1;   // baseline low-Mach slope
-    // const double cm_alpha = cm_alpha0 * (1.0 - k_M * f_M);
+    const double Cz_alpha = 5.0;
+    const double x_f0 = 0.20;  // static margin (x_f0 - x_cg) / c at low Mach
+    
+    // Compressibility effects: aerodynamic center shifts aft → REDUCES static margin
+    // At high Mach, if AC moves behind CG, C_m becomes positive (pitch-up tendency)
+    double x_f_compressibility = 0.0;
+    if (mach > 0.3) {
+        // Static margin reduction due to aft AC shift in transonic regime
+        // At M=0.85, margin can be reduced by ~50% for transport aircraft
+        double k_mach = 0.80;  // Empirical coefficient (stronger than before)
+        x_f_compressibility = k_mach * (mach - 0.3) * (mach - 0.3);
+        
+        // Critical Mach effect: beyond M_crit, C_m can become positive
+        if (mach > 0.78) {
+            // Enhanced destabilization near transonic regime
+            x_f_compressibility += 0; // 0.5 * (mach - 0.78);
+        }
+    }
+    
+    // Static margin DECREASES with Mach (can become negative → unstable)
+    double x_f = x_f0; //- x_f_compressibility;
+    double cm_alpha = Cz_alpha * x_f;
     double vitesse_safe = std::max(vitesse, 1.0);
-    C_m = -0.1 - cm_alpha0 * (alpha_rad - alpha0) - 1.46 * delta_p
-        - 12 * omega * l / vitesse_safe;
+    C_m = -0.1 - cm_alpha * (alpha_rad - alpha0) - 1.46 * delta_p - 12.0 * omega * l / vitesse_safe;
 }

@@ -35,10 +35,8 @@ void AnalyseurEnveloppeVol::analyser_limites_vitesse() {
         double alpha_stall_rad = 15.0 * DEG_TO_RAD;
         double CL_max = 5.0 * (alpha_stall_rad - (-0.035)) + 0.44 * (-0.13);
         
-        // Lower limit: stall speed
         double v_min = std::sqrt(2.0 * W / (rho * S * CL_max));
         
-        // Upper limit: structural constraint at Mach = 0.82
         double v_max = MACH_LIMIT_STRUCTURAL * sound_speed;
         
         double Mach_min = v_min / sound_speed;

@@ -12,6 +12,8 @@ void afficher_menu() {
     cout << "4. Aerodynamic coefficients" << endl;
     cout << "5. CL vs alpha" << endl;
     cout << "6. Phugoid" << endl;
+    cout << "7. Min rescue altitude" << endl;
+    cout << "8. Batch crash heatmap" << endl;
     cout << "0. Quitter" << endl;
     cout << "\nEntrez votre choix: ";
 }
@@ -66,13 +68,25 @@ int main() {
                 commande = "python Phugoide.py";
                 system(commande.c_str());
                 break;
+
+            case 7:
+                cout << "\nExecution de plot_min_rescue_altitude.py..." << endl;
+                commande = "python plot_min_rescue_altitude.py";
+                system(commande.c_str());
+                break;
+
+            case 8:
+                cout << "\nExecution de plot_batch_heatmap.py..." << endl;
+                commande = "python plot_batch_heatmap.py";
+                system(commande.c_str());
+                break;
                 
             case 0:
                 cout << "Au revoir!" << endl;
                 return 0;
                 
             default:
-                cout << "Choix invalide. Veuillez choisir entre 0 et 6." << endl;
+                cout << "Choix invalide. Veuillez choisir entre 0 et 8." << endl;
         }
     }
     

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-fn = "simulation_full.csv"
+fn = "output_file/test_simulation_full.csv"
 
 df = pd.read_csv(fn)
 
@@ -16,7 +16,6 @@ t = df["time"]
 
 fig, axes = plt.subplots(3, 1, figsize=(10, 16), sharex=True)
 
-# Velocities vx, vz, and absolute velocity vs time
 v_abs = np.sqrt(df["vx"]**2 + df["vz"]**2)
 
 axes[0].plot(t, df["vx"], label="vx (horizontal)", linewidth=2)
@@ -27,7 +26,6 @@ axes[0].set_ylabel("Vitesse (m/s)")
 axes[0].legend(loc='best')
 axes[0].grid(True, alpha=0.3)
 
-# Angles: pitch, alpha, and flight path angle (gamma)
 gamma_rad = np.arctan2(df["vz"], df["vx"])
 gamma_deg = gamma_rad * 180 / np.pi
 
@@ -39,18 +37,12 @@ axes[1].set_ylabel("Angle (deg)")
 axes[1].legend(loc='best')
 axes[1].grid(True, alpha=0.3)
 
-# # Pitching moment vs temps
-# axes[2].plot(t, df["M_pitch"], label="M_pitch", color="C2")
-# axes[2].set_ylabel("M_pitch (N.m)")
-# axes[2].legend()
-# axes[2].grid(True)
-
-# Altitude vs temps
 axes[2].plot(t, df["z"], label="z (altitude)")
 axes[2].set_ylabel("Position (m)")
 axes[2].legend()
 axes[2].grid(True)
 
 plt.tight_layout()
-print("✓ Plot saved to output/simulation_analysis.png")
+
+plt.savefig('output_plot/simulation_analysis.png', dpi=150, bbox_inches='tight')
 plt.show()

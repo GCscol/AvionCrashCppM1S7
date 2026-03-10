@@ -8,6 +8,15 @@
 // Rescue system: reduces commands progressively to recover before crash
 class SauvetageAvion {
 public:
+    struct Parametres {
+        double phase_reduction_thrust = 5;
+        double phase_reduction_prof = 5;
+        double phase_control = 3.0;
+        double thrust_reduced_factor = 0.2;
+        double prof_reduced_factor = -0.2;
+        double stabilization_thrust_factor = 0.6; // Thrust target ratio at end of rescue
+    };
+
     struct EtatSauvetage {
         bool en_descente_critique = false;
         double taux_descente = 0.0;         // Vertical rate (m/s)
@@ -23,7 +32,16 @@ public:
 
     static EtatSauvetage evaluer_etat(const EtatCinematique& etat, double temps_courant, 
                                       double cmd_prof_max, double cmd_thrust_max,
-                                      double derniere_manoeuvre = -1e6);
+                                      double derniere_manoeuvre = -1e6,
+                                      double seuil_altitude_critique = 3000.0);
+
+    static void set_parametres(const Parametres& params);
+    static Parametres get_parametres();
+    static void reset_parametres_defaut();
+
+    static void set_seuils_critiques(double seuil_descente, double seuil_pitch);
+    static std::pair<double, double> get_seuils_critiques();
+    static void reset_seuils_critiques_defaut();
 
     // Progressive reduction scenario: reduces commands gradually
     static std::pair<double, double> scenario_progressif(const EtatSauvetage& etat);
@@ -38,16 +56,12 @@ public:
                                           double temps_vz_positif);
 
 private:
-    // Rescue thresholds and phase durations
-    static constexpr double SEUIL_DESCENTE_CRITIQUE = -30.0;
-    static constexpr double SEUIL_PITCH_CRITIQUE = -0.8;
-    
-    static constexpr double PHASE_REDUCTION_THRUST = 0.6;
-    static constexpr double PHASE_REDUCTION_PROF = 0.6;
-    static constexpr double PHASE_CONTROL = 3.0;
+    static constexpr double SEUIL_DESCENTE_CRITIQUE_DEFAUT = -30.0;
+    static constexpr double SEUIL_PITCH_CRITIQUE_DEFAUT = -0.8;
 
-    static constexpr double THRUST_REDUCED_FACTOR = 0.2;
-    static constexpr double PROF_REDUCED_FACTOR = -0.2;
+    static Parametres params_actifs;
+    static double seuil_descente_critique_actif;
+    static double seuil_pitch_critique_actif;
 };
 
 #endif // SAUVETAGE_AVION_H

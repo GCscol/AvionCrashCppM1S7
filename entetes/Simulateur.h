@@ -19,6 +19,7 @@ private:
     double test_cmd_end;
     bool enable_rescue;  // Activation du système de sauvetage automatique
     double temps_debut_sauvetage;  // Temps où le sauvetage a démarré
+    double seuil_altitude_critique;  // Seuil d'altitude pour activation sauvetage
     
 public:
     Simulateur(Avion& av,
@@ -29,7 +30,8 @@ public:
                double cmd_thrust = std::numeric_limits<double>::quiet_NaN(),
                double cmd_start = 100.0,
                double cmd_end = 500.0,
-               bool enable_rescue_system = false);
+               bool enable_rescue_system = false,
+               double altitude_critique = 3000.0);
     
     // Executes the simulation. Returns crash time (seconds) or NaN if no crash.
     double executer();

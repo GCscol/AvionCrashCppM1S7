@@ -10,8 +10,9 @@ vx_ini=240.0
 z_ini=10670.0
 
 # Paramètres de simulation
-# Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES
-operations=COMPARE_RESCUE_STRATEGIES
+# Operations to perform (comma-separated | no space):SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES,MIN_RESCUE_ALTITUDE?MIN_RESCUE_ALT_OPT
+
+operations=MIN_RESCUE_ALT_OPT
 dt=0.01
 duree=600.0
 methode_integration=RK4
@@ -29,9 +30,21 @@ config_file=output_file/test_config_simulation_full.txt
 
 #Paramètres spécialisés
 #Batch_runner
+duree_batch=1000
 p_min=-1.0
 p_max=-0.0
 p_step=0.1
 t_min=0.0
 t_max=1.0
 t_step=0.1
+
+
+
+# MIN_RESCUE_ALTITUDE
+min_rescue_altitude_min=1000.0
+min_rescue_altitude_max=5000.0
+min_rescue_altitude_step=250.0
+# MIN_RESCUE_ALT_OPT
+min_rescue_altitude_opt_min=1000
+min_rescue_altitude_opt_max=2000
+min_rescue_altitude_opt_step=250.0

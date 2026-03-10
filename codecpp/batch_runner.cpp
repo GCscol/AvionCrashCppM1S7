@@ -17,7 +17,7 @@ int run_batch(double p_min, double p_max, double p_step,
     for (double d = p_min; d <= p_max + 1e-12; d += p_step) elevs.push_back(d);
     for (double tt = t_min; tt <= t_max + 1e-12; tt += t_step) thrusts.push_back(tt);
 
-    std::string resname = std::string("output/batch_results_") + (useHysteresis ? "hyst.csv" : "lin.csv");
+    std::string resname = std::string("output_file/batch_results.csv");
     std::ofstream out(resname);
     out << "cmd_profondeur,cmd_thrust,crash,crash_time,final_altitude\n";
 
@@ -34,7 +34,6 @@ int run_batch(double p_min, double p_max, double p_step,
             Simulateur sim(avion, sim_dt, sim_duration, fname.str(), cmd_p, cmd_t, cmd_start, cmd_end);
             double crash_time = sim.executer();
 
-            // read last altitude from the file to report final altitude
             double final_alt = std::numeric_limits<double>::quiet_NaN();
             std::ifstream in(fname.str());
             if (in.is_open()) {
@@ -45,7 +44,6 @@ int run_batch(double p_min, double p_max, double p_step,
                 }
                 in.close();
                 if (!last.empty()) {
-                    // parse CSV last column altitude is 4th column (x,y,z,vz?) in our header altitude is 3rd printed after x,y,z? we wrote x,y,z,vx,vy,vz, so altitude is third printed value -> field index 3 (0-based: time=0,x=1,y=2,z=3)
                     std::stringstream ss(last);
                     std::string item;
                     int idx = 0;
@@ -74,11 +72,10 @@ int run_batch(double p_min, double p_max, double p_step,
     return 0;
 }
 
-// Backwards-compatible no-arg wrapper with sensible defaults
 int run_batch() {
     return run_batch(-1.0, 0.0, 0.1,
                      0.0, 1.0, 0.1,
-                     true, // use hysteresis by default
+                     false,
                      0.01, 600.0,
                      100.0, 500.0);
 }

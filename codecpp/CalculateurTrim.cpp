@@ -7,6 +7,16 @@
 #include <iostream>
 #include <utility>
 
+namespace {
+bool trim_logs_enabled() {
+    try {
+        return !config.getBool("quiet_optimizer_logs");
+    } catch (...) {
+        return true;
+    }
+}
+}
+
 CalculateurTrim::CalculateurTrim(ModeleAerodynamique& modele_aero, 
                                  const Environnement& environnement)
     : aero(modele_aero), env(environnement) {}
@@ -97,13 +107,15 @@ double CalculateurTrim::trouver_alpha(double vitesse, double altitude,
         
         // Critère de convergence: L≈W ET M≈0
         if (std::fabs(erreur_L) < tol && std::fabs(erreur_M) < 1000.0) {
-            std::cout << "[TRIM] Convergence en " << (iter+1) << " iterations" << std::endl;
-            std::cout << "       Erreur L-W: " << erreur_L << " N, Erreur M: " << erreur_M << " N.m" << std::endl;
+            if (trim_logs_enabled()) {
+                std::cout << "[TRIM] Convergence en " << (iter+1) << " iterations" << std::endl;
+                std::cout << "       Erreur L-W: " << erreur_L << " N, Erreur M: " << erreur_M << " N.m" << std::endl;
+            }
             break;
         }
     }
     
-    if (std::fabs(erreur_L) > tol * 10 || std::fabs(erreur_M) > 10.0) {
+    if ((std::fabs(erreur_L) > tol * 10 || std::fabs(erreur_M) > 10.0) && trim_logs_enabled()) {
         std::cerr << "[TRIM WARNING] Convergence partielle: erreur_L=" << erreur_L 
                   << " N, erreur_M=" << erreur_M << " N.m" << std::endl;
     }
@@ -159,21 +171,27 @@ std::pair<double, double> CalculateurTrim::calculer_trim_complet(
         double erreur_M = M_aero + M_thrust;
         
         if (std::fabs(erreur_L) < tol_L && std::fabs(erreur_M) < tol_M) {
-            std::cout << "[TRIM COMPLET] Convergence en " << (iter+1) << " iterations" << std::endl;
-            std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
-            std::cout << "               Erreur L-W=" << erreur_L << " N, Erreur M=" << erreur_M << " N.m" << std::endl;
+            if (trim_logs_enabled()) {
+                std::cout << "[TRIM COMPLET] Convergence en " << (iter+1) << " iterations" << std::endl;
+                std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
+                std::cout << "               Erreur L-W=" << erreur_L << " N, Erreur M=" << erreur_M << " N.m" << std::endl;
+            }
             return {alpha, delta_p};
         }
     }
     
     // Si pas convergé, retourner meilleure approximation
-    std::cout << "[TRIM COMPLET] Convergence en " << max_iterations << " iterations (complete)" << std::endl;
+    if (trim_logs_enabled()) {
+        std::cout << "[TRIM COMPLET] Convergence en " << max_iterations << " iterations (complete)" << std::endl;
+    }
     aero.update_from_polar(alpha, delta_p, omega_pitch, vitesse, mach);
     double L = aero.calculer_portance(vitesse, rho);
     double D = aero.calculer_trainee(vitesse, rho);
     double M_aero = aero.calculer_moment_pitch(vitesse, rho);
     double M_thrust = config.getDouble("z_t") * D;
-    std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
-    std::cout << "               Erreur L-W=" << (L - W) << " N, Erreur M=" << (M_aero + M_thrust) << " N.m" << std::endl;
+    if (trim_logs_enabled()) {
+        std::cout << "               Alpha=" << (alpha*RAD_TO_DEG) << " deg, Delta_p=" << delta_p << " rad" << std::endl;
+        std::cout << "               Erreur L-W=" << (L - W) << " N, Erreur M=" << (M_aero + M_thrust) << " N.m" << std::endl;
+    }
     return {alpha, delta_p};
 }

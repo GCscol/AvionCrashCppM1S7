@@ -172,6 +172,50 @@ help:
 	@echo   mingw32-make rebuild      Full rebuild (clean + build)
 	@echo   mingw32-make info         Display project information
 	@echo   mingw32-make help         Show this help message
+	@echo   mingw32-make optimiseur   Build rescue parameter optimizer
+	@echo   mingw32-make run_optimiseur Build and run optimizer
 	@echo =========================================
 	@echo.
 
+
+# ============================================
+# Optimiseur de sauvetage (Machine Learning)
+# ============================================
+
+# Définir les objets nécessaires pour l'optimiseur
+OPTIMISEUR_SOURCES = test_optimiseur_sauvetage.cpp \
+                     $(SRC_DIR)/OptimiseurSauvetage.cpp \
+                     $(SRC_DIR)/Avion.cpp \
+                     $(SRC_DIR)/Simulateur.cpp \
+                     $(SRC_DIR)/SauvetageAvion.cpp \
+                     $(SRC_DIR)/Environnement.cpp \
+                     $(SRC_DIR)/EtatCinematique.cpp \
+                     $(SRC_DIR)/ProprietesInertie.cpp \
+                     $(SRC_DIR)/ModeleAerodynamique.cpp \
+                     $(SRC_DIR)/ModeleLineaire.cpp \
+                     $(SRC_DIR)/ModeleHysteresis.cpp \
+                     $(SRC_DIR)/ForcesAerodynamiques.cpp \
+                     $(SRC_DIR)/Propulsion.cpp \
+                     $(SRC_DIR)/SystemeControle.cpp \
+                     $(SRC_DIR)/CalculateurTrim.cpp \
+                     $(SRC_DIR)/Integration.cpp \
+                     $(SRC_DIR)/Constantes.cpp
+
+OPTIMISEUR_TARGET = $(BIN_DIR)/test_optimiseur
+
+.PHONY: optimiseur run_optimiseur
+
+optimiseur: $(OPTIMISEUR_TARGET)
+	@echo [OK] Optimizer build complete: $(OPTIMISEUR_TARGET)
+
+$(OPTIMISEUR_TARGET): $(OPTIMISEUR_SOURCES) $(SOURCES_H) | $(BIN_DIR) $(OUTPUT_DIR)
+	@echo [LINK] Building rescue parameter optimizer...
+	@$(CXX) $(CXXFLAGS) $(CXXFLAGS_RELEASE) -I$(HEADER_DIR) -o $@ $(OPTIMISEUR_SOURCES)
+	@echo [OK] Optimizer executable created: $@
+
+run_optimiseur: $(OPTIMISEUR_TARGET)
+	@echo [RUN] Executing optimizer...
+	@.\$(OPTIMISEUR_TARGET)
+	@echo.
+	@echo [INFO] Database generated: parametres_sauvetage_db.csv
+	@echo [INFO] To visualize results, run: python visualiser_optimisation.py
