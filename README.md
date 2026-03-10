@@ -6,7 +6,7 @@ Lors de la compilation, on compile l'ensemble des fonctionnalités du code.
 Le code obtenu peut alors être utilisé pour n'importe quelle opération possible sur n'importe quel avion dans n'importe quel condition initiale avec n'importe quel modèle et n'importe quel préset de comportement du pilote. Les spécificités des modèles aérodynamiques et de comportement du pilote ne peuvent cependant pas être modifié après la compilation.
 Ainsi si l'on souhaite étudier un autre avion (qu'un type A330 ici considéré), il est nécessaire en plus de changer les caractéristiques de l'appareil, de prendre en compte les modications du fuselage par des modifications du modèle aérodynamique.
 
-Une fois compiler ("make" dans le terminal grâce au makefile), le fichier executable peut être lancer ("./avion_simulatoion" dans le terminal)
+Une fois compiler ("make" dans le terminal grâce au makefile), le fichier executable peut être lancé ("./avion_simulatoion" dans le terminal)
 Afin de changer les paramètres, on va directement dans config.txt. Au sein de ce fichier, certaines variables sont considérées comme obligatoires :
     - Nom du fichier de sortie,
     - Operations à réaliser
@@ -23,6 +23,9 @@ Pour chaque opération, le programme exportera ces résultats sous format d'un f
 
 =======================================
 Code python : 
+Le code python "Courbes affichage.py" considère le fichier "simulation_full.csv", l'analyse par un DataFrame et affiche la trajectoire de l'avion, puis l'altitude, les différents angles, la portance et la traction en fonction du temps.
+
+Le code Python "Phugoid.py" prend en entrée le fichier "Phugoid.csv" (déjà écrit, parce qu'il faut qu'il n'y ait aucune commande de gouvernes d'activée pour la phugoïde, i.e. seulement les moteurs)
 
 
 
