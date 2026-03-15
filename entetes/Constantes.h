@@ -15,7 +15,7 @@ namespace Math {
 }
 
 enum class Methode_Integration { EULER, RK4 };
-enum class Rescue_Strategy { THRUST_FIRST, PROFILE_FIRST, SIMULTANEOUS };
+enum class Rescue_Strategy { THRUST_FIRST, PROFILE_FIRST, SIMULTANEOUS, GEN_FIND, GEN_GIVE };
 
 struct Config {
     private :

@@ -2,6 +2,7 @@
 #include "Avion.h"
 #include "Constantes.h"
 #include "SauvetageAvion.h"
+#include "OptiSauvetageGeneral.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -20,6 +21,15 @@ bool sim_logs_enabled() {
 }
 }
 
+double Simulateur::get_dernier_temps_recuperation() const {
+    return dernier_temps_recuperation;
+}
+
+double Simulateur::get_derniere_altitude_recuperation() const {
+    return derniere_altitude_recuperation;
+}
+
+
 // a verifier
 
 Simulateur::Simulateur(Avion& av, double pas_temps, double duree,
@@ -34,10 +44,14 @@ Simulateur::Simulateur(Avion& av, double pas_temps, double duree,
             test_cmd_profondeur(cmd_profondeur), test_cmd_thrust(cmd_thrust),
             test_cmd_start(cmd_start), test_cmd_end(cmd_end),
             enable_rescue(enable_rescue_system), temps_debut_sauvetage(-1e6),
-            seuil_altitude_critique(altitude_critique) {}
+            seuil_altitude_critique(altitude_critique){}
 
-double Simulateur::executer() {
+double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // empty by defaut
     using namespace Math;
+    
+    derniere_altitude_recuperation = 0.0;
+    dernier_temps_recuperation     = -1e6;  // neg pour détecter si crash avant sauvegarde activé
+    temps_debut_sauvetage          = -3e6;
     
     // setlocale(LC_ALL, ".utf8");
     
@@ -191,14 +205,14 @@ double Simulateur::executer() {
                     avion.get_etat(), t, test_cmd_profondeur, test_cmd_thrust, 
                     temps_debut_sauvetage, seuil_altitude_critique);
                 
-                std::pair<double, double> cmds = SauvetageAvion::appliquer_sauvetage(etat_sauvetage);
+                std::pair<double, double> cmds = SauvetageAvion::appliquer_sauvetage(etat_sauvetage, chromo);
                 
                 avion.get_controle().set_commande_profondeur(cmds.first);
                 avion.get_controle().set_commande_thrust(cmds.second);
 
                 // Vérifie si le sauvetage a réussi
                 double temps_sauvetage = t - temps_debut_sauvetage;
-                if (temps_sauvetage >= 2.0) {
+                if (temps_sauvetage >= 2.0) {   // Remplacer le 2.0 pour etre constant avec la condition de test du sauvetage
                     rescue_successful = SauvetageAvion::verifier_succes_sauvetage(
                         avion.get_etat(), etat_avant_sauvetage, temps_sauvetage, rescue_vz_positive_time);
                     
@@ -214,11 +228,14 @@ double Simulateur::executer() {
                         rescue_cooldown_active = true;
                         rescue_cooldown_end = t + rescue_cooldown_sec;
                         rescue_completed = true;
+
+                        dernier_temps_recuperation = temps_sauvetage ;
+                        derniere_altitude_recuperation = avion.get_altitude() ;
                     }
                 }
                 
                 // Vérifie l'échec du sauvetage (après 60s ou phase terminée)
-                if (temps_sauvetage >= 60.0 && !rescue_successful) {
+                if (temps_sauvetage >= temps_max_essai_sauvetage && !rescue_successful) {
                     if (sim_logs_enabled()) {
                         std::cout << "[T=" << t << "s] ✗ SAUVETAGE ECHOUE (abandon après 60s)" << std::endl;
                         std::cout << "  - Altitude: " << avion.get_altitude() << " m" << std::endl;
@@ -361,6 +378,8 @@ double Simulateur::executer() {
                 cout << "Crash !" << endl;
             }
             crash_time = t;
+            dernier_temps_recuperation = t - temps_debut_sauvetage ;
+            derniere_altitude_recuperation = avion.get_altitude() ;
             break;
         }
     }

@@ -7,6 +7,7 @@
 #include "OptimiseurSauvetage.h"
 #include "test_initialization_range.h"
 #include "batch_runner.h"
+#include "OptiSauvetageGeneral.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -40,6 +41,90 @@ int main() {
                                 10000.0, 13000.0, 250.0,  // altitude: 10000-13000 m par pas de 250
                                 false, 600.0, check_output_file("output/init_range.csv"));
     }
+
+
+
+    if (config.hasOperations("GENERAL_GEN_FIND")) { 
+        std::string Initial_quiet_optimizer_logs = config.getString("quiet_optimizer_logs");
+        config.setString("quiet_optimizer_logs","true");
+        std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
+        OptiSauvetageGeneral gen_opti_strat;
+        int nbr_generation=gen_opti_strat.get_Nbr_generation();
+        int nbr_chrom=gen_opti_strat.get_Nbr_chr();
+
+        std::string Initial_Rescue_Strategy = config.getString("rescue_strategy");
+        config.setString("rescue_strategy", "GEN_FIND");
+
+        // Initialisation de la population vide et de chaque chrosomes
+        gen_opti_strat.population.resize(nbr_chrom);
+        for (int k=0; k<nbr_chrom; k++){
+            gen_opti_strat.population[k].reserve_genes(100);
+        }
+
+        Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
+        Simulateur sim(avion, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file(config.getString("output_file")), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        true); // -0.32
+        
+        // à refaire
+        // Déclaré avant la boucle de générations
+        std::string log_path = "output/gen_stats.txt";
+        // Efface le fichier au début (sinon append sur un ancien run)
+        { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness\n"; }
+        //
+
+        for (int i=0; i<nbr_generation; i++){
+            std::cout<<"Generation n°"<<i<<std::endl;
+
+            // A refaire
+            std::vector<double> altitudes_gen;
+            std::vector<double> temps_gen;
+            altitudes_gen.reserve(nbr_chrom);
+            temps_gen.reserve(nbr_chrom);
+            std::vector<double> fitness_gen;
+            fitness_gen.reserve(nbr_chrom);
+            //
+            for (int k=0; k<nbr_chrom; k++) {
+                avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
+                sim.executer(&gen_opti_strat.population[k]);
+
+                // a refaire
+                double alt  = sim.get_derniere_altitude_recuperation();
+                double tps  = sim.get_dernier_temps_recuperation();
+                altitudes_gen.push_back(alt);
+                temps_gen.push_back(tps);
+                //
+                gen_opti_strat.population[k].fitness = gen_opti_strat.Eval_Fitness(alt, tps);
+                
+                //
+                fitness_gen.push_back(gen_opti_strat.population[k].fitness);
+                //
+
+                if (alt>=0){
+                    std::cout<<"L'avion ne s'est pas crash"<<std::endl;
+                }
+            }
+            // à refaire
+            OptiSauvetageGeneral::LogGenerationStats(log_path, i, altitudes_gen, temps_gen, fitness_gen);
+            ///
+
+            gen_opti_strat.SortAndKeep();
+
+            if (i<nbr_generation-1) {
+                gen_opti_strat.population=gen_opti_strat.Create_Population(nbr_chrom, gen_opti_strat.population);
+            }
+
+        }
+        gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt");
+        config.setString("rescue_strategy", Initial_Rescue_Strategy);
+        config.setString("quiet_optimizer_logs",Initial_quiet_optimizer_logs);
+    }
+
+
+
     
     if (config.hasOperations("SIMULATION")) {
         {

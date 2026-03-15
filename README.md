@@ -1,6 +1,29 @@
 # AvionCrashCppM1S7
 L'avion vole puis décroche. Jusqu'à quand est il sauvable ?
 
+
+Chose à faire :
+
+// c'est quoi déjà l'utilité de ça ???
+std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat){
+    return scenario_progressif(etat);
+}
+????????????????????????????????????????????
+
+
+std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue& chromo={}){
+    double t = etat.temps_depuis_manoeuvre;
+    const double cmd_prof_min = etat.cmd_profondeur_max;
+
+pourquoi inversion min/max ???
+?????????????????????????????????
+
+
+- Vérifier la validité des moments où l'on fixe des bornes et si la valeur dépasse on applatit ou on force la valeur
+    => En lien avec une meilleure gestion des cas limites ( Je pense qu'on pourrait faire sauter ces cobnditions pour le moment et voir à quel point c'est problématique afin d'aider à débuger notre code.
+- Peut etre encore alléger avion en décallant certaines formules de calcule dans d'autres classes
+=======================================
+
 Utilisation : (succintement) du programme cpp avion_simulation 
 Lors de la compilation, on compile l'ensemble des fonctionnalités du code.
 Le code obtenu peut alors être utilisé pour n'importe quelle opération possible sur n'importe quel avion dans n'importe quel condition initiale avec n'importe quel modèle et n'importe quel préset de comportement du pilote. Les spécificités des modèles aérodynamiques et de comportement du pilote ne peuvent cependant pas être modifié après la compilation.
@@ -32,10 +55,4 @@ Le code Python "Phugoid.py" prend en entrée le fichier "Phugoid.csv" (déjà é
 
 
 =======================
-
-
-Chose à faire :
-- Vérifier la validité des moments où l'on fixe des bornes et si la valeur dépasse on applatit ou on force la valeur
-    => En lien avec une meilleure gestion des cas limites ( Je pense qu'on pourrait faire sauter ces cobnditions pour le moment et voir à quel point c'est problématique afin d'aider à débuger notre code.
-- Peut etre encore alléger avion en décallant certaines formules de calcule dans d'autres classes
 

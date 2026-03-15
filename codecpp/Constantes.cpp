@@ -17,6 +17,8 @@ const std::unordered_map<std::string, Rescue_Strategy> STR_TO_RESCUE_STRATEGY = 
     {"THRUST_FIRST",  Rescue_Strategy::THRUST_FIRST},
     {"PROFILE_FIRST", Rescue_Strategy::PROFILE_FIRST},
     {"SIMULTANEOUS",  Rescue_Strategy::SIMULTANEOUS},
+    {"GEN_FIND",      Rescue_Strategy::GEN_FIND},
+    {"GEN_GIVE",      Rescue_Strategy::GEN_GIVE},
 };
 
 // ----------------------------------------------------------------
@@ -47,6 +49,14 @@ void Config::completer() {
     if (params.find("operations") == params.end() || params.at("operations").empty())   // Vérification s'il y a bien des opérations à réaliser, sinon on arrête directement
         throw std::runtime_error("Aucune opération à réaliser spécifiée dans la config : ajouter ou remplir la clé 'operations'");
 
+    //Stratégie de Rescue (on pourrait vérifier en amont si enable rescue system )
+    // On fait cet ordre afin d'éviter de vérifier si rescue strat est non vide + etre adaptatif si on choisit de passer en gen par défaut
+    params.insert({"rescue_strategy",         "THRUST_FIRST"});
+
+    if ( (params.at("rescue_strategy") == "GEN_GIVE") 
+        && (params.find("rescue_gen_file") == params.end() || params.at("rescue_gen_file").empty()) )
+            throw std::runtime_error("Stratégie de sauvetage choisit = 'GEN_GIVE', mais aucun fichier mémoire de la stratégie n'a été transmis : ajouter ou remplir la clé 'rescue_gen_file'");
+
     // On remplit les paramètres manquants non critiques avec des valeurs par défaut
     params.insert({"g",                   "9.81"});
     params.insert({"z_t",                 "2.0"});
@@ -60,7 +70,6 @@ void Config::completer() {
     params.insert({"cmd_profondeur",          "-0.8"});
     params.insert({"cmd_thrust",               "1.0"});
     params.insert({"enable_rescue_system",         "false"});
-    params.insert({"rescue_strategy",         "THRUST_FIRST"});
     params.insert({"quiet_optimizer_logs",         "false"});
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});

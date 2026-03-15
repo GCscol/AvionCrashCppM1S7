@@ -236,8 +236,17 @@ OptimiseurSauvetage::ResultatSimulation OptimiseurSauvetage::simuler_avec_params
 
         double crash_time = sim.executer();
         
+        // Retrieve recovery info from simulator (if any)
+        double sim_recovery_time = sim.get_dernier_temps_recuperation();
+        double sim_recovery_altitude = sim.get_derniere_altitude_recuperation();
+
         // Evaluate results
-        resultat.altitude_finale = avion.get_altitude();
+        // altitude_finale: prefer altitude at moment of recovery if available
+        if (sim_recovery_time < 999.0) {
+            resultat.altitude_finale = sim_recovery_altitude;
+        } else {
+            resultat.altitude_finale = avion.get_altitude();
+        }
         resultat.vitesse_finale = avion.get_etat().get_vitesse_norme();
         resultat.max_load_factor = 0.0;
 
@@ -266,7 +275,12 @@ OptimiseurSauvetage::ResultatSimulation OptimiseurSauvetage::simuler_avec_params
         // Check if rescue succeeded
         if (std::isnan(crash_time) && avion.get_altitude() > 100.0 && avion.get_vitesse_z() > -5.0) {
             resultat.succes_sauvetage = true;
-            resultat.temps_recuperation = conditions.duree_simulation;
+            // If simulator recorded a recovery time, use it; otherwise fallback to simulation duration
+            if (sim_recovery_time < 999.0) {
+                resultat.temps_recuperation = sim_recovery_time;
+            } else {
+                resultat.temps_recuperation = conditions.duree_simulation;
+            }
         } else {
             resultat.succes_sauvetage = false;
             resultat.temps_recuperation = 999.0;

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <limits>
+#include "OptiSauvetageGeneral.h"
 
 class Avion;
 
@@ -20,6 +21,11 @@ private:
     bool enable_rescue;  // Activation du système de sauvetage automatique
     double temps_debut_sauvetage;  // Temps où le sauvetage a démarré
     double seuil_altitude_critique;  // Seuil d'altitude pour activation sauvetage
+    // Informations sur la récupération (remplies si un sauvetage a été détecté)
+    double derniere_altitude_recuperation=0.0; // 0.0 = pas de crash pas de sauvetage, si positif sauvetage si neg crash
+    double dernier_temps_recuperation = 0.0;    // 0.0 = non défini  Ou t crash si altitude negative
+   
+    const double temps_max_essai_sauvetage=60.0;
     
 public:
     Simulateur(Avion& av,
@@ -32,9 +38,13 @@ public:
                double cmd_end = 500.0,
                bool enable_rescue_system = false,
                double altitude_critique = 3000.0);
+
+
+    double get_dernier_temps_recuperation() const;
+    double get_derniere_altitude_recuperation() const;
     
     // Executes the simulation. Returns crash time (seconds) or NaN if no crash.
-    double executer();
+    double executer(OptiSauvetageGeneral::ParamsRescue* chromo=nullptr);
 };
 
 #endif // SIMULATEUR_H

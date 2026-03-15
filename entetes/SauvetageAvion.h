@@ -2,6 +2,7 @@
 #define SAUVETAGE_AVION_H
 
 #include "EtatCinematique.h"
+#include "OptiSauvetageGeneral.h"
 #include <utility>
 
 
@@ -44,10 +45,10 @@ public:
     static void reset_seuils_critiques_defaut();
 
     // Progressive reduction scenario: reduces commands gradually
-    static std::pair<double, double> scenario_progressif(const EtatSauvetage& etat);
+    static std::pair<double, double> scenario_progressif(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue* chromo= nullptr);
 
     // Apply rescue scenario to get normalized commands
-    static std::pair<double, double> appliquer_sauvetage(const EtatSauvetage& etat);
+    static std::pair<double, double> appliquer_sauvetage(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue* chromo= nullptr);
 
     // Check if rescue was successful: vz > 0 for 2s, alpha < 14°, speed in [120, 350] m/s
     static bool verifier_succes_sauvetage(const EtatCinematique& etat_courant,
