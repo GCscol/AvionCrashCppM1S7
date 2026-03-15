@@ -199,11 +199,11 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                     cmd_prof=etat.cmd_profondeur_max*chromo->cmd_prof_ratio_max[k_chromo];
                     known_strat=true;
 
-                    std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                                << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
-                                << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                                << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
-                    std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+                    //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                    //            << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
+                    //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                    //            << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
+                    //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
 
                     break;
                 }
@@ -228,12 +228,12 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                 cmd_thrust=etat.cmd_thrust_max*cmd_thrust_ratio_max;
                 cmd_prof=etat.cmd_profondeur_max*cmd_prof_ratio_max;
 
-                std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                            << " ratio=" << cmd_prof_ratio_max
-                            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                            << " ratio=" << cmd_thrust_ratio_max << std::endl;
+                //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                //            << " ratio=" << cmd_prof_ratio_max
+                //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                //            << " ratio=" << cmd_thrust_ratio_max << std::endl;
             }
-            std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+            //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
             break;
         }
 
@@ -250,7 +250,7 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
     cmd_prof = std::max(cmd_prof_min, cmd_prof);
     cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));
     cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
-    std::cout<<"Correction cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+    //std::cout<<"Correction cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
     
     return {cmd_prof, cmd_thrust};
     

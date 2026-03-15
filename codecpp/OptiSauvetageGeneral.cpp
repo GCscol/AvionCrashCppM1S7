@@ -64,12 +64,14 @@ void OptiSauvetageGeneral::SaveBestChrom(const std::string& filename, const Para
 void OptiSauvetageGeneral::LogGenerationStats(const std::string& filename, int generation,
                                                const std::vector<double>& altitudes,
                                                const std::vector<double>& temps,
-                                               const std::vector<double>& fitness) {
+                                               const std::vector<double>& fitness,
+                                               const std::vector<int>& tailles) {
     // Ouvre en append pour accumuler toutes les générations dans le même fichier
     std::ofstream f(filename, std::ios::app);
     for (int k = 0; k < (int)altitudes.size(); k++) {
         f << generation << "," << k << "," 
-          << altitudes[k] << "," << temps[k] << "," << fitness[k] << "\n";
+          << altitudes[k] << "," << temps[k] << "," << fitness[k] <<"," 
+          << tailles[k] << "\n";
     }
 }
 //
@@ -232,7 +234,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue c
     assert(chromo.cmd_prof_ratio_max.size() == chromo.vz_env.size());
 
     if (taille_chromo == 0) { // possible au début
-        std::cout<<"Un chromosome de taille nulle"<<std::endl;
+        //std::cout<<"Un chromosome de taille nulle"<<std::endl;
         return chromo; 
     }
 

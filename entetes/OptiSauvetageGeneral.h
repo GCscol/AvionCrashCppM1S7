@@ -41,10 +41,10 @@ class OptiSauvetageGeneral {
             };
             
     private :
-        int Nbr_chr = 50 ; /// nombre de chromosomes = nbr d'avions simulés
-        int Nbr_chr_kept = 15 ; // nombre de chromosomes gardés selon la fitness pour repeupler
+        int Nbr_chr = 300 ; /// nombre de chromosomes = nbr d'avions simulés
+        int Nbr_chr_kept = 60 ; // nombre de chromosomes gardés selon la fitness pour repeupler
         int MutationRate_times100 = 7 ; // nbr de genes touchés en %*100
-        int Nbr_generation = 100;
+        int Nbr_generation = 300;
 
         ParamsRescue Croisement(const ParamsRescue chromo_m, const ParamsRescue chromo_p);
         ParamsRescue Mutation( ParamsRescue chromo);
@@ -54,7 +54,8 @@ class OptiSauvetageGeneral {
         static void LogGenerationStats(const std::string& filename, int generation,
                                 const std::vector<double>& altitudes,
                                 const std::vector<double>& temps,
-                                const std::vector<double>& fitness);
+                                const std::vector<double>& fitness,
+                                const std::vector<int>& tailles);
         //
             
         double Eval_Fitness(const double derniere_altitude_recuperation, const double dernier_temps_recuperation);

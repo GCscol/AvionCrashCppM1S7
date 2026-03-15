@@ -75,7 +75,7 @@ int main() {
         // Déclaré avant la boucle de générations
         std::string log_path = "output/gen_stats.txt";
         // Efface le fichier au début (sinon append sur un ancien run)
-        { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness\n"; }
+        { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness,taille\n"; }
         //
 
         for (int i=0; i<nbr_generation; i++){
@@ -88,6 +88,8 @@ int main() {
             temps_gen.reserve(nbr_chrom);
             std::vector<double> fitness_gen;
             fitness_gen.reserve(nbr_chrom);
+            std::vector<int> tailles_gen;
+            tailles_gen.reserve(nbr_chrom);
             //
             for (int k=0; k<nbr_chrom; k++) {
                 avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
@@ -98,6 +100,7 @@ int main() {
                 double tps  = sim.get_dernier_temps_recuperation();
                 altitudes_gen.push_back(alt);
                 temps_gen.push_back(tps);
+                tailles_gen.push_back((int)gen_opti_strat.population[k].vz_env.size());
                 //
                 gen_opti_strat.population[k].fitness = gen_opti_strat.Eval_Fitness(alt, tps);
                 
@@ -105,13 +108,13 @@ int main() {
                 fitness_gen.push_back(gen_opti_strat.population[k].fitness);
                 //
 
-                std::cout << "[Chr " << k << "] situations mémorisées : " << gen_opti_strat.population[k].vz_env.size() << std::endl;
-                if (alt>=0){
-                    std::cout<<"L'avion ne s'est pas crash"<<std::endl;
-                }
+                //std::cout << "[Chr " << k << "] situations mémorisées : " << gen_opti_strat.population[k].vz_env.size() << std::endl;
+                //if (alt>=0){
+                //    std::cout<<"L'avion ne s'est pas crash"<<std::endl;
+                //}
             }
             // à refaire
-            OptiSauvetageGeneral::LogGenerationStats(log_path, i, altitudes_gen, temps_gen, fitness_gen);
+            OptiSauvetageGeneral::LogGenerationStats(log_path, i, altitudes_gen, temps_gen, fitness_gen, tailles_gen);
             ///
 
             if (i < nbr_generation - 1) {
@@ -121,11 +124,11 @@ int main() {
                 gen_opti_strat.population =
                     gen_opti_strat.Create_Population(nbr_chrom, population_selected);
             } else {
-                std::cout << "Taille population finale complète : " << gen_opti_strat.population.size() << std::endl;
+                //std::cout << "Taille population finale complète : " << gen_opti_strat.population.size() << std::endl;
                 gen_opti_strat.population = gen_opti_strat.SortAndKeep(gen_opti_strat.population);
-                std::cout << "Taille meilleur chromosome final : " << gen_opti_strat.population[0].vz_env.size() << std::endl;
-                std::cout << "Fitness meilleur finale : " << gen_opti_strat.population[0].fitness << std::endl;
-                std::cout << "Taille population finale selectionné : " << gen_opti_strat.population.size() << std::endl;
+                //std::cout << "Taille meilleur chromosome final : " << gen_opti_strat.population[0].vz_env.size() << std::endl;
+                //std::cout << "Fitness meilleur finale : " << gen_opti_strat.population[0].fitness << std::endl;
+                //std::cout << "Taille population finale selectionné : " << gen_opti_strat.population.size() << std::endl;
                 gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt", gen_opti_strat.population[0]);
             }
         }
