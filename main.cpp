@@ -59,13 +59,18 @@ int main() {
 
 
         Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
+        SauvetageAvion::set_seuils_critiques(
+            config.getDouble("seuil_descente_critique"),
+            config.getDouble("seuil_pitch_critique")
+        );
         Simulateur sim(avion, 
                         config.getDouble("dt"), config.getDouble("duree"), 
                         check_output_file(config.getString("output_file")), 
                         config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
                         config.getDouble("cmd_start"), config.getDouble("cmd_end"),
-                        true); // -0.32
-        
+                        true,
+                        config.getDouble("seuil_altitude_critique")); /// ajouter ça aux autres simus
+
         // à refaire
         // Déclaré avant la boucle de générations
         std::string log_path = "output/gen_stats.txt";
@@ -100,6 +105,7 @@ int main() {
                 fitness_gen.push_back(gen_opti_strat.population[k].fitness);
                 //
 
+                std::cout << "[Chr " << k << "] situations mémorisées : " << gen_opti_strat.population[k].vz_env.size() << std::endl;
                 if (alt>=0){
                     std::cout<<"L'avion ne s'est pas crash"<<std::endl;
                 }

@@ -9,11 +9,11 @@
 
 
 // Constante pour seuil de discretisation . Attention faut etre sur que ce sont les memes seuils que ceux utilises pour la config si on fait un GEN_GIVE
-const std::vector<double> SEUILS_Z = { 1000.0, 3000.0, 5000.0, 8000.0, 11000.0 };  
-const std::vector<double> SEUILS_VZ    = { -60.0, -40.0, -20.0, -10.0, 0.0 };
-const std::vector<double> SEUILS_VTOT  = { 100.0, 150.0, 200.0, 250.0, 300.0, 350.0 };
-const std::vector<double> SEUILS_PITCH = { -0.5, -0.2, 0.0, 0.1, 0.2, 0.4 };
-const std::vector<double> SEUILS_GAMMA = { -0.4, -0.2, 0.0, 0.1, 0.2, 0.3 };
+const std::vector<double> SEUILS_Z = { 1000.0, 2000.0, 4000.0, 6000.0, 7000.0, 8000.0, 9000.0, 11000.0, 13000.0 };
+const std::vector<double> SEUILS_VZ    = { -80.0, -50.0, -30.0, -15.0, -5.0, 0.0, 5.0, 15.0, 30.0 };
+const std::vector<double> SEUILS_VTOT  = { 80.0, 120.0, 150.0, 180.0, 220.0, 260.0, 300.0 };
+const std::vector<double> SEUILS_PITCH = { -0.5, -0.35, -0.2, -0.1, 0.0, 0.1, 0.2, 0.35, 0.5 };
+const std::vector<double> SEUILS_GAMMA = { -0.8, -0.5, -0.3, -0.1, 0.0, 0.1, 0.2, 0.5, 0.8 };
 
 int Discretisation(const double valeur, const std::vector<double>& seuils) {  // nécessaire pour facilement traduire une situation continu dans le memoire du chromosome 
     return int(std::lower_bound(seuils.begin(), seuils.end(), valeur) - seuils.begin());
@@ -211,6 +211,12 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
 
 OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue chromo){
     int taille_chromo = chromo.vz_env.size();
+
+    if (taille_chromo == 0) { // possible au début
+        std::cout<<"Un chromosome de taille nulle"<<std::endl;
+        return chromo; 
+    }
+
     int nbr_mut_max= std::max(std::rand()%2,taille_chromo*MutationRate_times100/100); // Possiblement 0 mut mais ok sinon mettre un min
     
     for (int n_mut=0; n_mut<nbr_mut_max; n_mut++) {

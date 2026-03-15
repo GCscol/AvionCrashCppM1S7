@@ -89,6 +89,12 @@ void Config::completer() {
     params.insert({"t_max",                   "1.0"});
     params.insert({"t_step",                  "0.1"});
 
+    // Seuil critique déclenchage sauvetage  (  à ajuster )
+    params.insert({"seuil_altitude_critique", "3000.0"});
+    params.insert({"seuil_descente_critique", "-30.0"});
+    params.insert({"seuil_pitch_critique",    "-0.8"});
+
+    // a quoi ç_a sert ?
     // MIN_RESCUE_ALTITUDE operation
     params.insert({"min_rescue_altitude_min",  "9500.0"});
     params.insert({"min_rescue_altitude_max",  "10600.0"});

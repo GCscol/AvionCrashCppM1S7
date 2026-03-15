@@ -67,7 +67,16 @@ SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
     bool descente = etat.vz < seuil_descente_critique_actif;
     bool nez_bas = etat.pitch < seuil_pitch_critique_actif;
     status.en_descente_critique = altitude_critique && (descente || nez_bas);
-    
+
+    ////////////////////////////////////////////
+    // DEBUGGGGGGGG
+    if (status.en_descente_critique) {
+    std::cout << "SAUVETAGE DECLENCHE z=" << status.altitude
+              << " vz=" << status.taux_descente
+              << " pitch=" << status.assiette << std::endl;
+    }
+        ////////////////////////////////////////////
+        
     status.temps_depuis_manoeuvre = temps_courant - derniere_manoeuvre;
     status.cmd_profondeur_max = cmd_prof_max;
     status.cmd_thrust_max = cmd_thrust_max;

@@ -376,6 +376,9 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
         if (avion.get_altitude() <= 0) {
             if (sim_logs_enabled()) {
                 cout << "Crash !" << endl;
+                cout << "CRASH z=" << avion.get_altitude()
+                    << " vz=" << avion.get_vitesse_z()
+                    << " pitch=" << avion.get_pitch() << endl;
             }
             crash_time = t;
             dernier_temps_recuperation = t - temps_debut_sauvetage ;
