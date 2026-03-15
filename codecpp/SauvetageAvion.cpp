@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include <cassert> // debug
+
 const char *SAUVETAGE_VERSION = "1.0";  /// ????
 
 SauvetageAvion::Parametres SauvetageAvion::params_actifs{};
@@ -70,11 +72,11 @@ SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
 
     ////////////////////////////////////////////
     // DEBUGGGGGGGG
-    if (status.en_descente_critique) {
-    std::cout << "SAUVETAGE DECLENCHE z=" << status.altitude
-              << " vz=" << status.taux_descente
-              << " pitch=" << status.assiette << std::endl;
-    }
+    //if (status.en_descente_critique) {
+    //std::cout << "SAUVETAGE DECLENCHE z=" << status.altitude
+    //          << " vz=" << status.taux_descente
+    //          << " pitch=" << status.assiette << std::endl;
+    //}
         ////////////////////////////////////////////
         
     status.temps_depuis_manoeuvre = temps_courant - derniere_manoeuvre;
@@ -196,13 +198,24 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                     cmd_thrust=etat.cmd_thrust_max*chromo->cmd_thrust_ratio_max[k_chromo];
                     cmd_prof=etat.cmd_profondeur_max*chromo->cmd_prof_ratio_max[k_chromo];
                     known_strat=true;
+
+                    std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                                << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
+                                << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                                << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
+                    std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+
                     break;
                 }
             }
             // On a pas de stratégie donc on ajoute une au pif
             if (!known_strat) {
-                double cmd_thrust_ratio_max=std::rand()/double(RAND_MAX);
-                double cmd_prof_ratio_max=-1 +2*std::rand()/double(RAND_MAX);
+                double cmd_thrust_ratio_max=1.0*std::rand()/double(RAND_MAX);
+                double cmd_prof_ratio_max=-1.0 +2.0*(std::rand()/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
+                if ( (cmd_thrust_ratio_max<0 || cmd_thrust_ratio_max>1 ) || (cmd_prof_ratio_max<-1 || cmd_prof_ratio_max>1) ) {
+                    throw std::runtime_error("La valeur de cmd tiré au pif si pas de known_strat est hors borne");
+                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  // ← ici
+                }
                 chromo->push_gene(
                     z_env_discret,
                     vz_env_discret,
@@ -214,7 +227,13 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                 );
                 cmd_thrust=etat.cmd_thrust_max*cmd_thrust_ratio_max;
                 cmd_prof=etat.cmd_profondeur_max*cmd_prof_ratio_max;
+
+                std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                            << " ratio=" << cmd_prof_ratio_max
+                            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                            << " ratio=" << cmd_thrust_ratio_max << std::endl;
             }
+            std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
             break;
         }
 
@@ -227,9 +246,11 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
         }
     
     }
+    
     cmd_prof = std::max(cmd_prof_min, cmd_prof);
     cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));
     cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
+    std::cout<<"Correction cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
     
     return {cmd_prof, cmd_thrust};
     

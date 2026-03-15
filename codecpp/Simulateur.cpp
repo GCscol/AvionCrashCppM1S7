@@ -125,6 +125,12 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
         double speed = avion.get_etat().get_vitesse_norme();
         double alpha = avion.get_etat().get_alpha();
         double AoA_deg = alpha * RAD_TO_DEG;
+        
+        if (!std::isfinite(speed) || speed > 5000.0) {  // punir situation non physique
+            derniere_altitude_recuperation = -1e9;
+            dernier_temps_recuperation = -2.0;
+            break;
+        } 
 
         // Compute current minimum lift-sustaining speed and detect crossing below threshold
         double rho_now = avion.get_env().calculer_rho(avion.get_altitude());

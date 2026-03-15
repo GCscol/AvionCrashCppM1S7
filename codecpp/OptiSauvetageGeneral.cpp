@@ -6,6 +6,7 @@
 #include "Avion.h"
 #include "OptiSauvetageGeneral.h"
 #include "Constantes.h"
+#include <cassert>  // pour assert debugging
 
 
 // Constante pour seuil de discretisation . Attention faut etre sur que ce sont les memes seuils que ceux utilises pour la config si on fait un GEN_GIVE
@@ -76,7 +77,8 @@ void OptiSauvetageGeneral::LogGenerationStats(const std::string& filename, int g
 
 // gestion gene
 void OptiSauvetageGeneral::ParamsRescue::push_gene(const int z_elem, const int vz_elem, const int vtot_elem, const int pitch_elem, const int gamma_elem, 
-               const double cmd_thrust_ratio_max_elem, const double cmd_prof_ratio_max_elem ){
+                                                    const double cmd_thrust_ratio_max_elem, const double cmd_prof_ratio_max_elem ){
+
     z_env.push_back(z_elem);
     vz_env.push_back(vz_elem);
     vtot_env.push_back(vtot_elem);
@@ -98,7 +100,12 @@ void OptiSauvetageGeneral::ParamsRescue::reserve_genes (const int capacity){
 
 // Fonctions
 double OptiSauvetageGeneral::Eval_Fitness(const double derniere_altitude_recuperation, const double dernier_temps_recuperation) {
-    if (dernier_temps_recuperation <= 0.0) {  // punir si sauvegarde ne s'active pas = crash immédiat
+    if (!std::isfinite(derniere_altitude_recuperation) || 
+            !std::isfinite(dernier_temps_recuperation) ||
+            derniere_altitude_recuperation <-1e8 ) {  // punir si avion atteint situation non physique
+        return -1e10;
+    }
+    else if (dernier_temps_recuperation <= 0.0) {  // punir si sauvegarde ne s'active pas = crash immédiat
         return -1e8; 
     }
     // on souhaite avoir fitnesse la plus grande possible 
@@ -154,6 +161,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
             }
         }
         if (n_p == -1) { // Pas de gene du pere donc on ajoute la mere
+            assert(chromo_p.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_m] <= 1.0);
             chromo_f.push_gene(
                 chromo_m.z_env[n_m],
                 chromo_m.vz_env[n_m],
@@ -166,6 +174,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
         }
         else {
             if (std::rand() % 2 == 0) { // 50/50 d'avoir pere ou mere | Si pair, mere gagne
+                assert(chromo_p.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_m] <= 1.0);
                 chromo_f.push_gene(
                     chromo_m.z_env[n_m],
                     chromo_m.vz_env[n_m],
@@ -177,6 +186,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
                 );
             }
             else { // pere gagne
+                assert(chromo_p.cmd_prof_ratio_max[n_p] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_p] <= 1.0);
                 chromo_f.push_gene(
                     chromo_p.z_env[n_p],
                     chromo_p.vz_env[n_p],
@@ -195,6 +205,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
     // on finit de remplir avec ceux du pere non alloué
     for (int n_p = 0; n_p < size_p; n_p++) {
         if (!Memoire_gene_p_free[n_p]) continue;
+        assert(chromo_p.cmd_prof_ratio_max[n_p] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_p] <= 1.0);
         chromo_f.push_gene(
             chromo_p.z_env[n_p],
             chromo_p.vz_env[n_p],
@@ -206,11 +217,19 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
         );
     }
 
+    // debug
+    for (int i = 0; i < (int)chromo_f.cmd_prof_ratio_max.size(); i++)
+        assert(chromo_f.cmd_prof_ratio_max[i] >= -1.0 && chromo_f.cmd_prof_ratio_max[i] <= 1.0);
+    //
     return chromo_f ;
 }
 
 OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue chromo){
     int taille_chromo = chromo.vz_env.size();
+
+    for (int i = 0; i < (int)chromo.cmd_prof_ratio_max.size(); i++)
+        assert(chromo.cmd_prof_ratio_max[i] >= -1.0 && chromo.cmd_prof_ratio_max[i] <= 1.0);
+    assert(chromo.cmd_prof_ratio_max.size() == chromo.vz_env.size());
 
     if (taille_chromo == 0) { // possible au début
         std::cout<<"Un chromosome de taille nulle"<<std::endl;
@@ -221,8 +240,8 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue c
     
     for (int n_mut=0; n_mut<nbr_mut_max; n_mut++) {
         int n_f = std::rand()%taille_chromo ; // bon c'est pas distribué de manière uniforme comme proba mais vu que taille << RAND_MAX on va dire que c est quasi le cas
-        chromo.cmd_thrust_ratio_max[n_f]= std::rand()/double(RAND_MAX); // on divise par le max donc on aura un double
-        chromo.cmd_prof_ratio_max[n_f]= -1 +2*std::rand()/double(RAND_MAX);
+        chromo.cmd_thrust_ratio_max[n_f]= 1.0*std::rand()/double(RAND_MAX); // on divise par le max donc on aura un double
+        chromo.cmd_prof_ratio_max[n_f]= -1.0 +2.0*(std::rand()/double(RAND_MAX));
     }
     return chromo ;
 }
