@@ -21,8 +21,12 @@ int Discretisation(const double valeur, const std::vector<double>& seuils) {  //
 
 
 // Destructeurs + Constructeurs
+OptiSauvetageGeneral::ParamsRescue::ParamsRescue() {
+    reserve_genes(100);
+}
+
 OptiSauvetageGeneral::OptiSauvetageGeneral(){
-    population.reserve(Nbr_chr);
+    population.resize(Nbr_chr);
 }
 
 OptiSauvetageGeneral::~OptiSauvetageGeneral() {}
@@ -36,27 +40,23 @@ int OptiSauvetageGeneral::get_Nbr_chr() const {
     return OptiSauvetageGeneral::Nbr_chr;
 }
 
+int OptiSauvetageGeneral::get_Nbr_chr_kept() const {
+    return Nbr_chr_kept;
+}
+
 
 // gestion fichier
-void OptiSauvetageGeneral::SaveBestChrom(const std::string& filename) const {
-    if (population.empty()) return;
-
-    std::ofstream f(filename);
-    const ParamsRescue& best = population[0];  // déjà trié par SortAndKeep
-
-    f << "# Meilleur chromosome — fitness=" << best.fitness << "\n";
-    f << "# vz_env,vtot_env,pitch_env,gamma_env,cmd_thrust,cmd_prof\n";
-
-    for (int i = 0; i < static_cast<int>(best.vz_env.size()); i++) {
-        f << best.z_env[i]              << ","
-          << best.vz_env[i]              << ","
-          << best.vtot_env[i]            << ","
-          << best.pitch_env[i]           << ","
-          << best.gamma_env[i]           << ","
+void OptiSauvetageGeneral::SaveBestChrom(const std::string& filename, const ParamsRescue& best) const {
+    std::ofstream f(filename);  // écrase à chaque fois
+    f << "# fitness=" << best.fitness << "\n";
+    f << "# z_env,vz_env,vtot_env,pitch_env,gamma_env,cmd_thrust,cmd_prof\n";
+    for (int i = 0; i < (int)best.vz_env.size(); i++) {
+        f << best.z_env[i] << "," << best.vz_env[i] << ","
+          << best.vtot_env[i] << "," << best.pitch_env[i] << ","
+          << best.gamma_env[i] << ","
           << best.cmd_thrust_ratio_max[i] << ","
-          << best.cmd_prof_ratio_max[i]   << "\n";
+          << best.cmd_prof_ratio_max[i] << "\n";
     }
-    std::cout << "Meilleur chromosome sauvegardé : " << filename << std::endl;
 }
 
 // à refaire
@@ -99,7 +99,7 @@ void OptiSauvetageGeneral::ParamsRescue::reserve_genes (const int capacity){
 // Fonctions
 double OptiSauvetageGeneral::Eval_Fitness(const double derniere_altitude_recuperation, const double dernier_temps_recuperation) {
     if (dernier_temps_recuperation <= 0.0) {  // punir si sauvegarde ne s'active pas = crash immédiat
-        return -1e9; 
+        return -1e8; 
     }
     // on souhaite avoir fitnesse la plus grande possible 
     // (c'est pas ouf dans les effets on aimerait tendre vers 0 pour pouvoir bien quantifier l'évolution de la fitness)
@@ -110,16 +110,20 @@ double OptiSauvetageGeneral::Eval_Fitness(const double derniere_altitude_recuper
     };
 }
 
-void OptiSauvetageGeneral::SortAndKeep() {
-    int taille_ini=population.size();
+std::vector<OptiSauvetageGeneral::ParamsRescue> OptiSauvetageGeneral::SortAndKeep(const std::vector<OptiSauvetageGeneral::ParamsRescue>& Population_parents) {
+    std::vector<OptiSauvetageGeneral::ParamsRescue> Population_select = Population_parents;
     // Tri décroissant par fitness
-    std::sort(population.begin(), population.end(),
-        [](const ParamsRescue& a, const ParamsRescue& b) {   // [] = fonction lambda en python
+    std::sort(Population_select.begin(), Population_select.end(),
+        [](const OptiSauvetageGeneral::ParamsRescue& a, const OptiSauvetageGeneral::ParamsRescue& b) {   // [] = fonction lambda en python
             return a.fitness > b.fitness;
         });
+    
+    if (int(Population_select.size()) <Nbr_chr_kept) {  // debugage
+        throw std::runtime_error("Problème taille dans SortAndKeep, size(pop parent)<nbr chromo kept");
+    }
 
-    population.resize(Nbr_chr_kept);     // Garder uniquement les meilleurs chr
-    population.reserve(taille_ini);
+    Population_select.resize(Nbr_chr_kept);     // Garder uniquement les meilleurs chr
+    return Population_select ;
 }
 
 // gestion de la population
@@ -207,7 +211,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
 
 OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue chromo){
     int taille_chromo = chromo.vz_env.size();
-    int nbr_mut_max= taille_chromo*MutationRate_times100/100; // Possiblement 0 mut mais ok sinon mettre un min
+    int nbr_mut_max= std::max(std::rand()%2,taille_chromo*MutationRate_times100/100); // Possiblement 0 mut mais ok sinon mettre un min
     
     for (int n_mut=0; n_mut<nbr_mut_max; n_mut++) {
         int n_f = std::rand()%taille_chromo ; // bon c'est pas distribué de manière uniforme comme proba mais vu que taille << RAND_MAX on va dire que c est quasi le cas

@@ -5,7 +5,7 @@ import matplotlib.cm as cm
 
 # ── Chargement ────────────────────────────────────────────────────────────────
 df = pd.read_csv("output/gen_stats.txt")
-generations = sorted(df["generation"].unique())
+generations = sorted(g for g in df["generation"].unique() if g != 0)
 n_gen = len(generations)
 
 # ── Calcul des stats par génération ──────────────────────────────────────────

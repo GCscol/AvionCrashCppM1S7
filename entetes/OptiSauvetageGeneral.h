@@ -29,20 +29,22 @@ class OptiSauvetageGeneral {
                 std::vector<double> cmd_thrust_ratio_max ;// Thrust reduction factor [0, 1]
                 std::vector<double> cmd_prof_ratio_max ; // Elevator reduction factor [-1, 1]
 
-                double fitness ;
+                double fitness =-1e9; 
                 // possiblement t_recup et Deltaz ou zdecrochage 
 
 
                 void push_gene(const int z_elem, const int vz_elem, const int vtot_elem, const int pitch_elem, const int gamma_elem, 
                             const double cmd_thrust_ratio_max_elem, const double cmd_prof_ratio_max_elem );
                 void reserve_genes(int capacity);
+
+                ParamsRescue ();
             };
             
     private :
-        int Nbr_chr = 100 ; /// nombre de chromosomes = nbr d'avions simulés
-        int Nbr_chr_kept = 20 ; // nombre de chromosomes gardés selon la fitness pour repeupler
+        int Nbr_chr = 200 ; /// nombre de chromosomes = nbr d'avions simulés
+        int Nbr_chr_kept = 35 ; // nombre de chromosomes gardés selon la fitness pour repeupler
         int MutationRate_times100 = 7 ; // nbr de genes touchés en %*100
-        int Nbr_generation = 100;
+        int Nbr_generation = 200;
 
         ParamsRescue Croisement(const ParamsRescue chromo_m, const ParamsRescue chromo_p);
         ParamsRescue Mutation( ParamsRescue chromo);
@@ -56,18 +58,19 @@ class OptiSauvetageGeneral {
         //
             
         double Eval_Fitness(const double derniere_altitude_recuperation, const double dernier_temps_recuperation);
-        void SortAndKeep();
+        std::vector<ParamsRescue> SortAndKeep(const std::vector<ParamsRescue>& Population_parents);
 
         std::vector<ParamsRescue> population; // ensemble de chromosomes = d'avion
         std::vector<ParamsRescue> Create_Population (const int nbr_chr, const std::vector<ParamsRescue>& Population_parents);
 
         //lien avec fichier txt
-        void SaveBestChrom( const std::string& filename) const;
+        void SaveBestChrom(const std::string& filename, const ParamsRescue& best) const;
 
         OptiSauvetageGeneral();
         ~OptiSauvetageGeneral();
 
         int get_Nbr_chr() const;
+        int get_Nbr_chr_kept() const;
         int get_Nbr_generation() const;
 
 };

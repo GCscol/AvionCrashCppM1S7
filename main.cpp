@@ -48,18 +48,15 @@ int main() {
         std::string Initial_quiet_optimizer_logs = config.getString("quiet_optimizer_logs");
         config.setString("quiet_optimizer_logs","true");
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
+        // Initialisation de la population vide et de chaque chrosomes se fait dans le constructuer
         OptiSauvetageGeneral gen_opti_strat;
+        
         int nbr_generation=gen_opti_strat.get_Nbr_generation();
         int nbr_chrom=gen_opti_strat.get_Nbr_chr();
 
         std::string Initial_Rescue_Strategy = config.getString("rescue_strategy");
         config.setString("rescue_strategy", "GEN_FIND");
 
-        // Initialisation de la population vide et de chaque chrosomes
-        gen_opti_strat.population.resize(nbr_chrom);
-        for (int k=0; k<nbr_chrom; k++){
-            gen_opti_strat.population[k].reserve_genes(100);
-        }
 
         Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
         Simulateur sim(avion, 
@@ -111,14 +108,22 @@ int main() {
             OptiSauvetageGeneral::LogGenerationStats(log_path, i, altitudes_gen, temps_gen, fitness_gen);
             ///
 
-            gen_opti_strat.SortAndKeep();
-
-            if (i<nbr_generation-1) {
-                gen_opti_strat.population=gen_opti_strat.Create_Population(nbr_chrom, gen_opti_strat.population);
+            if (i < nbr_generation - 1) {
+                std::vector<OptiSauvetageGeneral::ParamsRescue> population_selected =
+                    gen_opti_strat.SortAndKeep(gen_opti_strat.population);
+                gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt", population_selected[0]);
+                gen_opti_strat.population =
+                    gen_opti_strat.Create_Population(nbr_chrom, population_selected);
+            } else {
+                std::cout << "Taille population finale complète : " << gen_opti_strat.population.size() << std::endl;
+                gen_opti_strat.population = gen_opti_strat.SortAndKeep(gen_opti_strat.population);
+                std::cout << "Taille meilleur chromosome final : " << gen_opti_strat.population[0].vz_env.size() << std::endl;
+                std::cout << "Fitness meilleur finale : " << gen_opti_strat.population[0].fitness << std::endl;
+                std::cout << "Taille population finale selectionné : " << gen_opti_strat.population.size() << std::endl;
+                gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt", gen_opti_strat.population[0]);
             }
-
         }
-        gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt");
+
         config.setString("rescue_strategy", Initial_Rescue_Strategy);
         config.setString("quiet_optimizer_logs",Initial_quiet_optimizer_logs);
     }
