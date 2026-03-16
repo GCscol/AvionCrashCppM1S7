@@ -210,8 +210,8 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
             }
             // On a pas de stratégie donc on ajoute une au pif
             if (!known_strat) {
-                double cmd_thrust_ratio_max=1.0*std::rand()/double(RAND_MAX);
-                double cmd_prof_ratio_max=-1.0 +2.0*(std::rand()/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
+                double cmd_thrust_ratio_max=1.0*double(std::rand())/double(RAND_MAX);
+                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
                 if ( (cmd_thrust_ratio_max<0 || cmd_thrust_ratio_max>1 ) || (cmd_prof_ratio_max<-1 || cmd_prof_ratio_max>1) ) {
                     throw std::runtime_error("La valeur de cmd tiré au pif si pas de known_strat est hors borne");
                     assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  // ← ici

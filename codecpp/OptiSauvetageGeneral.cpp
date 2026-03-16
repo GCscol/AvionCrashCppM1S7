@@ -242,8 +242,8 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue c
     
     for (int n_mut=0; n_mut<nbr_mut_max; n_mut++) {
         int n_f = std::rand()%taille_chromo ; // bon c'est pas distribué de manière uniforme comme proba mais vu que taille << RAND_MAX on va dire que c est quasi le cas
-        chromo.cmd_thrust_ratio_max[n_f]= 1.0*std::rand()/double(RAND_MAX); // on divise par le max donc on aura un double
-        chromo.cmd_prof_ratio_max[n_f]= -1.0 +2.0*(std::rand()/double(RAND_MAX));
+        chromo.cmd_thrust_ratio_max[n_f]= 1.0*double(std::rand())/double(RAND_MAX); // on divise par le max donc on aura un double
+        chromo.cmd_prof_ratio_max[n_f]= -1.0 +2.0*(double(std::rand())/double(RAND_MAX));
     }
     return chromo ;
 }
