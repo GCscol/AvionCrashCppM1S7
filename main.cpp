@@ -73,7 +73,7 @@ int main() {
 
         // à refaire
         // Déclaré avant la boucle de générations
-        std::string log_path = "output/gen_stats.txt";
+        std::string log_path = "output_file/genetic_alg/gen_stats_chr_xgen.txt";
         // Efface le fichier au début (sinon append sur un ancien run)
         { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness,taille\n"; }
         //
@@ -120,7 +120,7 @@ int main() {
             if (i < nbr_generation - 1) {
                 std::vector<OptiSauvetageGeneral::ParamsRescue> population_selected =
                     gen_opti_strat.SortAndKeep(gen_opti_strat.population);
-                gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt", population_selected[0]);
+                gen_opti_strat.SaveBestChrom("output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt", population_selected[0]);
                 gen_opti_strat.population =
                     gen_opti_strat.Create_Population(nbr_chrom, population_selected);
             } else {
@@ -129,7 +129,7 @@ int main() {
                 //std::cout << "Taille meilleur chromosome final : " << gen_opti_strat.population[0].vz_env.size() << std::endl;
                 //std::cout << "Fitness meilleur finale : " << gen_opti_strat.population[0].fitness << std::endl;
                 //std::cout << "Taille population finale selectionné : " << gen_opti_strat.population.size() << std::endl;
-                gen_opti_strat.SaveBestChrom("output/Chromosome_strat_gen_final.txt", gen_opti_strat.population[0]);
+                gen_opti_strat.SaveBestChrom("output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt", gen_opti_strat.population[0]);
             }
         }
 

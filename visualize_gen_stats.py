@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ── Chargement ────────────────────────────────────────────────────────────────
-df = pd.read_csv("output/gen_stats.txt")
+df = pd.read_csv("output_file/genetic_alg/gen_stats_chr_xgen.txt")
 generations = sorted(g for g in df["generation"].unique() if g != 0)
 
 # ── Meilleur individu par génération ─────────────────────────────────────────
@@ -37,6 +37,6 @@ for ax in axes:
     ax.set_xticks(generations[::max(1, len(generations)//20)])
 
 plt.tight_layout()
-plt.savefig("output/gen_best.png", dpi=150)
+plt.savefig("output_file/genetic_alg/gen_best_chr_xgen.png", dpi=150)
 plt.show()
-print("Figure sauvegardée : output/gen_best.png")
+print("Figure sauvegardée : output_file/genetic_alg/gen_best_chr_xgen.png")

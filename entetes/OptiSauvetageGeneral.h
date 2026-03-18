@@ -41,10 +41,10 @@ class OptiSauvetageGeneral {
             };
             
     private :
-        int Nbr_chr = 300 ; /// nombre de chromosomes = nbr d'avions simulés
+        int Nbr_chr = 350 ; /// nombre de chromosomes = nbr d'avions simulés
         int Nbr_chr_kept = 60 ; // nombre de chromosomes gardés selon la fitness pour repeupler
         int MutationRate_times100 = 7 ; // nbr de genes touchés en %*100
-        int Nbr_generation = 300;
+        int Nbr_generation = 1000;
 
         ParamsRescue Croisement(const ParamsRescue chromo_m, const ParamsRescue chromo_p);
         ParamsRescue Mutation( ParamsRescue chromo);

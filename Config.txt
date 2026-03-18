@@ -26,12 +26,12 @@ enable_rescue_system=true
 rescue_strategy=GEN_FIND
 #Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
 rescue_gen_file =output/Chromosome_strat_gen_final.txt 
-seuil_altitude_critique=8000.0
+seuil_altitude_critique=7500.0
 seuil_descente_critique=-5.0
 seuil_pitch_critique=-0.1
 
-output_file=output_file/test_simulation_full.csv
-config_file=output_file/test_config_simulation_full.txt
+output_file=output_file/test_simulation_full_chr_xgen.csv
+config_file=output_file/test_config_simulation_full_chr_xgen.txt
 
 
 quiet_optimizer_logs=false
