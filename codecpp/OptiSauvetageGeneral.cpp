@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <cstdio> // pour sscanf (normalement déjà include dans fstream ou iostream mais dans le doute)
 #include <cstdlib>   // pour std::rand
 #include <cmath>     // pour std::exp
 #include "Avion.h"
@@ -28,6 +29,12 @@ OptiSauvetageGeneral::ParamsRescue::ParamsRescue() {
 
 OptiSauvetageGeneral::OptiSauvetageGeneral(){
     population.resize(Nbr_chr);
+}
+
+OptiSauvetageGeneral::OptiSauvetageGeneral(const int nbr_chr) : 
+    Nbr_chr(nbr_chr), Nbr_chr_kept(1), MutationRate_times100(0)
+{  // Attention, à n'utiliser que pour une simu où l'on a télécharger le chromosome, sinon cela va créer des erreurs avec la différence entre population size et Nbr_chr dans la config_gen
+    population.resize(nbr_chr);
 }
 
 OptiSauvetageGeneral::~OptiSauvetageGeneral() {}
@@ -58,6 +65,35 @@ void OptiSauvetageGeneral::SaveBestChrom(const std::string& filename, const Para
           << best.cmd_thrust_ratio_max[i] << ","
           << best.cmd_prof_ratio_max[i] << "\n";
     }
+}
+
+void OptiSauvetageGeneral::LoadBestChrom(const std::string& filename) {
+    std::ifstream f(filename);
+    if (!f.is_open())
+        throw std::runtime_error("Dans LoadBestChrom, impossible d'ouvrir : " + filename);
+
+    ParamsRescue chrom;
+    std::string line;
+
+    while (std::getline(f, line)) {
+        if (line.empty() || line[0] == '#') continue;
+
+        int z, vz, vtot, pitch, gamma;
+        double thrust, prof;
+        if (sscanf(line.c_str(), "%d,%d,%d,%d,%d,%lf,%lf",
+                   &z, &vz, &vtot, &pitch, &gamma, &thrust, &prof) == 7) {
+            chrom.z_env.push_back(z);
+            chrom.vz_env.push_back(vz);
+            chrom.vtot_env.push_back(vtot);
+            chrom.pitch_env.push_back(pitch);
+            chrom.gamma_env.push_back(gamma);
+            chrom.cmd_thrust_ratio_max.push_back(thrust);
+            chrom.cmd_prof_ratio_max.push_back(prof);
+        }
+    }
+
+    population.clear();
+    population.push_back(chrom);
 }
 
 // à refaire

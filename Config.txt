@@ -25,7 +25,8 @@ enable_rescue_system=true
 # Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS,GEN_FIND,GEN_GIVE) 
 rescue_strategy=GEN_FIND
 #Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
-rescue_gen_file =output/Chromosome_strat_gen_final.txt 
+rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt
+gen_log_file=output_file/genetic_alg/gen_stats_chr_xgen.txt
 seuil_altitude_critique=7500.0
 seuil_descente_critique=-5.0
 seuil_pitch_critique=-0.1

@@ -66,8 +66,10 @@ class OptiSauvetageGeneral {
 
         //lien avec fichier txt
         void SaveBestChrom(const std::string& filename, const ParamsRescue& best) const;
+        void LoadBestChrom(const std::string& filename);
 
         OptiSauvetageGeneral();
+        OptiSauvetageGeneral(const int nbr_chr);
         ~OptiSauvetageGeneral();
 
         int get_Nbr_chr() const;

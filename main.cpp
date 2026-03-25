@@ -73,7 +73,7 @@ int main() {
 
         // à refaire
         // Déclaré avant la boucle de générations
-        std::string log_path = "output_file/genetic_alg/gen_stats_chr_xgen.txt";
+        const std::string log_path = check_output_file(config.getString("gen_log_file"));
         // Efface le fichier au début (sinon append sur un ancien run)
         { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness,taille\n"; }
         //
@@ -120,7 +120,7 @@ int main() {
             if (i < nbr_generation - 1) {
                 std::vector<OptiSauvetageGeneral::ParamsRescue> population_selected =
                     gen_opti_strat.SortAndKeep(gen_opti_strat.population);
-                gen_opti_strat.SaveBestChrom("output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt", population_selected[0]);
+                gen_opti_strat.SaveBestChrom(config.getString("rescue_gen_file"), population_selected[0]);
                 gen_opti_strat.population =
                     gen_opti_strat.Create_Population(nbr_chrom, population_selected);
             } else {
@@ -129,7 +129,7 @@ int main() {
                 //std::cout << "Taille meilleur chromosome final : " << gen_opti_strat.population[0].vz_env.size() << std::endl;
                 //std::cout << "Fitness meilleur finale : " << gen_opti_strat.population[0].fitness << std::endl;
                 //std::cout << "Taille population finale selectionné : " << gen_opti_strat.population.size() << std::endl;
-                gen_opti_strat.SaveBestChrom("output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt", gen_opti_strat.population[0]);
+                gen_opti_strat.SaveBestChrom(config.getString("rescue_gen_file"), gen_opti_strat.population[0]);
             }
         }
 
@@ -141,7 +141,7 @@ int main() {
 
     
     if (config.hasOperations("SIMULATION")) {
-        {
+        
         Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
     // avion.initialiser(240.0, 10670.0);  // croisière
                                         // 11280
@@ -152,8 +152,17 @@ int main() {
                         config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
                         config.getDouble("cmd_start"), config.getDouble("cmd_end"),
                         config.getBool("enable_rescue_system")); // -0.32
-        sim.executer();
+        
+        const Rescue_Strategy STRATEGY = config.getEnum(STR_TO_RESCUE_STRATEGY, "rescue_strategy") ;
+        if ( STRATEGY== Rescue_Strategy::GEN_GIVE ) {
+            OptiSauvetageGeneral gen_loaded_strat(1);
+            gen_loaded_strat.LoadBestChrom(config.getString("rescue_gen_file"))
+            sim.executer(&gen_loaded_strat.population[0]);
         }
+        else{
+            sim.executer();
+        }
+        
     }   
 
     // Avion avion(361.6, 6.6, 140000.0, true); // hysteresis aerodynamic model

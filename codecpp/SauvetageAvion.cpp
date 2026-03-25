@@ -239,9 +239,61 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
 
         case Rescue_Strategy::GEN_GIVE: {
             if (chromo==nullptr){
-                throw std::runtime_error("Aucune chromosome donné comme support pour GEN_GIVE");
+                throw std::runtime_error("Aucune chromosome donné comme support pour GEN_FIND");
             }
-            throw std::runtime_error("Branche GEN_FIND non défini actuellement");
+            // traduction de l'état en paramètre dicret compréhensible (on pourrait ajouter une fonction avec un struct etats_dicrets ca serait mieux mais la je veux juste avoir un truc)
+            int z_env_discret = Discretisation(etat.altitude, SEUILS_Z);
+            int vz_env_discret = Discretisation(etat.taux_descente, SEUILS_VZ);
+            int vtot_env_discret = Discretisation(etat.vitesse, SEUILS_VTOT);
+            int pitch_env_discret = Discretisation(etat.assiette, SEUILS_PITCH);
+            int gamma_env_discret = Discretisation(etat.assiette - etat.alpha, SEUILS_GAMMA);
+
+            bool known_strat = false ;
+
+            for (int k_chromo = 0; k_chromo < int(chromo->vz_env.size()); k_chromo++) {   //int car sinon warning inutile avec int et unsigned int
+                if (chromo->z_env[k_chromo] == z_env_discret          &&
+                    chromo->vz_env[k_chromo] == vz_env_discret        &&
+                    chromo->vtot_env[k_chromo] == vtot_env_discret    &&
+                    chromo->pitch_env[k_chromo] == pitch_env_discret &&
+                    chromo->gamma_env[k_chromo] == gamma_env_discret   ) 
+                    {
+                
+                    cmd_thrust=etat.cmd_thrust_max*chromo->cmd_thrust_ratio_max[k_chromo];
+                    cmd_prof=etat.cmd_profondeur_max*chromo->cmd_prof_ratio_max[k_chromo];
+                    known_strat=true;
+
+                    //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                    //            << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
+                    //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                    //            << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
+                    //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+
+                    break;
+                }
+            }
+            // On a pas de stratégie donc on ajoute une au pif
+            if (!known_strat) {
+                double cmd_thrust_ratio_max=1.0*double(std::rand())/double(RAND_MAX);
+                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
+                if ( (cmd_thrust_ratio_max<0 || cmd_thrust_ratio_max>1 ) || (cmd_prof_ratio_max<-1 || cmd_prof_ratio_max>1) ) {
+                    throw std::runtime_error("La valeur de cmd tiré au pif si pas de known_strat est hors borne");
+                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  // ← ici
+                }
+                
+                ///////
+                //    Grande différence par rapport à avant : quand on ne sait pas on essaie un truc nouveau sans l'enregistrer
+                //////////////
+
+
+                cmd_thrust=etat.cmd_thrust_max*cmd_thrust_ratio_max;
+                cmd_prof=etat.cmd_profondeur_max*cmd_prof_ratio_max;
+
+                //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
+                //            << " ratio=" << cmd_prof_ratio_max
+                //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
+                //            << " ratio=" << cmd_thrust_ratio_max << std::endl;
+            }
+            //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
             break;
         }
     
