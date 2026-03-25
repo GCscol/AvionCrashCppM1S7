@@ -35,6 +35,8 @@ def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> str | None:
 def main() -> None:
     root = Path(__file__).resolve().parent
     output_dir = root / "output_file"
+    output_plot_dir = root / "output_plot"
+    output_plot_dir.mkdir(parents=True, exist_ok=True)
 
     datasets = {
         "No rescue": output_dir / "baseline_no_rescue.csv",
@@ -78,6 +80,7 @@ def main() -> None:
     axes[2].legend()
 
     plt.tight_layout()
+    fig.savefig(output_plot_dir / "rescue_comparison.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 

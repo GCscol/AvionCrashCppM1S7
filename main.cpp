@@ -1,5 +1,4 @@
 #include "Avion.h"
-#include "AnalyseurEnveloppeVol.h"
 #include "Simulateur.h"
 #include "Constantes.h"
 #include "AnalyseurEnergie.h"
@@ -50,7 +49,9 @@ int main() {
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
         // Initialisation de la population vide et de chaque chrosomes se fait dans le constructuer
         OptiSauvetageGeneral gen_opti_strat;
-        
+        gen_opti_strat.set_Nbr_generation(static_cast<int>(config.getDouble("gen_nbr_generation")));
+        gen_opti_strat.set_Nbr_chr(static_cast<int>(config.getDouble("gen_nbr_chr")));
+
         int nbr_generation=gen_opti_strat.get_Nbr_generation();
         int nbr_chrom=gen_opti_strat.get_Nbr_chr();
 
@@ -156,7 +157,7 @@ int main() {
         const Rescue_Strategy STRATEGY = config.getEnum(STR_TO_RESCUE_STRATEGY, "rescue_strategy") ;
         if ( STRATEGY== Rescue_Strategy::GEN_GIVE ) {
             OptiSauvetageGeneral gen_loaded_strat(1);
-            gen_loaded_strat.LoadBestChrom(config.getString("rescue_gen_file"))
+            gen_loaded_strat.LoadBestChrom(config.getString("rescue_gen_file"));
             sim.executer(&gen_loaded_strat.population[0]);
         }
         else{
@@ -169,14 +170,6 @@ int main() {
     // avion.initialiser();
     // Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
     // sim.executer();
-
-    if (config.hasOperations("ENVELOPPE")) {
-        {
-        Avion avion_enveloppe(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
-        AnalyseurEnveloppeVol analyseur(avion_enveloppe);
-        analyseur.analyser_limites_vitesse();
-        }
-    }
 
     if (config.hasOperations("RUN_BATCH")) {
         run_batch(config.getDouble("p_min"), config.getDouble("p_max"), config.getDouble("p_step"), 

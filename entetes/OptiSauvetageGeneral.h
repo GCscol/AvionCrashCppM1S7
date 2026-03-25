@@ -75,6 +75,8 @@ class OptiSauvetageGeneral {
         int get_Nbr_chr() const;
         int get_Nbr_chr_kept() const;
         int get_Nbr_generation() const;
+    void set_Nbr_generation(int n);
+    void set_Nbr_chr(int n);
 
 };
 

@@ -341,7 +341,7 @@ double OptimiseurSauvetage::calculer_score(const ResultatSimulation& resultat) {
 }
 
 std::vector<OptimiseurSauvetage::ParamsRescue> 
-OptimiseurSauvetage::initialiser_population(const ConditionsInitiales& conditions) {
+OptimiseurSauvetage::initialiser_population(const ConditionsInitiales& /* conditions */) {
     
     std::vector<ParamsRescue> population;
     std::random_device rd;

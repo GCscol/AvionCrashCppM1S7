@@ -76,8 +76,8 @@ int main() {
                 break;
 
             case 8:
-                cout << "\nExecution de plot_batch_heatmap.py..." << endl;
-                commande = "python plot_batch_heatmap.py";
+                cout << "\nExecution de plot_heatmap_crash.py..." << endl;
+                commande = "python plot_heatmap_crash.py";
                 system(commande.c_str());
                 break;
                 

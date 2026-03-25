@@ -52,6 +52,15 @@ int OptiSauvetageGeneral::get_Nbr_chr_kept() const {
     return Nbr_chr_kept;
 }
 
+void OptiSauvetageGeneral::set_Nbr_generation(int n) {
+    Nbr_generation = n;
+}
+
+void OptiSauvetageGeneral::set_Nbr_chr(int n) {
+    Nbr_chr = n;
+    population.resize(n);
+}
+
 
 // gestion fichier
 void OptiSauvetageGeneral::SaveBestChrom(const std::string& filename, const ParamsRescue& best) const {

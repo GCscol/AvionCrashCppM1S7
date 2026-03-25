@@ -71,6 +71,8 @@ void Config::completer() {
     params.insert({"cmd_thrust",               "1.0"});
     params.insert({"enable_rescue_system",         "false"});
     params.insert({"quiet_optimizer_logs",         "false"});
+        params.insert({"gen_nbr_generation",           "5"});
+        params.insert({"gen_nbr_chr",                  "30"});
     params.insert({"dt",                  "0.01"});
     params.insert({"duree",               "600.0"});
 

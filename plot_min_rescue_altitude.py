@@ -63,6 +63,8 @@ def plot_optimizer(ax: plt.Axes, root: Path) -> bool:
 
 def main() -> None:
     root = Path(__file__).resolve().parent
+    output_plot_dir = root / "output_plot"
+    output_plot_dir.mkdir(parents=True, exist_ok=True)
     fig, ax = plt.subplots(figsize=(11, 7))
 
     has_fixed = plot_fixed_strategies(ax, root)
@@ -87,6 +89,7 @@ def main() -> None:
         )
 
     plt.tight_layout()
+    fig.savefig(output_plot_dir / "min_rescue_altitude_comparison.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 

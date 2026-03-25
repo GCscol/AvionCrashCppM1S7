@@ -13,7 +13,7 @@ def find_batch_file(root: Path) -> Path:
     batch_file = output_dir / "batch_results.csv"
     if not batch_file.exists():
         raise SystemExit(
-            "Fichier introuvable: output/batch_results.csv. "
+            "Fichier introuvable: output_file/batch_results.csv. "
             "Lance d'abord RUN_BATCH pour le générer."
         )
     return batch_file
@@ -33,6 +33,8 @@ def read_duree_batch(root: Path) -> str:
 
 def main() -> None:
     root = Path(__file__).resolve().parent
+    output_plot_dir = root / "output_plot"
+    output_plot_dir.mkdir(parents=True, exist_ok=True)
     csv_path = find_batch_file(root)
     duree_batch = read_duree_batch(root)
     df = pd.read_csv(csv_path)
@@ -99,7 +101,7 @@ def main() -> None:
 
     ax.set_title(f"Heatmap crash/final altitude — {duree_batch} s — {csv_path.name}")
     ax.set_xlabel("cmd_thrust")
-    ax.set_ylabel("cmd_profondeur")
+    ax.set_ylabel("cmd_p")
 
     ax.set_xticks(np.arange(len(x_values)))
     ax.set_yticks(np.arange(len(y_values)))
@@ -118,6 +120,7 @@ def main() -> None:
     ax.legend(handles=legend_items, loc="upper left")
 
     plt.tight_layout()
+    fig.savefig(output_plot_dir / "heatmap_crash.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 
