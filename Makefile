@@ -85,23 +85,40 @@ $(OBJ_DIR)/main.o: main.cpp $(SOURCES_H) | $(OBJ_DIR)
 # ============================================
 
 $(OBJ_DIR):
-	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(OBJ_DIR)' | Out-Null"
+ifeq ($(UNAME_S),Linux)
+	@mkdir -p $(OBJ_DIR)  # Commande Linux/Unix
+else ifeq ($(UNAME_S),Darwin)
+	@mkdir -p $(OBJ_DIR)  # Commande macOS
+else
+	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(OBJ_DIR)' | Out-Null"  # Commande PowerShell (Windows)
+endif
 	@echo [MKDIR] Created directory: $@
 
 $(BIN_DIR):
-	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(BIN_DIR)' | Out-Null"
+ifeq ($(UNAME_S),Linux)
+	@mkdir -p $(BIN_DIR)  # Commande Linux/Unix
+else ifeq ($(UNAME_S),Darwin)
+	@mkdir -p $(BIN_DIR)  # Commande macOS
+else
+	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(BIN_DIR)' | Out-Null"  # Commande PowerShell (Windows)
+endif
 
 $(OUTPUT_DIR):
-	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(OUTPUT_DIR)' | Out-Null"
+ifeq ($(UNAME_S),Linux)
+	@mkdir -p $(OUTPUT_DIR)  # Commande Linux/Unix
+else ifeq ($(UNAME_S),Darwin)
+	@mkdir -p $(OUTPUT_DIR)  # Commande macOS
+else
+	@powershell -Command "New-Item -ItemType Directory -Force -Path '$(OUTPUT_DIR)' | Out-Null"  # Commande PowerShell (Windows)
+endif
 	@echo [MKDIR] Created directory: $@
-
 # ============================================
 # Exécution
 # ============================================
 
 run: $(TARGET)
 	@echo [RUN] Executing $(TARGET)...
-	@.\$(TARGET)
+	@./$(TARGET)
 
 # ============================================
 # Nettoyage
