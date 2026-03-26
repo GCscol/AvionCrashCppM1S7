@@ -208,7 +208,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
             }
         }
         if (n_p == -1) { // Pas de gene du pere donc on ajoute la mere
-            assert(chromo_p.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_m] <= 1.0);
+            assert(chromo_m.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_m.cmd_prof_ratio_max[n_m] <= 1.0);
             chromo_f.push_gene(
                 chromo_m.z_env[n_m],
                 chromo_m.vz_env[n_m],
@@ -221,7 +221,7 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Croisement( ParamsRescu
         }
         else {
             if (std::rand() % 2 == 0) { // 50/50 d'avoir pere ou mere | Si pair, mere gagne
-                assert(chromo_p.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_p.cmd_prof_ratio_max[n_m] <= 1.0);
+                assert(chromo_m.cmd_prof_ratio_max[n_m] >= -1.0 && chromo_m.cmd_prof_ratio_max[n_m] <= 1.0);
                 chromo_f.push_gene(
                     chromo_m.z_env[n_m],
                     chromo_m.vz_env[n_m],
