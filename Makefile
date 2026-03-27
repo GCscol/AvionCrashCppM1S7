@@ -73,7 +73,7 @@ $(TARGET): $(OBJECTS) | $(BIN_DIR) $(OUTPUT_DIR)
 # ============================================
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(SOURCES_H) | $(OBJ_DIR)
-	@echo [CC] Compiling $$(notdir $<)
+	@echo [CC] Compiling $(notdir $<)
 	@$(CXX) $(CXXFLAGS) -I$(HEADER_DIR) -c $< -o $@
 
 $(OBJ_DIR)/main.o: main.cpp $(SOURCES_H) | $(OBJ_DIR)
