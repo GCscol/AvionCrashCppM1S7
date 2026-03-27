@@ -1,0 +1,450 @@
+classDiagram
+    class C_0016436472329008043786["std::pair&lt;double,double&gt;"]
+    class C_0016436472329008043786 {
+    }
+    class C_0015942794692556712278["std::string"]
+    class C_0015942794692556712278 {
+    }
+    class C_0017709540242548616259["std::unordered_map&lt;std::string,T&gt;"]
+    class C_0017709540242548616259 {
+    }
+    class C_0006944631450123251015["std::unordered_map&lt;std::string,std::string&gt;"]
+    class C_0006944631450123251015 {
+    }
+    class C_0001104664960286800752["std::vector&lt;double&gt;"]
+    class C_0001104664960286800752 {
+    }
+    class C_0017563173931554010774["std::vector&lt;int&gt;"]
+    class C_0017563173931554010774 {
+    }
+    class C_0008034592458513469079["std::vector&lt;OptiSauvetageGeneral::ParamsRescue&gt;"]
+    class C_0008034592458513469079 {
+    }
+    class C_0003586614045118698167["std::vector&lt;AnalyseurEnergie::EnergyState&gt;"]
+    class C_0003586614045118698167 {
+    }
+    class C_0010906588746168570721["ModeleAerodynamique"]
+    class C_0010906588746168570721 {
+        <<abstract>>
+        +ModeleAerodynamique(double surface, double corde, double delta_prof_init) void
+        +~ModeleAerodynamique() void
+        +calculer_moment_pitch(double vitesse, double rho) [const] double
+        +calculer_portance(double vitesse, double rho) [const] double
+        +calculer_trainee(double vitesse, double rho) [const] double
+        +get_corde() [const] double
+        +get_delta_profondeur() [const] double
+        +get_surface() [const] double
+        +set_delta_profondeur(double val) void
+        +update_from_polar(double alpha_rad, double delta_p, double omega, double vitesse, double mach = 0.0) void*
+        +C_D : double
+        +C_L : double
+        +C_m : double
+        #S : double
+        #delta_profondeur : double
+        #l : double
+        +omega_pitch : double
+    }
+    class C_0006802533471088679884["ModeleLineaire"]
+    class C_0006802533471088679884 {
+        +ModeleLineaire(double surface, double corde, double delta_prof_init = 0.0) void
+        +~ModeleLineaire() void
+        +update_from_polar(double alpha_rad, double delta_p, double omega, double vitesse, double mach = 0.0) void
+    }
+    class C_0000369691827804883906["ModeleHysteresis"]
+    class C_0000369691827804883906 {
+        +ModeleHysteresis(double surface, double corde, double delta_prof_init) void
+        +~ModeleHysteresis() void
+        -clamp_state() void
+        +update_from_polar(double alpha_rad, double delta_p, double omega, double vitesse, double mach = 0.0) void
+        -update_from_polar_dt(double alpha_rad, double delta_p, double omega, double vitesse, double dt) void
+        -CL_max : double
+        -X_sep : double
+        -alpha0 : double
+        -alpha_stall_down : double
+        -alpha_stall_up : double
+        -delta_alpha : double
+        -tau_att : double
+        -tau_sep : double
+    }
+    class C_0006889296519307708882["ProprietesInertie"]
+    class C_0006889296519307708882 {
+        +ProprietesInertie(double m, double inertie_y = 9720000.0) void
+        +calculer_poids() [const] double
+        +get_I_pitch() [const] double
+        +get_masse() [const] double
+        +set_masse(double m) void
+        -I_y : double
+        -masse : double
+    }
+    class C_0009197287816187315864["Propulsion"]
+    class C_0009197287816187315864 {
+        +Propulsion(double poussee_nominale = 300000.0, int nb_moteurs = 2, double expo_alt = 1.0) void
+        +calculer_poussee_max(double vitesse, double rho, double altitude) [const] double
+        -F0 : double
+        -expo_alt : double
+        -n_moteurs : int
+    }
+    class C_0009327955221389915723["SystemeControle"]
+    class C_0009327955221389915723 {
+        +SystemeControle() void
+        +get_cmd_profondeur() [const] double
+        +get_cmd_thrust() [const] double
+        +get_delta_p_max() [const] double
+        +reset() void
+        +set_commande_profondeur(double val) void
+        +set_commande_thrust(double val) void
+        +set_delta_p_max(double val) void
+        -cmd_profondeur : double
+        -cmd_thrust : double
+        -delta_p_max : double
+    }
+    class C_0008653655842414431535["Environnement"]
+    class C_0008653655842414431535 {
+        +calculer_mach(double vitesse, double altitude) [const] double
+        +calculer_rho(double altitude) [const] double
+        +calculer_temperature(double altitude) [const] double
+        +calculer_vitesse_son(double altitude) [const] double
+        -L : const double
+        -R : const double
+        -T_0 : const double
+        -T_min : const double
+        -rho_0 : const double
+    }
+    class C_0014761767255000815776["CalculateurTrim"]
+    class C_0014761767255000815776 {
+        +CalculateurTrim(ModeleAerodynamique & modele_aero, const Environnement & environnement) void
+        +calculer_trim_complet(double vitesse, double altitude, double masse, double omega_pitch, double alpha_min = -0.017453, double alpha_max = 0.261799, double delta_p_min = -0.40, double delta_p_max = 0.05) std::pair&lt;double,double&gt;
+        +trouver_alpha(double vitesse, double altitude, double masse, double omega_pitch, double tol = 1e-6, double alpha_min = 0.0, double alpha_max = 0.261799) double
+        +trouver_delta_profondeur(double pitch, double vitesse, double altitude, double omega, double epsilon = 1e-6, double delta_p_min = -0.20, double delta_p_max = 0.05) double
+        -aero : ModeleAerodynamique &
+        -env : const Environnement &
+    }
+    class C_0017130518871935908978["EtatCinematique"]
+    class C_0017130518871935908978 {
+        +EtatCinematique() void
+        +get_alpha() [const] double
+        +get_gamma() [const] double
+        +get_vitesse_norme() [const] double
+        +omega_pitch : double
+        +pitch : double
+        +roll : double
+        +vx : double
+        +vy : double
+        +vz : double
+        +x : double
+        +y : double
+        +yaw : double
+        +z : double
+    }
+    class C_0014428887557963823310["ForcesAerodynamiques"]
+    class C_0014428887557963823310 {
+        +Fx : double
+        +Fy : double
+        +Fz : double
+        +M_pitch : double
+        +M_thrust : double
+        +poids : double
+        +portance : double
+        +traction : double
+        +trainee : double
+    }
+    class C_0000258687217751922733["Integration"]
+    class C_0000258687217751922733 {
+        +Euler(Avion & avion, double dt) void$
+        +RK4(Avion & avion, double dt) void$
+        +calculer_derivees(Avion & avion) Derivees$
+    }
+    class C_0012972682711700424864["Integration::Derivees"]
+    class C_0012972682711700424864 {
+        +domega_pitch : double
+        +dpitch : double
+        +dvx : double
+        +dvy : double
+        +dvz : double
+        +dx : double
+        +dy : double
+        +dz : double
+    }
+    class C_0011422799512609194864["Avion"]
+    class C_0011422799512609194864 {
+        +Avion(double surface, double corde, double masse, bool useHysteresis = false) void
+        +~Avion() void
+        +calculer_forces() void
+        +calculer_forces(double & L, double & D, double & T, double & W) void
+        +calculer_poussee_max(double vitesse, double rho, double altitude) [const] double
+        +calculer_trim_complet(double vitesse) std::pair&lt;double,double&gt;
+        +get_Fx() [const] double
+        +get_Fy() [const] double
+        +get_Fz() [const] double
+        +get_I_pitch() [const] double
+        +get_M_pitch() [const] double
+        +get_aero() ModeleAerodynamique &
+        +get_aero() [const] const ModeleAerodynamique &
+        +get_altitude() [const] double
+        +get_cmd_profondeur() [const] double
+        +get_controle() SystemeControle &
+        +get_env() [const] const Environnement &
+        +get_etat() EtatCinematique &
+        +get_etat() [const] const EtatCinematique &
+        +get_forces() ForcesAerodynamiques &
+        +get_forces() [const] const ForcesAerodynamiques &
+        +get_masse() [const] double
+        +get_omega_pitch() [const] double
+        +get_pitch() [const] double
+        +get_portance() [const] double
+        +get_roll() [const] double
+        +get_traction() [const] double
+        +get_trainee() [const] double
+        +get_vitesse_x() [const] double
+        +get_vitesse_y() [const] double
+        +get_vitesse_z() [const] double
+        +get_x() [const] double
+        +get_y() [const] double
+        +get_yaw() [const] double
+        +initialiser(double vx = 240.0, double z = 10670.0) void
+        +mettre_a_jour_etat(double dt) void
+        +set_masse(double m) void
+        +trouver_alpha(double vitesse) double
+        +trouver_delta_profondeur(double vitesse, double omega) double
+        +z_ref() double &
+        -aero : ModeleAerodynamique *
+        -altitude_croisiere : double
+        -controle : SystemeControle
+        -environnement : Environnement
+        -etat : EtatCinematique
+        -forces : ForcesAerodynamiques
+        -inertie : ProprietesInertie
+        -propulsion : Propulsion
+        -trim_calculator : CalculateurTrim *
+    }
+    class C_0008189150936572372595["ParamsSimulationEnergie"]
+    class C_0008189150936572372595 {
+        +cmd_debut : double
+        +cmd_fin : double
+        +cmd_profondeur : double
+        +cmd_thrust : double
+        +duree : double
+        +fichier_sortie : std::string
+        +pas_temps : double
+        +use_hysteresis : bool
+    }
+    class C_0016763294308960852994["Methode_Integration"]
+    class C_0016763294308960852994 {
+        <<enumeration>>
+        EULER
+        RK4
+    }
+    class C_0006249351299253247864["Rescue_Strategy"]
+    class C_0006249351299253247864 {
+        <<enumeration>>
+        THRUST_FIRST
+        PROFILE_FIRST
+        SIMULTANEOUS
+        GEN_FIND
+        GEN_GIVE
+    }
+    class C_0006948042165933075207["Config"]
+    class C_0006948042165933075207 {
+        +Config() [default] void
+        +chargerDepuisFichier(const std::string & filename) void
+        +completer() void
+        +exporter(const std::string & filename) [const] void
+        +getBool(const std::string & key) [const] bool
+        +getDouble(const std::string & key) [const] double
+        +getEnum<T>(const std::unordered_map&lt;std::string,T&gt; & table, const std::string & key) [const] T
+        +getString(const std::string & key) [const] std::string
+        +hasOperations(const std::string & op) [const] bool
+        +setString(const std::string & key, const std::string & value) void
+        -locked : bool
+        -params : std::unordered_map&lt;std::string,std::string&gt;
+    }
+    class C_0011094488015264914418["OptiSauvetageGeneral"]
+    class C_0011094488015264914418 {
+        +OptiSauvetageGeneral() void
+        +OptiSauvetageGeneral(const int nbr_chr) void
+        +~OptiSauvetageGeneral() void
+        +Create_Population(const int nbr_chr, const std::vector&lt;ParamsRescue&gt; & Population_parents) std::vector&lt;ParamsRescue&gt;
+        -Croisement(const ParamsRescue chromo_m, const ParamsRescue chromo_p) ParamsRescue
+        +Eval_Fitness(const double derniere_altitude_recuperation, const double dernier_temps_recuperation) double
+        +LoadBestChrom(const std::string & filename) void
+        +LogGenerationStats(const std::string & filename, int generation, const std::vector&lt;double&gt; & altitudes, const std::vector&lt;double&gt; & temps, const std::vector&lt;double&gt; & fitness, const std::vector&lt;int&gt; & tailles) void$
+        -Mutation(ParamsRescue chromo) ParamsRescue
+        +SaveBestChrom(const std::string & filename, const ParamsRescue & best) [const] void
+        +SortAndKeep(const std::vector&lt;ParamsRescue&gt; & Population_parents) std::vector&lt;ParamsRescue&gt;
+        +get_Nbr_chr() [const] int
+        +get_Nbr_chr_kept() [const] int
+        +get_Nbr_generation() [const] int
+        +set_Nbr_chr(int n) void
+        +set_Nbr_generation(int n) void
+        -MutationRate_times100 : int
+        -Nbr_chr : int
+        -Nbr_chr_kept : int
+        -Nbr_generation : int
+        +population : std::vector&lt;ParamsRescue&gt;
+    }
+    class C_0015215401111799330363["OptiSauvetageGeneral::ParamsRescue"]
+    class C_0015215401111799330363 {
+        +ParamsRescue() void
+        +push_gene(const int z_elem, const int vz_elem, const int vtot_elem, const int pitch_elem, const int gamma_elem, const double cmd_thrust_ratio_max_elem, const double cmd_prof_ratio_max_elem) void
+        +reserve_genes(int capacity) void
+        +cmd_prof_ratio_max : std::vector&lt;double&gt;
+        +cmd_thrust_ratio_max : std::vector&lt;double&gt;
+        +fitness : double
+        +gamma_env : std::vector&lt;int&gt;
+        +pitch_env : std::vector&lt;int&gt;
+        +vtot_env : std::vector&lt;int&gt;
+        +vz_env : std::vector&lt;int&gt;
+        +z_env : std::vector&lt;int&gt;
+    }
+    class C_0006539917520780885076["Simulateur"]
+    class C_0006539917520780885076 {
+        +Simulateur(Avion & av, double pas_temps = 0.01, double duree = 2000.0, const std::string & fichier = "simulation_full.csv", double cmd_profondeur = std::numeric_limits&lt;double&gt;::quiet_NaN&lpar;&rpar;, double cmd_thrust = std::numeric_limits&lt;double&gt;::quiet_NaN&lpar;&rpar;, double cmd_start = 100.0, double cmd_end = 500.0, bool enable_rescue_system = false, double altitude_critique = 7500.0) void
+        +executer(OptiSauvetageGeneral::ParamsRescue * chromo = nullptr) double
+        +get_dernier_temps_recuperation() [const] double
+        +get_derniere_altitude_recuperation() [const] double
+        -avion : Avion &
+        -dernier_temps_recuperation : double
+        -derniere_altitude_recuperation : double
+        -dt : double
+        -enable_rescue : bool
+        -fichier_sortie : std::string
+        -seuil_altitude_critique : double
+        -temps_debut_sauvetage : double
+        -temps_max_essai_sauvetage : const double
+        -temps_total : double
+        -test_cmd_end : double
+        -test_cmd_profondeur : double
+        -test_cmd_start : double
+        -test_cmd_thrust : double
+    }
+    class C_0017233657318996408884["AnalyseurEnergie"]
+    class C_0017233657318996408884 {
+        +AnalyseurEnergie(const string & output_file, double mass) void
+        +enregistrer_etat(double t, const Avion & avion) void
+        +generer_rapport_csv() void
+        -altitude_ref : double
+        -data : vector&lt;EnergyState&gt;
+        -energie_mecanique_init : double
+        -fichier_sortie : string
+        -masse : double
+        -travail_traction_cumul : double
+        -travail_trainee_cumul : double
+    }
+    class C_0005142649881759805567["AnalyseurEnergie::EnergyState"]
+    class C_0005142649881759805567 {
+        +alpha_deg : double
+        +altitude : double
+        +bilan_energetique : double
+        +energie_cinetique : double
+        +energie_mecanique : double
+        +energie_potentielle : double
+        +portance : double
+        +time : double
+        +traction : double
+        +trainee : double
+        +travail_traction : double
+        +travail_trainee : double
+        +vitesse : double
+    }
+    class C_0011261774073822036129["SauvetageAvion"]
+    class C_0011261774073822036129 {
+        +appliquer_sauvetage(const EtatSauvetage & etat, OptiSauvetageGeneral::ParamsRescue * chromo = nullptr) std::pair&lt;double,double&gt;$
+        +evaluer_etat(const EtatCinematique & etat, double temps_courant, double cmd_prof_max, double cmd_thrust_max, double derniere_manoeuvre = -1e6, double seuil_altitude_critique = 7500.0) EtatSauvetage$
+        +get_parametres() Parametres$
+        +get_seuils_critiques() std::pair&lt;double,double&gt;$
+        +reset_parametres_defaut() void$
+        +reset_seuils_critiques_defaut() void$
+        +scenario_progressif(const EtatSauvetage & etat, OptiSauvetageGeneral::ParamsRescue * chromo = nullptr) std::pair&lt;double,double&gt;$
+        +set_parametres(const Parametres & params) void$
+        +set_seuils_critiques(double seuil_descente, double seuil_pitch) void$
+        +verifier_succes_sauvetage(const EtatCinematique & etat_courant, const EtatCinematique & etat_initial_sauvetage, double temps_ecoule, double temps_vz_positif) bool$
+        -SEUIL_DESCENTE_CRITIQUE_DEFAUT : const double
+        -SEUIL_PITCH_CRITIQUE_DEFAUT : const double
+        -params_actifs : Parametres
+        -seuil_descente_critique_actif : double
+        -seuil_pitch_critique_actif : double
+    }
+    class C_0009397324244122437489["SauvetageAvion::Parametres"]
+    class C_0009397324244122437489 {
+        +phase_control : double
+        +phase_reduction_prof : double
+        +phase_reduction_thrust : double
+        +prof_reduced_factor : double
+        +stabilization_thrust_factor : double
+        +thrust_reduced_factor : double
+    }
+    class C_0001131206499497590396["SauvetageAvion::EtatSauvetage"]
+    class C_0001131206499497590396 {
+        +alpha : double
+        +altitude : double
+        +assiette : double
+        +cmd_profondeur_max : double
+        +cmd_thrust_max : double
+        +en_descente_critique : bool
+        +taux_descente : double
+        +temps_depuis_manoeuvre : double
+        +vitesse : double
+    }
+    class C_0002581583258613130760["RescueRunResult"]
+    class C_0002581583258613130760 {
+        +activation_altitude : double
+        +crash_time : double
+        +recovery_altitude : double
+        +strategy : std::string
+        +success : bool
+    }
+    C_0017709540242548616259 ..> C_0015942794692556712278 : 
+    C_0006944631450123251015 ..> C_0015942794692556712278 : 
+    C_0006944631450123251015 ..|> C_0017709540242548616259 : 
+    C_0010906588746168570721 <|-- C_0006802533471088679884 : 
+    C_0010906588746168570721 <|-- C_0000369691827804883906 : 
+    C_0014761767255000815776 ..> C_0016436472329008043786 : 
+    C_0014761767255000815776 --> C_0010906588746168570721 : -aero
+    C_0014761767255000815776 --> C_0008653655842414431535 : -env
+    C_0000258687217751922733 ..> C_0011422799512609194864 : 
+    C_0000258687217751922733 ..> C_0012972682711700424864 : 
+    C_0000258687217751922733 ()-- C_0012972682711700424864 : 
+    C_0011422799512609194864 ..> C_0016436472329008043786 : 
+    C_0011422799512609194864 --> C_0010906588746168570721 : -aero
+    C_0011422799512609194864 o-- C_0006889296519307708882 : -inertie
+    C_0011422799512609194864 o-- C_0009197287816187315864 : -propulsion
+    C_0011422799512609194864 o-- C_0009327955221389915723 : -controle
+    C_0011422799512609194864 o-- C_0008653655842414431535 : -environnement
+    C_0011422799512609194864 --> C_0014761767255000815776 : -trim_calculator
+    C_0011422799512609194864 o-- C_0017130518871935908978 : -etat
+    C_0011422799512609194864 o-- C_0014428887557963823310 : -forces
+    C_0008189150936572372595 o-- C_0015942794692556712278 : +fichier_sortie
+    C_0006948042165933075207 ..> C_0015942794692556712278 : 
+    C_0006948042165933075207 ..> C_0017709540242548616259 : 
+    C_0006948042165933075207 o-- C_0006944631450123251015 : -params
+    C_0011094488015264914418 ..> C_0015215401111799330363 : 
+    C_0011094488015264914418 ..> C_0015942794692556712278 : 
+    C_0011094488015264914418 ..> C_0001104664960286800752 : 
+    C_0011094488015264914418 ..> C_0017563173931554010774 : 
+    C_0011094488015264914418 o-- C_0008034592458513469079 : +population
+    C_0011094488015264914418 ()-- C_0015215401111799330363 : 
+    C_0015215401111799330363 o-- C_0017563173931554010774 : +z_env
+    C_0015215401111799330363 o-- C_0017563173931554010774 : +vz_env
+    C_0015215401111799330363 o-- C_0017563173931554010774 : +vtot_env
+    C_0015215401111799330363 o-- C_0017563173931554010774 : +pitch_env
+    C_0015215401111799330363 o-- C_0017563173931554010774 : +gamma_env
+    C_0015215401111799330363 o-- C_0001104664960286800752 : +cmd_thrust_ratio_max
+    C_0015215401111799330363 o-- C_0001104664960286800752 : +cmd_prof_ratio_max
+    C_0006539917520780885076 ..> C_0015215401111799330363 : 
+    C_0006539917520780885076 --> C_0011422799512609194864 : -avion
+    C_0006539917520780885076 o-- C_0015942794692556712278 : -fichier_sortie
+    C_0017233657318996408884 ..> C_0011422799512609194864 : 
+    C_0017233657318996408884 o-- C_0003586614045118698167 : -data
+    C_0017233657318996408884 o-- C_0015942794692556712278 : -fichier_sortie
+    C_0017233657318996408884 ()-- C_0005142649881759805567 : 
+    C_0011261774073822036129 ..> C_0017130518871935908978 : 
+    C_0011261774073822036129 ..> C_0001131206499497590396 : 
+    C_0011261774073822036129 ..> C_0016436472329008043786 : 
+    C_0011261774073822036129 ..> C_0015215401111799330363 : 
+    C_0011261774073822036129 --> C_0009397324244122437489 : -params_actifs
+    C_0011261774073822036129 ()-- C_0009397324244122437489 : 
+    C_0011261774073822036129 ()-- C_0001131206499497590396 : 
+    C_0002581583258613130760 o-- C_0015942794692556712278 : +strategy
+
+%% Generated with clang-uml, version 0.6.2
+%% LLVM version clang version 20.1.7 (https://github.com/llvm/llvm-project.git 6146a88f60492b520a36f8f8f3231e15f3cc6082)

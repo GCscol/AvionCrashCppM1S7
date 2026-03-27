@@ -48,6 +48,9 @@ int main() {
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
         // Initialisation de la population vide et de chaque chrosomes se fait dans le constructuer
         OptiSauvetageGeneral gen_opti_strat;
+
+        gen_opti_strat.set_Nbr_generation(static_cast<int>(config.getDouble("gen_nbr_generation")));
+        gen_opti_strat.set_Nbr_chr(static_cast<int>(config.getDouble("gen_nbr_chr")));
         
         int nbr_generation=gen_opti_strat.get_Nbr_generation();
         int nbr_chrom=gen_opti_strat.get_Nbr_chr();

@@ -1,0 +1,8 @@
+compilation_database_dir: ..
+output_directory: output
+diagrams:
+  avion_class_overview:
+    type: class
+    glob:
+      - ../codecpp/*.cpp
+      - ../main.cpp

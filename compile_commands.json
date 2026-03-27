@@ -1,0 +1,325 @@
+﻿[
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\AnalyseurEnergie.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\AnalyseurEnergie.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Avion.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Avion.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\batch_runner.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\batch_runner.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\CalculateurTrim.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\CalculateurTrim.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Constantes.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Constantes.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Environnement.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Environnement.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\EtatCinematique.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\EtatCinematique.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Integration.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Integration.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleAerodynamique.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleAerodynamique.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleHysteresis.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleHysteresis.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleLineaire.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ModeleLineaire.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\OptiSauvetageGeneral.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\OptiSauvetageGeneral.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ProprietesInertie.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\ProprietesInertie.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Propulsion.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Propulsion.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\SauvetageAvion.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\SauvetageAvion.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Simulateur.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\Simulateur.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\SystemeControle.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\SystemeControle.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\test_initialization_range.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\codecpp\\test_initialization_range.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    },
+    {
+        "directory":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7",
+        "file":  "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\main.cpp",
+        "arguments":  [
+                          "g++",
+                          "-std=c++17",
+                          "-Wall",
+                          "-Wextra",
+                          "-Wpedantic",
+                          "-g",
+                          "-Ientetes",
+                          "-c",
+                          "C:\\Users\\hugoa\\OneDrive\\Desktop\\AvionCrashCppM1S7\\main.cpp",
+                          "-o",
+                          "NUL"
+                      ]
+    }
+]

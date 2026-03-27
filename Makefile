@@ -195,8 +195,6 @@ help:
 	@echo "  make rebuild        Full rebuild (clean + build)"
 	@echo "  make info           Display project information"
 	@echo "  make help           Show this help message"
-	@echo "  make optimiseur     Build rescue parameter optimizer"
-	@echo "  make run_optimiseur Build and run optimizer"
 	@echo "========================================="
 	@echo ""
 

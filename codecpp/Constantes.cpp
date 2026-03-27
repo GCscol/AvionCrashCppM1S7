@@ -189,15 +189,21 @@ bool Config::hasOperations(const std::string& op) const {
 
 std::string check_output_file(const std::string& path) {
     static bool bypass_check_output_file = false; // static fait que ça persiste entre appels de cette fonction
-        // On vérifie déjà via getString si path est vide ou non et si la clé existe
+    std::string final_path = path;
+    const bool has_directory = (path.find('/') != std::string::npos) || (path.find('\\') != std::string::npos);
+    if (!has_directory) {
+        final_path = "output_file/" + path;
+    }
+
+    // On vérifie déjà via getString si path est vide ou non et si la clé existe
     // Le fichier existe déjà → demande confirmation :
     if (!bypass_check_output_file) {
-        std::ifstream test(path); //Essai d'ouvrir le fichier (Attention, fichier fermé au moment du return)
+        std::ifstream test(final_path); //Essai d'ouvrir le fichier (Attention, fichier fermé au moment du return)
         if (test.good()) {
             char answer;
             int attempts = 0;
             do {
-                std::cout << "[ATTENTION] Le fichier '" << path << "' existe déjà. Il sera écrasé.\n"
+                std::cout << "[ATTENTION] Le fichier '" << final_path << "' existe déjà. Il sera écrasé.\n"
                           << "Continuer ? (Y/N/A) | Si A : Vérification contournée pour tous les fichiers à venir. : " << std::flush;
                 std::cin >> answer;
                 attempts++;
@@ -217,5 +223,5 @@ std::string check_output_file(const std::string& path) {
             } while (answer != 'Y' && answer != 'A');
         }
     }
-    return path;
+    return final_path;
 }

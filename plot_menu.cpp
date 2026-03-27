@@ -13,6 +13,7 @@ void afficher_menu() {
     cout << "5. Phugoid" << endl;
     cout << "6. Min rescue altitude" << endl;
     cout << "7. Batch crash heatmap" << endl;
+    cout << "8. Genetic stats visualization" << endl;
     cout << "0. Quitter" << endl;
     cout << "\nEntrez votre choix: ";
 }
@@ -35,13 +36,13 @@ int main() {
         switch (choix) {
             case 1:
                 cout << "\nExecution de plot_simulation.py..." << endl;
-                commande = "python plot_simulation.py";
+                commande = "python plotting/plot_simulation.py";
                 system(commande.c_str());
                 break;
                 
             case 2:
                 cout << "\nExecution de plot_rescue_comparison.py..." << endl;
-                commande = "python plot_rescue_comparison.py";
+                commande = "python plotting/plot_rescue_comparison.py";
                 system(commande.c_str());
                 break;
                 
@@ -49,30 +50,36 @@ int main() {
 
             case 3:
                 cout << "\nExecution de plot_aerodynamic_coefficients.py..." << endl;
-                commande = "python plot_aerodynamic_coefficients.py";
+                commande = "python plotting/plot_aerodynamic_coefficients.py";
                 system(commande.c_str());
                 break;
 
             case 4:
                 cout << "\nExecution de plot_CL_vs_alpha.py..." << endl;
-                commande = "python plot_CL_vs_alpha.py";
+                commande = "python plotting/plot_CL_vs_alpha.py";
                 system(commande.c_str());
                 break;
             case 5:
                 cout << "\nExecution de Phugoide.py..." << endl;
-                commande = "python Phugoide.py";
+                commande = "python plotting/Phugoide.py";
                 system(commande.c_str());
                 break;
 
             case 6:
                 cout << "\nExecution de plot_min_rescue_altitude.py..." << endl;
-                commande = "python plot_min_rescue_altitude.py";
+                commande = "python plotting/plot_min_rescue_altitude.py";
                 system(commande.c_str());
                 break;
 
             case 7:
                 cout << "\nExecution de plot_heatmap_crash.py..." << endl;
-                commande = "python plot_heatmap_crash.py";
+                commande = "python plotting/plot_heatmap_crash.py";
+                system(commande.c_str());
+                break;
+
+            case 8:
+                cout << "\nExecution de visualize_gen_stats.py..." << endl;
+                commande = "python plotting/visualize_gen_stats.py";
                 system(commande.c_str());
                 break;
                 
@@ -81,7 +88,7 @@ int main() {
                 return 0;
                 
             default:
-                cout << "Choix invalide. Veuillez choisir entre 0 et 7." << endl;
+                cout << "Choix invalide. Veuillez choisir entre 0 et 8." << endl;
         }
     }
     

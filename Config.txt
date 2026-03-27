@@ -67,3 +67,5 @@ min_rescue_altitude_step=250.0
 min_rescue_altitude_opt_min=1000
 min_rescue_altitude_opt_max=2000
 min_rescue_altitude_opt_step=250.0
+
+
