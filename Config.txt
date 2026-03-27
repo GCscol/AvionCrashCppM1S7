@@ -10,7 +10,7 @@ vx_ini=240.0
 z_ini=10670.0
 
 # Paramètres de simulation
-# Operations to perform (comma-separated | no space):GENERAL_GEN_FIND,SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES,MIN_RESCUE_ALTITUDE,MIN_RESCUE_ALT_OPT
+# Operations to perform (comma-separated | no space):GENERAL_GEN_FIND,SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES,MIN_RESCUE_ALTITUDE,MIN_RESCUE_ALT_OPT,PHUGOID
 # Normalement protection permettant de faire entre autre GENERAL_GEN_FIND avec d'autres rescue strat comme gen_give
 operations=PHUGOID
 dt=0.01
