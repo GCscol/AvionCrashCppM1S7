@@ -1,5 +1,4 @@
 #include "Avion.h"
-#include "AnalyseurEnveloppeVol.h"
 #include "Simulateur.h"
 #include "Constantes.h"
 #include "AnalyseurEnergie.h"
@@ -170,13 +169,6 @@ int main() {
     // Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
     // sim.executer();
 
-    if (config.hasOperations("ENVELOPPE")) {
-        {
-        Avion avion_enveloppe(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
-        AnalyseurEnveloppeVol analyseur(avion_enveloppe);
-        analyseur.analyser_limites_vitesse();
-        }
-    }
 
     if (config.hasOperations("RUN_BATCH")) {
         run_batch(config.getDouble("p_min"), config.getDouble("p_max"), config.getDouble("p_step"), 
