@@ -1,4 +1,5 @@
 #include "Avion.h"
+#include "AnalyseurEnveloppeVol.h"
 #include "Simulateur.h"
 #include "Constantes.h"
 #include "AnalyseurEnergie.h"
@@ -49,9 +50,7 @@ int main() {
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
         // Initialisation de la population vide et de chaque chrosomes se fait dans le constructuer
         OptiSauvetageGeneral gen_opti_strat;
-        gen_opti_strat.set_Nbr_generation(static_cast<int>(config.getDouble("gen_nbr_generation")));
-        gen_opti_strat.set_Nbr_chr(static_cast<int>(config.getDouble("gen_nbr_chr")));
-
+        
         int nbr_generation=gen_opti_strat.get_Nbr_generation();
         int nbr_chrom=gen_opti_strat.get_Nbr_chr();
 
@@ -170,6 +169,14 @@ int main() {
     // avion.initialiser();
     // Simulateur sim(avion, 0.01, 600.0, "simulation_hyst.csv", -0.4, 1.0, 50, 600);
     // sim.executer();
+
+    if (config.hasOperations("ENVELOPPE")) {
+        {
+        Avion avion_enveloppe(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis")); // linear aerodynamic model // 140000
+        AnalyseurEnveloppeVol analyseur(avion_enveloppe);
+        analyseur.analyser_limites_vitesse();
+        }
+    }
 
     if (config.hasOperations("RUN_BATCH")) {
         run_batch(config.getDouble("p_min"), config.getDouble("p_max"), config.getDouble("p_step"), 
@@ -409,6 +416,20 @@ int main() {
         opt_out.close();
         config.setString("quiet_optimizer_logs", "false");
         std::cout << "[OK] Resultats MIN_RESCUE_ALT_OPT enregistres dans: " << opt_summary_path << std::endl;
+    }
+    
+    if (config.hasOperations("PHUGOID")){
+        std::cout << "Affichage phugoide " << std::endl;
+        Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
+        avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));  // 11280
+        Simulateur sim(avion, 
+                        config.getDouble("dt"), 1200.0, 
+                        check_output_file(config.getString("output_file_phugoid")), 
+                        0, 0.675, 
+                        0, config.getDouble("duree"),
+                        false); // -0.32
+        sim.executer();
+        
     }
 
 
