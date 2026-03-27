@@ -35,8 +35,11 @@ SOURCES_H = $(wildcard $(HEADER_DIR)/*.h)
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(filter $(SRC_DIR)/%.cpp,$(SOURCES_CPP))) \
           $(OBJ_DIR)/main.o
 
+PLOT_MENU_SOURCE = plot_menu.cpp
+
 # Exécutable
 TARGET = $(BIN_DIR)/avion_simulation
+PLOT_MENU_TARGET = $(BIN_DIR)/plot_menu
 VERSION = 1.0
 
 # ============================================
@@ -48,7 +51,7 @@ VERSION = 1.0
 # Règles principales
 # ============================================
 
-all: $(TARGET)
+all: $(TARGET) $(PLOT_MENU_TARGET)
 	@echo [OK] Build complete: $(TARGET)
 
 release: CXXFLAGS += $(CXXFLAGS_RELEASE)
@@ -58,7 +61,10 @@ release: clean $(TARGET)
 debug: CXXFLAGS += $(CXXFLAGS_DEBUG)
 debug: clean $(TARGET)
 	@echo [OK] Debug build complete
-
+$(PLOT_MENU_TARGET): $(PLOT_MENU_SOURCE) $(SOURCES_H) | $(BIN_DIR)
+	@echo [LINK] Building plot menu...
+	@$(CXX) $(CXXFLAGS) -I$(HEADER_DIR) -o $@ $(PLOT_MENU_SOURCE)
+	@echo [OK] Plot menu executable created: $@
 # ============================================
 # Édition des exécutables
 # ============================================
@@ -120,24 +126,24 @@ run: $(TARGET)
 	@echo [RUN] Executing $(TARGET)...
 	@./$(TARGET)
 
+.PHONY: plot
+
+plot: $(PLOT_MENU_TARGET)
+	@echo [RUN] Executing plot menu...
+ifeq ($(OS),Windows_NT)
+	@.\$(PLOT_MENU_TARGET)
+else
+	@./$(PLOT_MENU_TARGET)
+endif
 # ============================================
 # Nettoyage
 # ============================================
 
 clean:
 	@echo [CLEAN] Removing compiled files...
-	@if exist "$(OBJ_DIR)" powershell -Command "Remove-Item -Recurse -Force '$(OBJ_DIR)' -ErrorAction SilentlyContinue"
-	@if exist "$(TARGET).exe" del /q "$(TARGET).exe"
+	@$(RM) $(OBJ_DIR)
+	@$(RM) $(TARGET)
 	@echo [OK] Build artifacts removed
-
-clean_output:
-	@echo [CLEAN] Removing output CSV files...
-	@if exist "$(OUTPUT_DIR)\*.csv" del /q "$(OUTPUT_DIR)\*.csv"
-	@echo [OK] Output files cleaned
-
-clean_all: clean clean_output
-	@echo [OK] Full clean complete
-
 # ============================================
 # Recompilation
 # ============================================
@@ -149,90 +155,48 @@ rebuild: clean all
 # ============================================
 
 info:
-	@echo.
-	@echo ==================== Project Info ====================
-	@echo Project: Avion Crash Simulation
-	@echo Version: $(VERSION)
-	@echo.
-	@echo Compilation:
-	@echo   Compiler: $(CXX)
-	@echo   C++ Standard: c++17
-	@echo   Flags: $(CXXFLAGS)
-	@echo.
-	@echo Directories:
-	@echo   Sources: $(SRC_DIR)/
-	@echo   Headers: $(HEADER_DIR)/
-	@echo   Objects: $(OBJ_DIR)/
-	@echo   Output:  $(OUTPUT_DIR)/
-	@echo.
-	@echo Files:
-	@echo   Source files (.cpp): $(words $(SOURCES_CPP))
-	@echo   Header files (.h): $(words $(SOURCES_H))
-	@echo   Object files (.o): $(words $(OBJECTS))
-	@echo.
-	@echo Target: $(TARGET)
-	@echo ======================================================
-	@echo.
-
+	@echo ""
+	@echo "==================== Project Info ===================="
+	@echo "Project: Avion Crash Simulation"
+	@echo "Version: $(VERSION)"
+	@echo ""
+	@echo "Compilation:"
+	@echo "  Compiler: $(CXX)"
+	@echo "  C++ Standard: c++17"
+	@echo "  Flags: $(CXXFLAGS)"
+	@echo ""
+	@echo "Directories:"
+	@echo "  Sources: $(SRC_DIR)/"
+	@echo "  Headers: $(HEADER_DIR)/"
+	@echo "  Objects: $(OBJ_DIR)/"
+	@echo "  Output:  $(OUTPUT_DIR)/"
+	@echo ""
+	@echo "Files:"
+	@echo "  Source files (.cpp): $(words $(SOURCES_CPP))"
+	@echo "  Header files (.h): $(words $(SOURCES_H))"
+	@echo "  Object files (.o): $(words $(OBJECTS))"
+	@echo ""
+	@echo "Target: $(TARGET)"
+	@echo "======================================================"
+	@echo ""
 help:
-	@echo.
-	@echo =========================================
-	@echo Available targets:
-	@echo =========================================
-	@echo   mingw32-make              Build the project (default)
-	@echo   mingw32-make release      Build optimized version (-O2)
-	@echo   mingw32-make debug        Build debug version (-g3 -O0)
-	@echo   mingw32-make run          Build and execute
-	@echo   mingw32-make clean        Remove object files and executable
-	@echo   mingw32-make clean_output Remove output CSV files
-	@echo   mingw32-make clean_all    Remove all generated files
-	@echo   mingw32-make rebuild      Full rebuild (clean + build)
-	@echo   mingw32-make info         Display project information
-	@echo   mingw32-make help         Show this help message
-	@echo   mingw32-make optimiseur   Build rescue parameter optimizer
-	@echo   mingw32-make run_optimiseur Build and run optimizer
-	@echo =========================================
-	@echo.
+	@echo ""
+	@echo "========================================="
+	@echo "Available targets:"
+	@echo "========================================="
+	@echo "  make                Build the project (default)"
+	@echo "  make release        Build optimized version (-O2)"
+	@echo "  make debug          Build debug version (-g3 -O0)"
+	@echo "  make run            Build and execute"
+	@echo "  make plot           Build and execute the plot code"
+	@echo "  make clean          Remove object files and executable"
+	@echo "  make clean_output   Remove output CSV files"
+	@echo "  make clean_all      Remove all generated files"
+	@echo "  make rebuild        Full rebuild (clean + build)"
+	@echo "  make info           Display project information"
+	@echo "  make help           Show this help message"
+	@echo "  make optimiseur     Build rescue parameter optimizer"
+	@echo "  make run_optimiseur Build and run optimizer"
+	@echo "========================================="
+	@echo ""
 
-
-# ============================================
-# Optimiseur de sauvetage (Machine Learning)
-# ============================================
-
-# Définir les objets nécessaires pour l'optimiseur
-OPTIMISEUR_SOURCES = test_optimiseur_sauvetage.cpp \
-                     $(SRC_DIR)/OptimiseurSauvetage.cpp \
-                     $(SRC_DIR)/Avion.cpp \
-                     $(SRC_DIR)/Simulateur.cpp \
-                     $(SRC_DIR)/SauvetageAvion.cpp \
-                     $(SRC_DIR)/Environnement.cpp \
-                     $(SRC_DIR)/EtatCinematique.cpp \
-                     $(SRC_DIR)/ProprietesInertie.cpp \
-                     $(SRC_DIR)/ModeleAerodynamique.cpp \
-                     $(SRC_DIR)/ModeleLineaire.cpp \
-                     $(SRC_DIR)/ModeleHysteresis.cpp \
-                     $(SRC_DIR)/ForcesAerodynamiques.cpp \
-                     $(SRC_DIR)/Propulsion.cpp \
-                     $(SRC_DIR)/SystemeControle.cpp \
-                     $(SRC_DIR)/CalculateurTrim.cpp \
-                     $(SRC_DIR)/Integration.cpp \
-                     $(SRC_DIR)/Constantes.cpp
-
-OPTIMISEUR_TARGET = $(BIN_DIR)/test_optimiseur
-
-.PHONY: optimiseur run_optimiseur
-
-optimiseur: $(OPTIMISEUR_TARGET)
-	@echo [OK] Optimizer build complete: $(OPTIMISEUR_TARGET)
-
-$(OPTIMISEUR_TARGET): $(OPTIMISEUR_SOURCES) $(SOURCES_H) | $(BIN_DIR) $(OUTPUT_DIR)
-	@echo [LINK] Building rescue parameter optimizer...
-	@$(CXX) $(CXXFLAGS) $(CXXFLAGS_RELEASE) -I$(HEADER_DIR) -o $@ $(OPTIMISEUR_SOURCES)
-	@echo [OK] Optimizer executable created: $@
-
-run_optimiseur: $(OPTIMISEUR_TARGET)
-	@echo [RUN] Executing optimizer...
-	@.\$(OPTIMISEUR_TARGET)
-	@echo.
-	@echo [INFO] Database generated: parametres_sauvetage_db.csv
-	@echo [INFO] To visualize results, run: python visualiser_optimisation.py

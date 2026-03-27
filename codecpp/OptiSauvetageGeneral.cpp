@@ -171,7 +171,6 @@ std::vector<OptiSauvetageGeneral::ParamsRescue> OptiSauvetageGeneral::SortAndKee
         [](const OptiSauvetageGeneral::ParamsRescue& a, const OptiSauvetageGeneral::ParamsRescue& b) {   // [] = fonction lambda en python
             return a.fitness > b.fitness;
         });
-    
     if (int(Population_select.size()) <Nbr_chr_kept) {  // debugage
         throw std::runtime_error("Problème taille dans SortAndKeep, size(pop parent)<nbr chromo kept");
     }

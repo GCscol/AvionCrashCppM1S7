@@ -37,7 +37,7 @@ public:
                double cmd_start = 100.0,
                double cmd_end = 500.0,
                bool enable_rescue_system = false,
-               double altitude_critique = 3000.0);
+               double altitude_critique = 7500.0);
 
 
     double get_dernier_temps_recuperation() const;

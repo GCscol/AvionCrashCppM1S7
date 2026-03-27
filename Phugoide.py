@@ -40,13 +40,14 @@ def main() -> None:
     z = df["z"]
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(x, z, label="Trajectoire xOz")
-    ax.set_xlabel("x [m]")
-    ax.set_ylabel("Altitude z [m]")
-    ax.set_title("Path of the plane")
-    ax.legend()
+    ax.plot(x, z, label="Trajectory xOz")
+    ax.set_xlabel("x [m]", fontsize = 16)
+    ax.set_ylabel("Altitude z [m]", fontsize = 16)
+    ax.set_title("Path of the plane", fontsize = 20)
+    ax.legend(fontsize = 20)
     ax.grid(True, alpha=0.3)
-
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
     plt.tight_layout()
     fig.savefig(output_plot_dir / "phugoide.png", dpi=300, bbox_inches="tight")
     plt.show()

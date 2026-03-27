@@ -3,7 +3,6 @@
 #include "Constantes.h"
 #include "AnalyseurEnergie.h"
 #include "SauvetageAvion.h"
-#include "OptimiseurSauvetage.h"
 #include "test_initialization_range.h"
 #include "batch_runner.h"
 #include "OptiSauvetageGeneral.h"
@@ -30,8 +29,7 @@ int main() {
     config.chargerDepuisFichier("Config.txt");
     config.completer();
 
-    config.exporter(check_output_file(config.getString("config_file")));  // Vérifie export avant d'écraser
-
+    
 
     // TEST DE L'INITIALISATION AVEC DIFFÉRENTES VITESSES ET ALTITUDES
 
@@ -44,6 +42,7 @@ int main() {
 
 
     if (config.hasOperations("GENERAL_GEN_FIND")) { 
+        
         std::string Initial_quiet_optimizer_logs = config.getString("quiet_optimizer_logs");
         config.setString("quiet_optimizer_logs","true");
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
@@ -64,7 +63,7 @@ int main() {
         );
         Simulateur sim(avion, 
                         config.getDouble("dt"), config.getDouble("duree"), 
-                        check_output_file(config.getString("output_file")), 
+                        check_output_file("output_file/test_simulation_full_chr_xgen.csv"), 
                         config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
                         config.getDouble("cmd_start"), config.getDouble("cmd_end"),
                         true,
@@ -204,7 +203,7 @@ int main() {
         crash_time_baseline = sim_no_rescue.executer();
         std::cout << "Baseline crash time: " << crash_time_baseline << " s\n" << std::endl;
         }
-
+        
         // Test STRATEGY 0: Thrust reduction first
         {
         std::cout << "\nSTRATEGY 0: THRUST REDUCTION FIRST (then pitch)\n" << std::endl;
@@ -305,7 +304,7 @@ int main() {
                 Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
                 avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
 
-                const std::string sim_path = "output/min_rescue_altitude_" + strategy.second + "_a" + std::to_string(static_cast<int>(activation_alt)) + ".csv";
+                const std::string sim_path = "output_file/min_rescue_altitude_" + strategy.second + "_a" + std::to_string(static_cast<int>(activation_alt)) + ".csv";
                 Simulateur sim(avion,
                                config.getDouble("dt"), config.getDouble("duree"),
                                check_output_file(sim_path),
@@ -343,72 +342,8 @@ int main() {
         std::cout << "Resultats MIN_RESCUE_ALTITUDE enregistres dans: " << summary_path << std::endl;
     }
 
-    if (config.hasOperations("MIN_RESCUE_ALT_OPT")) {
-        std::cout << "\n=== OPERATION MIN_RESCUE_ALT_OPT ===\n" << std::endl;
-
-        const double opt_alt_min  = config.getDouble("min_rescue_altitude_opt_min");
-        const double opt_alt_max  = config.getDouble("min_rescue_altitude_opt_max");
-        const double opt_alt_step = std::abs(config.getDouble("min_rescue_altitude_opt_step"));
-        config.setString("quiet_optimizer_logs", "true");
-
-        const int total_tests = std::max(1, static_cast<int>((opt_alt_max - opt_alt_min) / opt_alt_step + 1.0));
-        int test_index = 0;
-
-        OptimiseurSauvetage::ConfigOptimisation opt_cfg;
-        opt_cfg.max_iterations   = 5;
-        opt_cfg.population_size  = 50;
-        opt_cfg.mutation_rate    = 0.15;
-        opt_cfg.crossover_rate   = 0.7;
-        opt_cfg.verbose          = false;
-        OptimiseurSauvetage optimiseur(opt_cfg);
-
-        const std::string opt_summary_path = check_output_file("output_file/min_rescue_altitude_opt_results.csv");
-        std::ofstream opt_out(opt_summary_path);
-        opt_out << "activation_altitude,best_score,success,recovery_altitude,"
-                   "phase_reduction_thrust,phase_reduction_prof,phase_control,"
-                   "thrust_reduced_factor,prof_reduced_factor,stabilization_thrust_factor\n";
-
-        for (double act_alt = opt_alt_max; act_alt >= opt_alt_min - 1e-9; act_alt -= opt_alt_step) {
-            ++test_index;
-            std::cout << "[MIN_RESCUE_ALT_OPT] Alt=" << std::fixed << std::setprecision(0) << act_alt
-                      << " m  (" << test_index << "/" << total_tests << ")" << std::endl;
-
-            OptimiseurSauvetage::ConditionsInitiales cond(
-                config.getDouble("z_ini"),           // altitude_croisiere
-                config.getDouble("vx_ini"),           // vitesse_croisiere
-                act_alt,                              // seuil_altitude_critique
-                -30.0,                                // seuil_descente_critique
-                -0.8,                                 // seuil_pitch_critique
-                config.getDouble("cmd_profondeur"),   // cmd_profondeur_perturb
-                config.getDouble("cmd_thrust"),        // cmd_thrust_perturb
-                config.getDouble("cmd_start"),         // temps_debut_perturb
-                config.getDouble("duree")              // duree_simulation
-            );
-
-            OptimiseurSauvetage::ParamsRescue best = optimiseur.optimiser_parametres(cond);
-            OptimiseurSauvetage::ResultatSimulation res = optimiseur.evaluer_parametres(best, cond);
-
-            std::cout << "    score=" << std::fixed << std::setprecision(3) << res.score
-                      << " | success=" << (res.succes_sauvetage ? "true" : "false")
-                      << " | alt_finale=" << std::setprecision(2) << res.altitude_finale << " m" << std::endl;
-
-            opt_out << act_alt << ","
-                    << res.score << ","
-                    << (res.succes_sauvetage ? 1 : 0) << ","
-                    << res.altitude_finale << ","
-                    << best.phase_reduction_thrust << ","
-                    << best.phase_reduction_prof << ","
-                    << best.phase_control << ","
-                    << best.thrust_reduced_factor << ","
-                    << best.prof_reduced_factor << ","
-                    << best.stabilization_thrust_factor << "\n";
-            opt_out.flush();
-        }
-
-        opt_out.close();
-        config.setString("quiet_optimizer_logs", "false");
-        std::cout << "[OK] Resultats MIN_RESCUE_ALT_OPT enregistres dans: " << opt_summary_path << std::endl;
-    }
+    // NOTE: MIN_RESCUE_ALT_OPT (optimization routine) removed.
+    // If you need to restore optimizer-based minimization, re-add the implementation here.
     
     if (config.hasOperations("PHUGOID")){
         std::cout << "Affichage phugoide " << std::endl;
@@ -416,7 +351,7 @@ int main() {
         avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));  // 11280
         Simulateur sim(avion, 
                         config.getDouble("dt"), 1200.0, 
-                        check_output_file(config.getString("output_file_phugoid")), 
+                        check_output_file("output_file/Phugoid.csv"), 
                         0, 0.675, 
                         0, config.getDouble("duree"),
                         false); // -0.32

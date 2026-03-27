@@ -34,7 +34,7 @@ public:
     static EtatSauvetage evaluer_etat(const EtatCinematique& etat, double temps_courant, 
                                       double cmd_prof_max, double cmd_thrust_max,
                                       double derniere_manoeuvre = -1e6,
-                                      double seuil_altitude_critique = 3000.0);
+                                      double seuil_altitude_critique = 7500.0);
 
     static void set_parametres(const Parametres& params);
     static Parametres get_parametres();

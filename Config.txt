@@ -1,3 +1,16 @@
+# Paramètres de simulation
+# Operations to perform (comma-separated | no space):GENERAL_GEN_FIND, SIMULATION, ENERGIE, RUN_BATCH, TEST_INITIALISATION, COMPARE_RESCUE_STRATEGIES, MIN_RESCUE_ALTITUDE, MIN_RESCUE_ALT_OPT, PHUGOID
+# Normalement protection permettant de faire entre autre GENERAL_GEN_FIND avec d'autres rescue strat comme gen_give
+
+operations=COMPARE_RESCUE_STRATEGIES
+
+# Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS,GEN_FIND,GEN_GIVE) 
+rescue_strategy=GEN_GIVE
+
+
+
+########################
+
 # Paramètres physiques
 g=9.81
 z_t=2.0
@@ -9,10 +22,8 @@ masse=205000.0
 vx_ini=240.0
 z_ini=10670.0
 
-# Paramètres de simulation
-# Operations to perform (comma-separated | no space):GENERAL_GEN_FIND,SIMULATION,ENVELOPPE,ENERGIE,RUN_BATCH,TEST_INITIALISATION,COMPARE_RESCUE_STRATEGIES,MIN_RESCUE_ALTITUDE,MIN_RESCUE_ALT_OPT,PHUGOID
-# Normalement protection permettant de faire entre autre GENERAL_GEN_FIND avec d'autres rescue strat comme gen_give
-operations=PHUGOID
+
+
 dt=0.01
 duree=600.0
 methode_integration=RK4
@@ -22,8 +33,7 @@ cmd_thrust=1.0
 cmd_start=60.0
 cmd_end=600.0
 enable_rescue_system=true
-# Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS,GEN_FIND,GEN_GIVE) 
-rescue_strategy=GEN_GIVE
+
 #Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
 rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_xgen.txt
 gen_log_file=output_file/genetic_alg/gen_stats_chr_xgen.txt
@@ -34,7 +44,6 @@ seuil_pitch_critique=-0.1
 output_file=output_file/test_simulation_full_chr_xgen.csv
 config_file=output_file/test_config_simulation_full_chr_xgen.txt
 
-output_file_phugoid=output_file/Phugoid.csv
 
 quiet_optimizer_logs=false
 

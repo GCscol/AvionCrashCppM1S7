@@ -52,12 +52,13 @@ ax1.text(27, 0.2, 'Post-stall region\n(parabolic decay)',
 
 ax1.axhline(0, color='black', linestyle='-', linewidth=0.5, alpha=0.3)
 ax1.grid(True, alpha=0.3)
-ax1.set_ylabel(r'Lift coefficient $C_L$', fontsize=16, fontweight='bold')
-ax1.legend(loc='upper right', fontsize=14)
+ax1.set_ylabel(r'Lift coefficient $C_L$', fontsize=20, fontweight='bold')
+ax1.legend(loc='upper right', fontsize=16)
 ax1.set_xlim(0, 30)
 ax1.set_ylim(-0.2, 1.6)
-
-ax1.set_xlabel('Angle of attack α (degrees)', fontsize=16, fontweight='bold')
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+ax1.set_xlabel('Angle of attack α (degrees)', fontsize=20, fontweight='bold')
 plt.tight_layout()
 plt.savefig('output_plot/CL_vs_alpha.png', dpi=150, bbox_inches='tight')
 plt.show()

@@ -107,7 +107,7 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
     bool rescue_hold_active = false;
     bool rescue_completed = false;
     double rescue_cooldown_end = 0.0;
-    const double rescue_cooldown_sec = 10.0;
+    const double rescue_cooldown_sec = 25.0;
     double rescue_vz_positive_time = 0.0;
 
     // Stall speed monitoring (minimum lift-sustaining speed)
@@ -150,6 +150,23 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
                 avion.get_controle().set_commande_thrust(cmd_thrust_trim);
             } else {
                 avion.get_controle().set_commande_thrust(0.0);
+            }
+
+            // Enregistrer aussi l'état pendant la période de cooldown/stabilisation
+            {
+                double n_factor_local = avion.get_portance() / (avion.get_masse() * config.getDouble("g"));
+                csv << t << ',' 
+                    << avion.get_x() << ',' << avion.get_y() << ',' << avion.get_altitude() << ','
+                    << avion.get_vitesse_x() << ',' << avion.get_vitesse_y() << ',' << avion.get_vitesse_z() << ','
+                    << avion.get_roll() << ',' << avion.get_pitch() << ',' << avion.get_yaw() << ','
+                    << avion.get_M_pitch() << ',' << avion.get_forces().M_thrust << ','
+                    << avion.get_Fx() << ',' << avion.get_Fy() << ',' << avion.get_Fz() << ','
+                    << avion.get_portance() << ',' << avion.get_trainee() << ',' << avion.get_traction() << ','
+                    << avion.get_aero().C_L << ',' << avion.get_aero().C_D << ',' << avion.get_aero().C_m << ','
+                    << avion.get_etat().get_vitesse_norme() << ',' << (avion.get_etat().get_alpha() * RAD_TO_DEG) << ','
+                    << avion.get_cmd_profondeur() << ',' << avion.get_controle().get_cmd_thrust() << ','
+                    << avion.get_etat().get_alpha() << ',' << avion.get_aero().get_delta_profondeur() << ','
+                    << n_factor_local << '\n';
             }
 
             if (t >= rescue_cooldown_end) {
@@ -234,7 +251,6 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
                         rescue_cooldown_active = true;
                         rescue_cooldown_end = t + rescue_cooldown_sec;
                         rescue_completed = true;
-
                         dernier_temps_recuperation = temps_sauvetage ;
                         derniere_altitude_recuperation = avion.get_altitude() ;
                     }
