@@ -29,7 +29,7 @@ Ensuite, écrire juste en dessous: operations=CHOIX_EFFECTUE (Par exemple: opera
 
 
 
-Si l'utilisateur choisit l'option GENERAL_GEN_FIND, il doit également choisir une stratégie (Rescue Strategy) parmi:
+Si l'utilisateur choisit l'option SIMULATION, il doit également choisir une stratégie (Rescue Strategy) parmi:
 
 THRUST_FIRST
 PROFILE_FIRST
