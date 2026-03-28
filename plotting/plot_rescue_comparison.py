@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-# from typing import Optional  # ← ajouter cette ligne pour etre valable sur des anciens pythons
+from typing import Optional  # can be remove if there is compatibility issue
 
 # Improve default font sizes for better readability
 plt.rcParams.update({
@@ -36,7 +36,7 @@ def normalize_positive(series: pd.Series) -> pd.Series:
     return series / max_val
 
 
-def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> str | None:   #  def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> Optional[str]:
+def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> Optional[str]:  #If optionnal is not included, this line need to be replace by  : def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> str | None: 
     if preferred in df.columns:
         return preferred
     if fallback in df.columns:
@@ -49,17 +49,14 @@ def main() -> None:
     output_dir = root / "output_file"
     output_plot_dir = root / "output_plot"
     output_plot_dir.mkdir(parents=True, exist_ok=True)
-
     datasets = {
-        "No rescue": output_dir / "baseline_no_rescue.csv",
-        "Strategy 0: Thrust first": output_dir / "strategy0_thrust_first.csv",
-        "Strategy 1: Profile first": output_dir / "strategy1_profile_first.csv",
+        "Strategy 3: Genetic Algorithm": output_dir / "strategy3_genetic_algorithm.csv",
         "Strategy 2: Simultaneous": output_dir / "strategy2_simultaneous.csv",
-        "Strategy 3: Genetic Algorithm": output_dir / "strategy3_genetic_algorithm.csv",  #new for genetic alg (only addition)
+        "Strategy 1: Profile first": output_dir / "strategy1_profile_first.csv",
+        "Strategy 0: Thrust first": output_dir / "strategy0_thrust_first.csv",
+        "No rescue": output_dir / "baseline_no_rescue.csv",
     }
-
     data = {label: load_csv(path) for label, path in datasets.items()}
-
     fig, axes = plt.subplots(4, 1, figsize=(11, 8), sharex=True)
 
     # Altitude comparison for all curves
@@ -69,9 +66,8 @@ def main() -> None:
     axes[0].set_ylabel("Altitude (m)")
     axes[0].set_title("Comparison of rescue strategies", fontsize=16)
     axes[0].grid(True, alpha=0.3)
-    axes[0].legend()
 
-    # Angle of attack comparison (inserted between altitude and thrust)
+    # Angle of attack comparison
     alpha_candidates = ["alpha", "alpha_deg", "alpha_rad", "angle_of_attack", "AoA", "alpha(deg)"]
     for label, df in data.items():
         alpha_col = None
@@ -80,20 +76,17 @@ def main() -> None:
                 alpha_col = cand
                 break
         if alpha_col is None:
-            # try case-insensitive search for 'alpha'
             for col in df.columns:
                 if col.lower().startswith("alpha") or "angle" in col.lower() and "attack" in col.lower():
                     alpha_col = col
                     break
         if alpha_col is not None:
             vals = df[alpha_col].copy()
-            # convert radians to degrees when appropriate
             if "rad" in alpha_col.lower() or vals.abs().max() <= 0.5:
                 vals = np.degrees(vals)
             axes[1].plot(df["time"], vals, label=label, linewidth=1.4)
     axes[1].set_ylabel(r"$\alpha$ (deg)")
     axes[1].grid(True, alpha=0.3)
-    axes[1].legend()
 
     # Normalized thrust/traction comparison
     for label, df in data.items():
@@ -103,7 +96,6 @@ def main() -> None:
             axes[2].plot(df["time"], thrust_norm, label=label, linewidth=1.4)
     axes[2].set_ylabel("cmd_T")
     axes[2].grid(True, alpha=0.3)
-    axes[2].legend()
 
     # Elevator command comparison
     for label, df in data.items():
@@ -112,14 +104,21 @@ def main() -> None:
     axes[3].set_xlabel("Time (s)")
     axes[3].set_ylabel("cmd_p")
     axes[3].grid(True, alpha=0.3)
-    axes[3].legend()
 
-    # Add a single main title (English) and position it closer to the subplots
-    
-    plt.tight_layout(rect=[0, 0, 1, 0.94])
+    # --- Single shared legend at the bottom ---
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels,
+        loc="lower center",
+        ncol=3,
+        bbox_to_anchor=(0.5, 0.0),
+        frameon=True,
+        fontsize=12,
+    )
+
+    plt.tight_layout(rect=[0, 0.08, 1, 0.97])  # bottom margin reserved for legend
     fig.savefig(output_plot_dir / "rescue_comparison.png", dpi=300, bbox_inches="tight")
     plt.show()
-
 
 if __name__ == "__main__":
     main()

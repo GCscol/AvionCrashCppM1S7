@@ -28,12 +28,19 @@ OptiSauvetageGeneral::ParamsRescue::ParamsRescue() {
 }
 
 OptiSauvetageGeneral::OptiSauvetageGeneral(){
-    population.resize(Nbr_chr);
 }
 
 OptiSauvetageGeneral::OptiSauvetageGeneral(const int nbr_chr) : 
     Nbr_chr(nbr_chr), Nbr_chr_kept(1), MutationRate_times100(0)
 {  // Attention, à n'utiliser que pour une simu où l'on a télécharger le chromosome, sinon cela va créer des erreurs avec la différence entre population size et Nbr_chr dans la config_gen
+    population.resize(nbr_chr);
+}
+
+OptiSauvetageGeneral::OptiSauvetageGeneral(const int nbr_chr, const int nbr_gen, const int nbr_chr_kept, const int mutationRate) {
+    Nbr_chr = nbr_chr ; 
+    Nbr_generation = nbr_gen ;
+    Nbr_chr_kept = nbr_chr_kept ;
+    MutationRate_times100 =  mutationRate ;
     population.resize(nbr_chr);
 }
 
@@ -60,6 +67,15 @@ void OptiSauvetageGeneral::set_Nbr_chr(int n) {
     Nbr_chr = n;
     population.resize(n);
 }
+
+void OptiSauvetageGeneral::set_MutationRate_times100(int n) {
+    MutationRate_times100 = n;
+}
+
+void OptiSauvetageGeneral::set_Nbr_chr_kept(int n) {
+    Nbr_chr_kept = n;
+}
+
 
 
 // gestion fichier
@@ -171,7 +187,8 @@ std::vector<OptiSauvetageGeneral::ParamsRescue> OptiSauvetageGeneral::SortAndKee
         [](const OptiSauvetageGeneral::ParamsRescue& a, const OptiSauvetageGeneral::ParamsRescue& b) {   // [] = fonction lambda en python
             return a.fitness > b.fitness;
         });
-    if (int(Population_select.size()) <Nbr_chr_kept) {  // debugage
+        
+        if (int(Population_select.size()) <Nbr_chr_kept) {  // debugage
         throw std::runtime_error("Problème taille dans SortAndKeep, size(pop parent)<nbr chromo kept");
     }
 

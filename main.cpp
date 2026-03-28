@@ -43,14 +43,23 @@ int main() {
 
     if (config.hasOperations("GENERAL_GEN_FIND")) { 
         
+        // Verification des fichiers dès le début
+        check_output_file(config.getString("rescue_gen_file"));
+        const std::string log_path = check_output_file(config.getString("gen_log_file"));
+        // Efface le fichier au début (sinon append sur un ancien run)
+        { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness,taille\n"; }
+
         std::string Initial_quiet_optimizer_logs = config.getString("quiet_optimizer_logs");
         config.setString("quiet_optimizer_logs","true");
         std::srand(static_cast<unsigned>(std::time(nullptr))); // seed differentes pour chaque essai
         // Initialisation de la population vide et de chaque chrosomes se fait dans le constructuer
-        OptiSauvetageGeneral gen_opti_strat;
+        OptiSauvetageGeneral gen_opti_strat (   
+            static_cast<int>(config.getDouble("gen_nbr_chr")),
+            static_cast<int>(config.getDouble("gen_nbr_generation")),
+            static_cast<int>(config.getDouble("gen_nbr_chr_kept")),
+            static_cast<int>(config.getDouble("gen_mutationRate_times100"))
+        ); 
 
-        gen_opti_strat.set_Nbr_generation(static_cast<int>(config.getDouble("gen_nbr_generation")));
-        gen_opti_strat.set_Nbr_chr(static_cast<int>(config.getDouble("gen_nbr_chr")));
         
         int nbr_generation=gen_opti_strat.get_Nbr_generation();
         int nbr_chrom=gen_opti_strat.get_Nbr_chr();
@@ -66,18 +75,12 @@ int main() {
         );
         Simulateur sim(avion, 
                         config.getDouble("dt"), config.getDouble("duree"), 
-                        check_output_file("output_file/test_simulation_full_chr_xgen.csv"), 
+                        check_output_file("output_file/tampon_simulation_full_chr_xgen.csv"), 
                         config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
                         config.getDouble("cmd_start"), config.getDouble("cmd_end"),
                         true,
                         config.getDouble("seuil_altitude_critique")); /// ajouter ça aux autres simus
 
-        // à refaire
-        // Déclaré avant la boucle de générations
-        const std::string log_path = check_output_file(config.getString("gen_log_file"));
-        // Efface le fichier au début (sinon append sur un ancien run)
-        { std::ofstream f(log_path); f << "generation,chromosome,altitude,temps,fitness,taille\n"; }
-        //
 
         for (int i=0; i<nbr_generation; i++){
             std::cout<<"Generation n°"<<i<<std::endl;
@@ -345,7 +348,7 @@ int main() {
                 Avion avion(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
                 avion.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
 
-                const std::string sim_path = "output_file/min_rescue_altitude_" + strategy.second + "_a" + std::to_string(static_cast<int>(activation_alt)) + ".csv";
+                const std::string sim_path = "output_file/raw_data_min_alt/min_rescue_altitude_" + strategy.second + "_a" + std::to_string(static_cast<int>(activation_alt)) + ".csv";
                 Simulateur sim(avion,
                                config.getDouble("dt"), config.getDouble("duree"),
                                check_output_file(sim_path),
