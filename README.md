@@ -1,58 +1,62 @@
-# AvionCrashCppM1S7
+
+
+
 L'avion vole puis décroche. Jusqu'à quand est il sauvable ?
 
 
-Chose à faire :
-
-// c'est quoi déjà l'utilité de ça ???
-std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat){
-    return scenario_progressif(etat);
-}
-????????????????????????????????????????????
+Ce code a pour objectif d'étudier le sauvetage d'un avion en décrochage en haute altitude. À ce titre, il possède plusieurs fonctionnalités. Ce document a pour objectif d'aider l'utilisateur dans la manipulation du code.
 
 
-std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue& chromo={}){
-    double t = etat.temps_depuis_manoeuvre;
-    const double cmd_prof_min = etat.cmd_profondeur_max;
-
-pourquoi inversion min/max ???
-?????????????????????????????????
+La première chose que doit faire l'utilisateur est de choisir l'utilisation qu'il cherche à en faire.
 
 
-- Vérifier la validité des moments où l'on fixe des bornes et si la valeur dépasse on applatit ou on force la valeur
-    => En lien avec une meilleure gestion des cas limites ( Je pense qu'on pourrait faire sauter ces cobnditions pour le moment et voir à quel point c'est problématique afin d'aider à débuger notre code.
-- Peut etre encore alléger avion en décallant certaines formules de calcule dans d'autres classes
-=======================================
+Pour ce faire, un document "Config.txt" est mis à disposition.
 
-Utilisation : (succintement) du programme cpp avion_simulation 
-Lors de la compilation, on compile l'ensemble des fonctionnalités du code.
-Le code obtenu peut alors être utilisé pour n'importe quelle opération possible sur n'importe quel avion dans n'importe quel condition initiale avec n'importe quel modèle et n'importe quel préset de comportement du pilote. Les spécificités des modèles aérodynamiques et de comportement du pilote ne peuvent cependant pas être modifié après la compilation.
-Ainsi si l'on souhaite étudier un autre avion (qu'un type A330 ici considéré), il est nécessaire en plus de changer les caractéristiques de l'appareil, de prendre en compte les modications du fuselage par des modifications du modèle aérodynamique.
+En l'ouvrant, l'utilisateur peut choisir dans la partie à modifier (en haut du document, au dessus des "###", en dessous de "#Paramètres de simulation"), une action (rappelées à la 1ère ligne à "# Operations to perform") parmi:
+GENERAL_GEN_FIND
+SIMULATION
+ENERGIE
+RUN_BATCH
+TEST_INITIALISATION
+COMPARE_RESCUE_STRATEGIES
+MIN_RESCUE_ALTITUDE
+MIN_RESCUE_ALT_OPT
+PHUGOID
 
-Une fois compiler ("make" dans le terminal grâce au makefile), le fichier executable peut être lancé ("./avion_simulatoion" dans le terminal)
-Afin de changer les paramètres, on va directement dans config.txt. Au sein de ce fichier, certaines variables sont considérées comme obligatoires :
-    - Nom du fichier de sortie,
-    - Operations à réaliser
-Pour les autres, des présets sont renseignés et en leur absence, la valeur par défaut sera attribué si nécessaire.
-Après avoir charger le fichier config.txt au sein du struct Config grâce au main, le programme exportera un fichier Config_full_simu.txt" reprenant l'ensemble des paramètres utilisés en notant explicitement les paramètres manquants complétés avec les valeurs par défauts.
-
-L'ensemble des opérations réalisable sur l"avion sont listées dans le config.txt. 
-    Plusieurs opérations peuvent être choisit et sélectionnées dans le fichier config (attention, elles doivent être séparés par des virgules sans utilisation d'espace)
-Le pilote peut tenter des procédures de sauvatege en activant le sauvetage (variable :)
-    3 comportemennts ont été crés à titre d'exemple : THRUST_FIRST, SIMULTANEOUS, ...
-Pour les modèles aérodynamiques, nous recommadnant le modèle linéaire plus pertinent (useHysteresis=false) que le modèle d'hystérésis.
-
-Pour chaque opération, le programme exportera ces résultats sous format d'un fichier csv et/ou imprimera un message dans le terminal (exemple, comparaison méthode rescue)  (Penser à mettre cette opération à la fin du main pour garder le message visible dans le terminal !!!!!!!)
-
-=======================================
-Code python : 
-Le code python "Courbes affichage.py" considère le fichier "simulation_full.csv", l'analyse par un DataFrame et affiche la trajectoire de l'avion, puis l'altitude, les différents angles, la portance et la traction en fonction du temps.
-
-Le code Python "Phugoid.py" prend en entrée le fichier "Phugoid.csv" (déjà écrit, parce qu'il faut qu'il n'y ait aucune commande de gouvernes d'activée pour la phugoïde, i.e. seulement les moteurs)
+Ensuite, écrire juste en dessous: operations=CHOIX_EFFECTUE (Par exemple: operations=COMPARE_RESCUE_STRATEGIES).
 
 
 
 
 
-=======================
+Si l'utilisateur choisit l'option GENERAL_GEN_FIND, il doit également choisir une stratégie (Rescue Strategy) parmi:
 
+THRUST_FIRST
+PROFILE_FIRST
+SIMULTANEOUS
+GEN_FIND
+GEN_GIVE
+
+Puis, écrire simplement rescue_strategy=STRATEGIE_CHOISIE (par exemple: rescue_strategy=GEN_GIVE).
+
+L'utilisateur doit faire attention à ne mettre aucun espace lorsqu'il remplit ces données 
+(exemple rescue_strategy= GEN_GIVE ne fonctionnera pas).
+
+(Le fichier "Config.txt est prérempli à titre d'exemple, il ne reste à l'utilisateur qu'à modifier les valeurs en majuscule)
+
+
+
+Une fois le fichier "Config.txt" rempli, l'utilisateur doit se rendre dans le terminal, se placer dans le dossier du fichier du projet, et écrire "make run" dans le terminal. Des instructions sont alors données pour savoir si l'utilisateur souhaite écraser les fichiers existants sur ceux de la nouvelle simulation.
+
+
+Pour l'affichage des différentes données, l'utilisateur doit simplement écrire "make plot" dans le terminal, et choisir ce qu'il veut afficher (Il va de soit que la simulation en question doit avoir été compilée avant, à défaut de quoi le programme informera l'utilisateur de l'absence de données)
+
+La commande plot compile et exécute le fichier plot_menu.cpp, qui demande à l'utilisateur un chiffre correspondant à un certain affichage, et exécute un programme python correspondant, prenant en entrée les données stockées dans output_plot, et affiche le graphe correspondant.
+
+
+L'utilisateur peut aussi entrer "make help" dans le terminal afin d'obtenir les différentes commandes possibles.
+
+IMPORTANT:
+Sur les ordinateurs du Magistère, certaines permissions peuvent ne pas être accordées à la compilation de certains fichiers.
+
+Si cela arrive, il suffit d'entrer "chmod +x nom_du_fichier.cpp" dans le terminal, puis "make run" ou "make plot", selon le fichier concerné, afin d'accorder les autorisations nécessaires.
