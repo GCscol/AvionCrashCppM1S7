@@ -60,3 +60,6 @@ IMPORTANT:
 Sur les ordinateurs du Magistère, certaines permissions peuvent ne pas être accordées à la compilation de certains fichiers.
 
 Si cela arrive, il suffit d'entrer "chmod +x nom_du_fichier.cpp" dans le terminal, puis "make run" ou "make plot", selon le fichier concerné, afin d'accorder les autorisations nécessaires.
+
+
+Dans une démarche plus poussée, l'utilisateur peut aussi changer les paramètres généraux, sous la limite "#####", tel que le nombre de gènes ou de chromosomes de l'algorithme génétique, ou plus simplement la surface, la corde ou la masse de l'avion.
