@@ -191,7 +191,11 @@ int main() {
 
     // Mettre une boucle ?????????????
     if (config.hasOperations("COMPARE_RESCUE_STRATEGIES"))  { // Mettre une boucle ?????????????
-        double crash_time_baseline, crash_time_s0, crash_time_s1, crash_time_s2;
+        double crash_time_baseline, crash_time_s0, crash_time_s1, crash_time_s2, crash_time_s3_genetic_algorithm;
+
+        std::string Initial_Rescue_Strategy = config.getString("rescue_strategy");
+        config.setString("rescue_strategy", "GEN_FIND");
+
         //Baseline without rescue
         {
         std::cout << "\nBASELINE: NO RESCUE SYSTEM\n" << std::endl;
@@ -258,6 +262,29 @@ int main() {
         std::cout << "Strategy 2 crash time: " << crash_time_s2 << " s\n" << std::endl;
         }
 
+        // Test STRATEGY 3: Genetic Algorithm
+        {
+        std::cout << "\nSTRATEGY 3: Genetic Algorithm\n" << std::endl;
+        config.setString("rescue_strategy", "GEN_GIVE");
+        
+        Avion avion_s3_genetic_algorithm(config.getDouble("surface"), config.getDouble("corde"), config.getDouble("masse"), config.getBool("useHysteresis"));
+        avion_s3_genetic_algorithm.initialiser(config.getDouble("vx_ini"), config.getDouble("z_ini"));
+        Simulateur sim_s3_genetic_algorithm(avion_s3_genetic_algorithm, 
+                        config.getDouble("dt"), config.getDouble("duree"), 
+                        check_output_file("output_file/strategy3_genetic_algorithm.csv"), 
+                        config.getDouble("cmd_profondeur"), config.getDouble("cmd_thrust"), 
+                        config.getDouble("cmd_start"), config.getDouble("cmd_end"),
+                        true);;
+
+        OptiSauvetageGeneral gen_loaded_strat(1);
+        gen_loaded_strat.LoadBestChrom(config.getString("rescue_gen_file"));
+
+        crash_time_s3_genetic_algorithm = sim_s3_genetic_algorithm.executer(&gen_loaded_strat.population[0]);
+        std::cout << "Strategy 3 crash time: " << crash_time_s3_genetic_algorithm << " s\n" << std::endl;
+        } 
+
+        config.setString("rescue_strategy", Initial_Rescue_Strategy);
+
         // Comparative summary
         std::cout << "\n============ COMPARATIVE SUMMARY ============\n" << std::endl;
         std::cout << "Baseline (No rescue):              " << crash_time_baseline << " s" << std::endl;
@@ -281,9 +308,19 @@ int main() {
             std::cout << " → Gain: " << (gain > 0 ? "+" : "") << std::fixed << std::setprecision(1) << gain << " s";
         }
         std::cout << std::endl;
+
+        std::cout << "Strategy 3 (Genetic Algorithm):        " << crash_time_s2 << " s";
+        if (!std::isnan(crash_time_s3_genetic_algorithm) && !std::isnan(crash_time_baseline)) {
+            double gain = crash_time_s3_genetic_algorithm - crash_time_baseline;
+            std::cout << " → Gain: " << (gain > 0 ? "+" : "") << std::fixed << std::setprecision(1) << gain << " s";
+        }
+        std::cout << std::endl;
     }
 
     if (config.hasOperations("MIN_RESCUE_ALTITUDE")) {
+        std::string Initial_Rescue_Strategy = config.getString("rescue_strategy");
+        config.setString("rescue_strategy", "GEN_FIND");
+
         std::cout << "\n=== OPERATION MIN_RESCUE_ALTITUDE ===\n" << std::endl;
 
         const double alt_min = config.getDouble("min_rescue_altitude_min");
@@ -293,7 +330,8 @@ int main() {
         std::vector<std::pair<std::string, std::string>> strategies = {
             {"THRUST_FIRST", "strategy0_thrust_first"},
             {"PROFILE_FIRST", "strategy1_profile_first"},
-            {"SIMULTANEOUS", "strategy2_simultaneous"}
+            {"SIMULTANEOUS", "strategy2_simultaneous"},
+            {"GEN_GIVE", "strategy3_genetic_algorithm"}
         };
 
         std::vector<RescueRunResult> results;
@@ -316,7 +354,15 @@ int main() {
                                true,
                                activation_alt);
 
-                double crash_time = sim.executer();
+                double crash_time;
+                if ( strategy.first == "GEN_GIVE" ) {
+                    OptiSauvetageGeneral gen_loaded_strat(1);
+                    gen_loaded_strat.LoadBestChrom(config.getString("rescue_gen_file"));
+                    crash_time = sim.executer(&gen_loaded_strat.population[0]);
+                }
+                else{
+                    crash_time = sim.executer();
+                }
                 bool success = std::isnan(crash_time);
                 double recovery_altitude = avion.get_altitude();
 
@@ -343,6 +389,8 @@ int main() {
         out.close();
 
         std::cout << "Resultats MIN_RESCUE_ALTITUDE enregistres dans: " << summary_path << std::endl;
+
+        config.setString("rescue_strategy", Initial_Rescue_Strategy);
     }
 
     // NOTE: MIN_RESCUE_ALT_OPT (optimization routine) removed.
@@ -361,7 +409,6 @@ int main() {
         sim.executer();
         
     }
-
 
 
     return 0;

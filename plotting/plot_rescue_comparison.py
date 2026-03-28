@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
+# from typing import Optional  # ← ajouter cette ligne pour etre valable sur des anciens pythons
+
 # Improve default font sizes for better readability
 plt.rcParams.update({
     "axes.titlesize": 16,
@@ -34,7 +36,7 @@ def normalize_positive(series: pd.Series) -> pd.Series:
     return series / max_val
 
 
-def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> str | None:
+def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> str | None:   #  def pick_column(df: pd.DataFrame, preferred: str, fallback: str) -> Optional[str]:
     if preferred in df.columns:
         return preferred
     if fallback in df.columns:
@@ -53,6 +55,7 @@ def main() -> None:
         "Strategy 0: Thrust first": output_dir / "strategy0_thrust_first.csv",
         "Strategy 1: Profile first": output_dir / "strategy1_profile_first.csv",
         "Strategy 2: Simultaneous": output_dir / "strategy2_simultaneous.csv",
+        "Strategy 3: Genetic Algorithm": output_dir / "strategy3_genetic_algorithm.csv",  #new for genetic alg (only addition)
     }
 
     data = {label: load_csv(path) for label, path in datasets.items()}
