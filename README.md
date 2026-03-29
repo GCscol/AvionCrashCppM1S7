@@ -1,4 +1,5 @@
-=====   
+===
+=== 
 Ce code a pour objectif d'étudier le sauvetage d'un avion en décrochage en haute altitude.    
 À ce titre, il possède plusieurs fonctionnalités. Ce document a pour objectif d'aider l'utilisateur dans la manipulation du code.   
 
