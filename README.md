@@ -117,7 +117,7 @@ rescue_strategy= Stratégie de sauvetage choisie si activée {THRUST_FIRST,PROFI
 ######################## Paramètres généraux
 
 #Paramètres physiques
-g= gravité  {double}
+g= gravité  {double}  \\
 z_t= distance entre le centre de gravité et les moteurs {double}
 
 #Paramètres avion
