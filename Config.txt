@@ -45,7 +45,7 @@ quiet_optimizer_logs=false
 #Gestion des fichiers
 #Fichiers liés à GEN_GIVE et GENERAL_GEN_FIND
 #Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
-rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_1000gen.txt
+rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_400gen_400plane_70kept_7mut_fixed_final.txt
 gen_log_file=output_file/genetic_alg/gen_stats_chr_xgen.txt
 
 #Fichiers liés à simulation

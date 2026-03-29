@@ -118,7 +118,7 @@ rescue_strategy= Stratégie de sauvetage choisie si activée {THRUST_FIRST,PROFI
 
 #Paramètres physiques
 g= gravité  {double}
-z_t= XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+z_t= distance entre le centre de gravité et les moteurs {double}
 
 #Paramètres avion
 surface= surface alaire de l'avion {double}
@@ -136,8 +136,8 @@ cmd_profondeur= profondeur de la commande de l'avion {double}
 cmd_thrust= poussée de l'avion {double}
 
 
-cmd_start=60.0
-cmd_end=600.0
+cmd_start= début commande nose_up {double}
+cmd_end= fin commande nose_up {double}
 
 #Seuil critique sauvetage
 seuil_altitude_critique= altitude critique en-dessous de laquelle le sauvetage peut se déclencher (si autre conditions remplies) {double}
