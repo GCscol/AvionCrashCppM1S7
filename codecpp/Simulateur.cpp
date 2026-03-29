@@ -30,8 +30,6 @@ double Simulateur::get_derniere_altitude_recuperation() const {
 }
 
 
-// a verifier
-
 Simulateur::Simulateur(Avion& av, double pas_temps, double duree,
                                              const string& fichier,
                                              double cmd_profondeur,
@@ -53,7 +51,6 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
     dernier_temps_recuperation     = -1e6;  // neg pour détecter si crash avant sauvegarde activé
     temps_debut_sauvetage          = -3e6;
     
-    // setlocale(LC_ALL, ".utf8");
     
     const int steps = static_cast<int>(temps_total / dt);
     
@@ -294,8 +291,6 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
         }
 
 
-
-        
         double n_factor = avion.get_portance() / (avion.get_masse() * config.getDouble("g"));
         
         csv << t << ',' 

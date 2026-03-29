@@ -6,9 +6,11 @@ import pandas as pd
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parent.parent 
-    csv_path = root / "output_file" / "genetic_alg" / "Test Example (dont delete)" /"gen_stats_chr_400gen_400plane_70kept_7mut_fixed_final.txt"
-    out_path = root / "output_file" / "genetic_alg" / "gen_stats_chr_400gen_400plane_70kept_7mut_fixed_final.png"
+    root = Path(__file__).resolve().parent.parent
+    # Le chemin ci-dessous doit être le même que celui indiqué dans "gen_log_file=" du Config.txt lors de l'obtention du chromosome
+    csv_path = root / "output_file" / "genetic_alg" / "gen_stats_chr_1000gen.txt"  
+    #adresse du fichier de sortie et nom
+    out_path = root / "output_file" / "genetic_alg" / "gen_stats_chr_1000gen.png"
 
     if not csv_path.exists():
         print(f"Fichier introuvable: {csv_path}")

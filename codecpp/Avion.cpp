@@ -142,7 +142,7 @@ std::pair<double, double> Avion::calculer_trim_complet(double vitesse) {
                                                    etat.omega_pitch);
 }
 
-    // Intégration (Euler)  -> Créer une méthode Intégration Euler et RK4 plutot que de emttre ici avec des variables
+
 void Avion::mettre_a_jour_etat(double dt) {
 
     switch (config.getEnum(STR_TO_METHODE, "methode_integration")) {
@@ -155,47 +155,4 @@ void Avion::mettre_a_jour_etat(double dt) {
             break;
     }
 
-
-    // double vitesse = etat.get_vitesse_norme();
-    // double gamma = etat.get_gamma();
-    // double alpha = etat.get_alpha();
-    // double rho = environnement.calculer_rho(etat.z);
-    
-    // double delta_p = aero.get_delta_profondeur() 
-    //                + controle.get_cmd_profondeur() * controle.get_delta_p_max();
-    
-    // aero.update_from_polar(alpha, delta_p, etat.omega_pitch, vitesse);
-    // calculer_forces();
-    // forces.M_pitch = aero.calculer_moment_pitch(vitesse, rho);
-    
-    //     // Forces 
-    // forces.Fx = forces.traction * (std::cos(etat.yaw) * std::cos(etat.pitch)) 
-    //           - forces.trainee * (std::cos(etat.yaw) * std::cos(gamma)) 
-    //           - forces.portance * (std::sin(gamma) * std::cos(etat.roll));
-    
-    // forces.Fy = forces.traction * (std::sin(etat.yaw) * std::cos(etat.pitch)) 
-    //           - forces.trainee * (std::sin(etat.yaw) * std::cos(gamma)) 
-    //           + forces.portance * (std::sin(gamma) * std::sin(etat.roll));
-    
-    // forces.Fz = forces.traction * std::sin(etat.pitch) 
-    //           - forces.trainee * std::sin(gamma) 
-    //           + forces.portance * std::cos(gamma) 
-    //           - forces.poids;
-    
-    //     // Intégration  
-    // double accel_x = forces.Fx / inertie.get_masse();
-    // double accel_y = forces.Fy / inertie.get_masse();
-    // double accel_z = forces.Fz / inertie.get_masse();
-    
-    // etat.vx += accel_x * dt;
-    // etat.vy += accel_y * dt;
-    // etat.vz += accel_z * dt;
-    
-    // etat.x += etat.vx * dt;
-    // etat.y += etat.vy * dt;
-    // etat.z += etat.vz * dt;
-    
-    // double accel_pitch = forces.M_pitch / inertie.get_I_pitch();
-    // etat.omega_pitch += accel_pitch * dt;
-    // etat.pitch += etat.omega_pitch * dt;
 }

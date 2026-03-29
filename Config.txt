@@ -1,11 +1,13 @@
 # Paramètres de simulation
 # Operations to perform (comma-separated | no space):GENERAL_GEN_FIND, SIMULATION, ENERGIE, RUN_BATCH, TEST_INITIALISATION, COMPARE_RESCUE_STRATEGIES, MIN_RESCUE_ALTITUDE, PHUGOID  (MIN_RESCUE_ALT_OPT is removed in this version)
 # Normalement protection permettant de faire entre autre GENERAL_GEN_FIND avec d'autres rescue strat comme gen_give
+# Attention : GENERAL_GEN_FIND peut rapidement être très long à effectuer selon les paramètres
 
-operations=GENERAL_GEN_FIND
+operations=SIMULATION
 
 # Rescue Strategy (one among :THRUST_FIRST,PROFILE_FIRST,SIMULTANEOUS,GEN_FIND,GEN_GIVE) 
-rescue_strategy=GEN_FIND
+enable_rescue_system=true
+rescue_strategy=GEN_GIVE
 
 
 
@@ -22,8 +24,7 @@ masse=205000.0
 vx_ini=240.0
 z_ini=10670.0
 
-
-
+#Paramètres généraux de simulation
 dt=0.01
 duree=600.0
 methode_integration=RK4
@@ -32,20 +33,25 @@ cmd_profondeur=-0.8
 cmd_thrust=1.0
 cmd_start=60.0
 cmd_end=600.0
-enable_rescue_system=true
 
-#Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
-rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_400gen_400plane_70kept_7mut_fixed_final.txt
-gen_log_file=output_file/genetic_alg/gen_stats_chr_400gen_400plane_70kept_7mut_fixed_final.txt
+#Seuil critique sauvetage
 seuil_altitude_critique=7500.0
 seuil_descente_critique=-5.0
 seuil_pitch_critique=-0.1
 
-output_file=output_file/test_simulation_full_chr_400gen_400plane_70kept_7mut_fixed_final.csv
-config_file=output_file/test_config_simulation_full_chr_400gen_400plane_70kept_7mut_fixed_final.txt
-
-
+#Paramètres d'affichage 
 quiet_optimizer_logs=false
+
+#Gestion des fichiers
+#Fichiers liés à GEN_GIVE et GENERAL_GEN_FIND
+#Si GEN_GIVE = on donne un strategie genetique deja construite, on doit donc fournir le fichier d'entrée
+rescue_gen_file=output_file/genetic_alg/Chromosome_strat_gen_final_1000gen.txt
+gen_log_file=output_file/genetic_alg/gen_stats_chr_xgen.txt
+
+#Fichiers liés à simulation
+output_file=output_file/simulation_full_xgen.csv
+config_file=output_file/config_simulation_xgen.txt
+
 
 #################### Paramètres spécialisés ci-dessous
 
@@ -63,13 +69,9 @@ t_step=0.1
 min_rescue_altitude_min=1000.0
 min_rescue_altitude_max=5000.0
 min_rescue_altitude_step=250.0
-# MIN_RESCUE_ALT_OPT
-min_rescue_altitude_opt_min=1000
-min_rescue_altitude_opt_max=2000
-min_rescue_altitude_opt_step=250.0
 
 
-#Genetic algorithm search parameter
+#Genetic algorithm search parameter 
 gen_nbr_generation=400
 gen_nbr_chr=400
 gen_nbr_chr_kept=70

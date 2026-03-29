@@ -79,9 +79,6 @@ void Config::completer() {
     params.insert({"duree",               "600.0"});
 
     //Paramètres spécialisés
-        // AJOUTER DES TESTS POUR NE COMPLETER QUE SI C'EST UTILE.
-        // EX : on ne remplit les params dédiés à RUN_BATCH que si RUN_BATCH est dans les opérations à réaliser, sinon on peut laisser cmd_start, cmd_end, p_min, p_max, etc... vides et ça ne posera pas de problème.
-        // + ça sera plus lisible pour savoir quel truc on a testé en relisant le fichier config exporté
     //Batch_runner
     params.insert({"cmd_start",               "60"});
     params.insert({"cmd_end",                 "600"});
@@ -98,16 +95,12 @@ void Config::completer() {
     params.insert({"seuil_descente_critique", "-30.0"});
     params.insert({"seuil_pitch_critique",    "-0.8"});
 
-    // a quoi ç_a sert ?
+
     // MIN_RESCUE_ALTITUDE operation
     params.insert({"min_rescue_altitude_min",  "9500.0"});
     params.insert({"min_rescue_altitude_max",  "10600.0"});
     params.insert({"min_rescue_altitude_step", "100.0"});
 
-    // MIN_RESCUE_ALT_OPT operation
-    params.insert({"min_rescue_altitude_opt_min",  "9500.0"});
-    params.insert({"min_rescue_altitude_opt_max",  "10600.0"});
-    params.insert({"min_rescue_altitude_opt_step", "200.0"});
 
     // On vérouille la config pour éviter les modifications
     locked = true;

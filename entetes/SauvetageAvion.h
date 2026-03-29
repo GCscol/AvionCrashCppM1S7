@@ -57,7 +57,6 @@ public:
                                           double temps_vz_positif);
 
 private:
-// Les 2 static ci-desus ne servent plus à rien
     static constexpr double SEUIL_DESCENTE_CRITIQUE_DEFAUT = -30.0;
     static constexpr double SEUIL_PITCH_CRITIQUE_DEFAUT = -0.8;
 

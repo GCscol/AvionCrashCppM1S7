@@ -70,14 +70,6 @@ SauvetageAvion::EtatSauvetage SauvetageAvion::evaluer_etat(
     bool nez_bas = etat.pitch < seuil_pitch_critique_actif;
     status.en_descente_critique = altitude_critique && (descente || nez_bas);
 
-    ////////////////////////////////////////////
-    // DEBUGGGGGGGG
-    //if (status.en_descente_critique) {
-    //std::cout << "SAUVETAGE DECLENCHE z=" << status.altitude
-    //          << " vz=" << status.taux_descente
-    //          << " pitch=" << status.assiette << std::endl;
-    //}
-        ////////////////////////////////////////////
         
     status.temps_depuis_manoeuvre = temps_courant - derniere_manoeuvre;
     status.cmd_profondeur_max = cmd_prof_max;
@@ -199,22 +191,18 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                     cmd_prof=etat.cmd_profondeur_max*chromo->cmd_prof_ratio_max[k_chromo];
                     known_strat=true;
 
-                    //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                    //            << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
-                    //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                    //            << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
-                    //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+
 
                     break;
                 }
             }
-            // On a pas de stratégie donc on ajoute une au pif
+            // On a pas de stratégie donc on ajoute un comportement aléatoirement
             if (!known_strat) {
                 double cmd_thrust_ratio_max=1.0*double(std::rand())/double(RAND_MAX);
-                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
+                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX)); 
                 if ( (cmd_thrust_ratio_max<0 || cmd_thrust_ratio_max>1 ) || (cmd_prof_ratio_max<-1 || cmd_prof_ratio_max>1) ) {
-                    throw std::runtime_error("La valeur de cmd tiré au pif si pas de known_strat est hors borne");
-                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  // ← ici
+                    throw std::runtime_error("SauvetageAvion.cpp :La valeur de cmd tiré au pif si pas de known_strat est hors borne");
+                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  
                 }
                 chromo->push_gene(
                     z_env_discret,
@@ -228,12 +216,8 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                 cmd_thrust=etat.cmd_thrust_max*cmd_thrust_ratio_max;
                 cmd_prof=etat.cmd_profondeur_max*cmd_prof_ratio_max;
 
-                //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                //            << " ratio=" << cmd_prof_ratio_max
-                //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                //            << " ratio=" << cmd_thrust_ratio_max << std::endl;
             }
-            //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+
             break;
         }
 
@@ -262,38 +246,30 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
                     cmd_prof=etat.cmd_profondeur_max*chromo->cmd_prof_ratio_max[k_chromo];
                     known_strat=true;
 
-                    //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                    //            << " ratio=" << chromo->cmd_prof_ratio_max[k_chromo]
-                    //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                    //            << " ratio=" << chromo->cmd_thrust_ratio_max[k_chromo] << std::endl;
-                    //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
 
                     break;
                 }
             }
-            // On a pas de stratégie donc on ajoute une au pif
+            // On a pas de stratégie donc on ajoute une aléatoirement
             if (!known_strat) {
                 double cmd_thrust_ratio_max=1.0*double(std::rand())/double(RAND_MAX);
-                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX));  // précédent probleme avec ratio hors brone : depassement d'entier ici
+                double cmd_prof_ratio_max=-1.0 +2.0*(double(std::rand())/double(RAND_MAX));  
                 if ( (cmd_thrust_ratio_max<0 || cmd_thrust_ratio_max>1 ) || (cmd_prof_ratio_max<-1 || cmd_prof_ratio_max>1) ) {
-                    throw std::runtime_error("La valeur de cmd tiré au pif si pas de known_strat est hors borne");
-                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  // ← ici
+                    throw std::runtime_error("SauvetageAvion.cpp : La valeur de cmd tiré au pif si pas de known_strat est hors borne");
+                    assert(cmd_prof_ratio_max >= -1.0 && cmd_prof_ratio_max <= 1.0);  
                 }
                 
                 ///////
-                //    Grande différence par rapport à avant : quand on ne sait pas on essaie un truc nouveau sans l'enregistrer
+                // Note : Différence GEN_GIVE et GEN_FIND
+                //    quand on ne sait pas on essaie un truc nouveau sans l'enregistrer (=GEN_GIVE) alors que dans GEN_FIND on enregistre le résultat de ce truc nouveau pour pouvoir l'utiliser plus tard si jamais on se retrouve dans la même situation
                 //////////////
 
 
                 cmd_thrust=etat.cmd_thrust_max*cmd_thrust_ratio_max;
                 cmd_prof=etat.cmd_profondeur_max*cmd_prof_ratio_max;
 
-                //std::cout << "cmd_profondeur_max=" << etat.cmd_profondeur_max 
-                //            << " ratio=" << cmd_prof_ratio_max
-                //            << " | cmd_thrust_max=" << etat.cmd_thrust_max 
-                //            << " ratio=" << cmd_thrust_ratio_max << std::endl;
             }
-            //std::cout<<"cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
+
             break;
         }
     
@@ -302,17 +278,16 @@ std::pair<double, double> SauvetageAvion::scenario_progressif(const EtatSauvetag
     cmd_prof = std::max(cmd_prof_min, cmd_prof);
     cmd_prof = std::max(-1.0, std::min(1.0, cmd_prof));
     cmd_thrust = std::max(0.0, std::min(1.0, cmd_thrust));
-    //std::cout<<"Correction cmd_thrust="<<cmd_thrust<<" | cmd_prof="<<cmd_prof<<std::endl;
     
     return {cmd_prof, cmd_thrust};
     
 }
-// c'est quoi déjà l'utilité de ça ???
-std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue* chromo){  // c'est quoi déjà l'utilité de ça ???
+
+std::pair<double, double> SauvetageAvion::appliquer_sauvetage(const EtatSauvetage& etat, OptiSauvetageGeneral::ParamsRescue* chromo){  // fonction permettant une plus grande évolutivité du code (bien qu'actuellement elle paraisse bien vide)
     return scenario_progressif(etat,chromo);
 }
 
-bool SauvetageAvion::verifier_succes_sauvetage( //Chelou
+    bool SauvetageAvion::verifier_succes_sauvetage( 
     const EtatCinematique& etat_courant,
     const EtatCinematique& /* etat_initial_sauvetage */,
     double /* temps_ecoule */,

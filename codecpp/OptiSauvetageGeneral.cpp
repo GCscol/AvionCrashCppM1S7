@@ -172,7 +172,6 @@ double OptiSauvetageGeneral::Eval_Fitness(const double derniere_altitude_recuper
         return -1e8; 
     }
     // on souhaite avoir fitnesse la plus grande possible 
-    // (c'est pas ouf dans les effets on aimerait tendre vers 0 pour pouvoir bien quantifier l'évolution de la fitness)
     else {  // si fitness neg c'est qu'on a crash  // + altitude neg ⁼ plus on avait de la vitesse au moment de l'impact
         return ( 
             10*(derniere_altitude_recuperation-1.0) /(100*(dernier_temps_recuperation+1.0)) 
@@ -188,7 +187,7 @@ std::vector<OptiSauvetageGeneral::ParamsRescue> OptiSauvetageGeneral::SortAndKee
             return a.fitness > b.fitness;
         });
         
-        if (int(Population_select.size()) <Nbr_chr_kept) {  // debugage
+        if (int(Population_select.size()) <Nbr_chr_kept) {  // verification validité 
         throw std::runtime_error("Problème taille dans SortAndKeep, size(pop parent)<nbr chromo kept");
     }
 
@@ -295,7 +294,6 @@ OptiSauvetageGeneral::ParamsRescue OptiSauvetageGeneral::Mutation(ParamsRescue c
     assert(chromo.cmd_prof_ratio_max.size() == chromo.vz_env.size());
 
     if (taille_chromo == 0) { // possible au début
-        //std::cout<<"Un chromosome de taille nulle"<<std::endl;
         return chromo; 
     }
 
