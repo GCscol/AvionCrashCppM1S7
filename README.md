@@ -81,7 +81,7 @@ Remarque :
 La fonction "Genetic stats visualization" du 'make plot' se base sur le programme "plotting/visualize_gen_stats.py". Ce programme utiliser un chemin d'accès encodé en dur. Afin de réaliser cette opération sur le fichier souhaité, il est nécessaire de vérifier que le chemin d'accès dans le programme python soit bien celui retourné à l'adresse "gen_log_file=".
 
 =========
-Assitance 
+Assistance 
 =========
 
 L'utilisateur peut aussi entrer "make help" dans le terminal afin d'obtenir les différentes commandes possibles.
