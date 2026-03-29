@@ -257,7 +257,8 @@ double Simulateur::executer(OptiSauvetageGeneral::ParamsRescue* chromo) {  // em
                 }
                 
                 // Vérifie l'échec du sauvetage (après 60s ou phase terminée)
-                if ( (temps_sauvetage >= temps_max_essai_sauvetage && !rescue_successful)) {  //(config.getString("rescue_strategy") != "GEN_GIVE") &&  
+                if ( (config.getString("rescue_strategy") != "GEN_GIVE" || config.getString("rescue_strategy") != "GEN_FIND" ) 
+                    && (temps_sauvetage >= temps_max_essai_sauvetage && !rescue_successful)) {  //(config.getString("rescue_strategy") != "GEN_GIVE") &&  
                     if (sim_logs_enabled()) {
                         std::cout << "[T=" << t << "s] ✗ SAUVETAGE ECHOUE (abandon après 60s)" << std::endl;
                         std::cout << "  - Altitude: " << avion.get_altitude() << " m" << std::endl;

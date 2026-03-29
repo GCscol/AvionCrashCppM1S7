@@ -6,9 +6,9 @@ import pandas as pd
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parent.parent
-    csv_path = root / "output_file" / "genetic_alg" / "gen_stats_chr_1000gen.txt"
-    out_path = root / "output_file" / "genetic_alg" / "gen_best_chr_xgen.png"
+    root = Path(__file__).resolve().parent.parent 
+    csv_path = root / "output_file" / "genetic_alg" / "Test Example (dont delete)" /"gen_stats_chr_400gen_400plane_70kept_7mut_fixed_final.txt"
+    out_path = root / "output_file" / "genetic_alg" / "gen_stats_chr_400gen_400plane_70kept_7mut_fixed_final.png"
 
     if not csv_path.exists():
         print(f"Fichier introuvable: {csv_path}")
@@ -55,22 +55,9 @@ def main() -> None:
 
     def plot_best(ax, col, ylabel, title, color):
         ax.plot(best["generation"], best[col], color=color, linewidth=2, marker="o", markersize=4)
-        if len(generations) > 2:
-            z = np.polyfit(best["generation"], best[col], 1)
-            p = np.poly1d(z)
-            ax.plot(
-                best["generation"],
-                p(best["generation"]),
-                color=color,
-                linewidth=1,
-                linestyle="--",
-                alpha=0.5,
-                label=f"Tendance ({z[0]:+.4f}/gen)",
-            )
-            ax.legend(fontsize=9)
         ax.set_ylabel(ylabel, fontsize=11)
         ax.set_title(title, fontsize=12)
-        ax.grid(axis="y", linestyle="--", alpha=0.4)
+        ax.grid( alpha=0.4)
 
     plot_best(axes[0], "fitness", "Fitness", "Meilleure fitness par génération", "seagreen")
     plot_best(axes[1], "altitude", "Altitude (m)", "Altitude du meilleur par génération", "steelblue")
